@@ -1,0 +1,24 @@
+.figure { display: grid; gap: var(--space-2); }
+.svg { display: block; width: 100%; height: auto; overflow: visible; }
+
+.axis { stroke: var(--ink-500); stroke-width: 2; stroke-dasharray: 2 5; stroke-linecap: round; }
+.band {
+  fill: color-mix(in oklch, var(--green-700) 22%, transparent);
+  stroke: var(--green-700);
+  stroke-width: 2;
+}
+.birth { fill: var(--clay-600); stroke: var(--paper-100); stroke-width: 2; }
+
+.bandLabel, .year, .yearStrong {
+  font-family: var(--font-body);
+  font-size: 13px;
+  fill: var(--ink-700);
+}
+.bandLabel { font-weight: 700; letter-spacing: 0.04em; fill: var(--green-800); }
+.yearStrong { font-weight: 700; fill: var(--ink-900); }
+
+.caption {
+  font-size: var(--text-sm);
+  color: var(--ink-700);
+  max-width: 36ch;
+}

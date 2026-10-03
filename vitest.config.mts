@@ -46,14 +46,14 @@ export default defineConfig({
   },
   test: {
     environment: "node",
-    include: ["src/**/*.test.ts", "scripts/**/*.test.ts"],
+    include: ["src/**/*.test.{ts,tsx}", "scripts/**/*.test.ts"],
     exclude: ["e2e/**", "node_modules/**", ".next/**"],
     coverage: {
       provider: "v8",
       reporter: ["text-summary", "lcov"],
       include: ["src/**/*.ts"],
       exclude: [
-        "src/**/*.test.ts",
+        "src/**/*.test.{ts,tsx}",
         "src/app/**",
         "src/**/*.d.ts",
       ],

@@ -11,8 +11,8 @@ Tickets are numbered in dependency order (blockers first) and follow the PLAN §
 
 | # | Ticket | Slice | Status | Blocked by |
 |---|---|---|---|---|
-| 01 | [Repo, CI and quality gates](issues/01-repo-ci-quality-gates.md) | 1 | ready-for-agent | None |
-| 02 | [Meet Margaret shows music Cues from fixtures](issues/02-meet-margaret-music-cues.md) | 1 | ready-for-agent | 01 |
+| 01 | [Repo, CI and quality gates](issues/01-repo-ci-quality-gates.md) | 1 | resolved (human gates pending) | None |
+| 02 | [Meet Margaret shows music Cues from fixtures](issues/02-meet-margaret-music-cues.md) | 1 | resolved | 01 |
 | 03 | [Life Story wizard with a resumable local draft](issues/03-life-story-wizard-draft.md) | 2a | ready-for-agent | 02 |
 | 04 | [Seeds and Avoid List resolve through Qloo; a finished Life Story builds a music Kit](issues/04-seeds-avoid-resolve.md) | 2a | ready-for-agent | 03 |
 | 05 | [Resilient Qloo client: params, cache, retry and call budget](issues/05-qloo-client-resilience.md) | 2b-i | ready-for-agent | 04 |
@@ -44,10 +44,10 @@ Tickets are numbered in dependency order (blockers first) and follow the PLAN §
 
 CORE tickets: 01-13, 15-25 and 29. Ticket 14 is the prototype and check-in. Tickets 26-28 are should-haves. Ticket 30 is a stretch goal, and the first cut (R10 cut order: 8c → 8b depth → the slice 7 judge).
 
-## Frontier (as of 2026-10-03; nothing is done yet)
+## Frontier (as of 2026-10-03; tickets 01 and 02 are done)
 
 **Ready now:**
-- **01** Repo, CI and quality gates
+- **03** Life Story wizard with a resumable local draft
 
 **Next to unlock, along the critical path:** 02 → 03 → 04 → 05 → 06 → 07 → 08 → … → 21 → 24 → 25 → 29.
 

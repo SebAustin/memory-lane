@@ -1,0 +1,33 @@
+/*
+ * Monogram tones. Fixed colours on purpose: the picture sits on the photo mat,
+ * which stays light in dark mode (photographs do not invert). Initials are
+ * >= 7:1 against the tone background.
+ */
+.monogram {
+  display: block;
+  width: 100%;
+  height: auto;
+  --mono-bg: oklch(85% 0.07 45);
+  --mono-mid: oklch(78% 0.09 40);
+  --mono-fg: oklch(30% 0.08 40);
+}
+.monogram[data-tone="1"] { --mono-bg: oklch(86% 0.05 150); --mono-mid: oklch(77% 0.07 155); --mono-fg: oklch(28% 0.06 155); }
+.monogram[data-tone="2"] { --mono-bg: oklch(88% 0.09 88);  --mono-mid: oklch(80% 0.10 80);  --mono-fg: oklch(32% 0.07 70); }
+.monogram[data-tone="3"] { --mono-bg: oklch(85% 0.04 245); --mono-mid: oklch(76% 0.06 250); --mono-fg: oklch(28% 0.07 255); }
+.monogram[data-tone="4"] { --mono-bg: oklch(84% 0.05 335); --mono-mid: oklch(75% 0.08 340); --mono-fg: oklch(30% 0.09 340); }
+.monogram[data-tone="5"] { --mono-bg: oklch(85% 0.05 195); --mono-mid: oklch(76% 0.07 200); --mono-fg: oklch(28% 0.06 200); }
+
+.bg { fill: var(--mono-bg); }
+.mid { fill: var(--mono-mid); }
+.line { fill: none; stroke: var(--mono-fg); stroke-width: 2; opacity: 0.22; }
+.motif { opacity: 0.9; }
+
+.initials {
+  fill: var(--mono-fg);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 104px;
+  font-weight: 500;
+  font-variation-settings: "SOFT" 100;
+  letter-spacing: -0.02em;
+}

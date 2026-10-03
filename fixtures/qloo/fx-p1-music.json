@@ -1,0 +1,626 @@
+{
+  "success": true,
+  "duration": 0,
+  "results": {
+    "entities": [
+      {
+        "entity_id": "fx-artist-loretta-lynn",
+        "name": "Loretta Lynn",
+        "type": "urn:entity:artist",
+        "properties": {
+          "description": "Hand-made fixture for Loretta Lynn."
+        },
+        "tags": [
+          {
+            "tag_id": "fx-tag-country",
+            "name": "Country",
+            "type": "urn:tag:genre:music"
+          },
+          {
+            "tag_id": "fx-tag-honky-tonk",
+            "name": "Honky-tonk",
+            "type": "urn:tag:genre:music"
+          },
+          {
+            "tag_id": "fx-tag-nashville-sound",
+            "name": "Nashville sound",
+            "type": "urn:tag:genre:music"
+          }
+        ],
+        "popularity": 0.95,
+        "query": {
+          "affinity": 0.94,
+          "affinity_rank": 1,
+          "explainability": {
+            "fx-artist-patsy-cline": 0.88,
+            "fx-film-move-over-darling": 0.34
+          }
+        }
+      },
+      {
+        "entity_id": "fx-artist-brenda-lee",
+        "name": "Brenda Lee",
+        "type": "urn:entity:artist",
+        "properties": {
+          "image": "https://fixtures.invalid/brenda-lee.jpg",
+          "description": "Hand-made fixture for Brenda Lee."
+        },
+        "tags": [
+          {
+            "tag_id": "fx-tag-traditional-pop",
+            "name": "Traditional pop",
+            "type": "urn:tag:genre:music"
+          },
+          {
+            "tag_id": "fx-tag-rock-and-roll",
+            "name": "Rock and roll",
+            "type": "urn:tag:genre:music"
+          },
+          {
+            "tag_id": "fx-tag-nashville-sound",
+            "name": "Nashville sound",
+            "type": "urn:tag:genre:music"
+          }
+        ],
+        "popularity": 0.93,
+        "query": {
+          "affinity": 0.92,
+          "affinity_rank": 2,
+          "explainability": {
+            "fx-artist-patsy-cline": 0.81,
+            "fx-film-pillow-talk": 0.42
+          }
+        }
+      },
+      {
+        "entity_id": "fx-artist-skeeter-davis",
+        "name": "Skeeter Davis",
+        "type": "urn:entity:artist",
+        "properties": {
+          "description": "Hand-made fixture for Skeeter Davis."
+        },
+        "tags": [
+          {
+            "tag_id": "fx-tag-country",
+            "name": "Country",
+            "type": "urn:tag:genre:music"
+          },
+          {
+            "tag_id": "fx-tag-nashville-sound",
+            "name": "Nashville sound",
+            "type": "urn:tag:genre:music"
+          },
+          {
+            "tag_id": "fx-tag-traditional-pop",
+            "name": "Traditional pop",
+            "type": "urn:tag:genre:music"
+          }
+        ],
+        "popularity": 0.91,
+        "query": {
+          "affinity": 0.9,
+          "affinity_rank": 3,
+          "explainability": {
+            "fx-artist-patsy-cline": 0.86
+          }
+        }
+      },
+      {
+        "entity_id": "fx-artist-kitty-wells",
+        "name": "Kitty Wells",
+        "type": "urn:entity:artist",
+        "properties": {
+          "description": "Hand-made fixture for Kitty Wells."
+        },
+        "tags": [
+          {
+            "tag_id": "fx-tag-country",
+            "name": "Country",
+            "type": "urn:tag:genre:music"
+          },
+          {
+            "tag_id": "fx-tag-honky-tonk",
+            "name": "Honky-tonk",
+            "type": "urn:tag:genre:music"
+          }
+        ],
+        "popularity": 0.89,
+        "query": {
+          "affinity": 0.89,
+          "affinity_rank": 4,
+          "explainability": {
+            "fx-artist-patsy-cline": 0.79,
+            "fx-film-move-over-darling": 0.3
+          }
+        }
+      },
+      {
+        "entity_id": "fx-artist-jim-reeves",
+        "name": "Jim Reeves",
+        "type": "urn:entity:artist",
+        "properties": {
+          "description": "Hand-made fixture for Jim Reeves."
+        },
+        "tags": [
+          {
+            "tag_id": "fx-tag-country",
+            "name": "Country",
+            "type": "urn:tag:genre:music"
+          },
+          {
+            "tag_id": "fx-tag-nashville-sound",
+            "name": "Nashville sound",
+            "type": "urn:tag:genre:music"
+          },
+          {
+            "tag_id": "fx-tag-easy-listening",
+            "name": "Easy listening",
+            "type": "urn:tag:genre:music"
+          }
+        ],
+        "popularity": 0.87,
+        "query": {
+          "affinity": 0.87,
+          "affinity_rank": 5,
+          "explainability": {
+            "fx-artist-patsy-cline": 0.77
+          }
+        }
+      },
+      {
+        "entity_id": "fx-artist-connie-francis",
+        "name": "Connie Francis",
+        "type": "urn:entity:artist",
+        "properties": {
+          "description": "Hand-made fixture for Connie Francis."
+        },
+        "tags": [
+          {
+            "tag_id": "fx-tag-traditional-pop",
+            "name": "Traditional pop",
+            "type": "urn:tag:genre:music"
+          },
+          {
+            "tag_id": "fx-tag-girl-group-pop",
+            "name": "Pop vocal",
+            "type": "urn:tag:genre:music"
+          }
+        ],
+        "popularity": 0.85,
+        "query": {
+          "affinity": 0.86,
+          "affinity_rank": 6,
+          "explainability": {
+            "fx-film-pillow-talk": 0.74,
+            "fx-artist-patsy-cline": 0.4
+          }
+        }
+      },
+      {
+        "entity_id": "fx-artist-elvis-presley",
+        "name": "Elvis Presley",
+        "type": "urn:entity:artist",
+        "properties": {
+          "image": {
+            "url": "https://fixtures.invalid/elvis-presley.jpg"
+          },
+          "description": "Hand-made fixture for Elvis Presley."
+        },
+        "tags": [
+          {
+            "tag_id": "fx-tag-rock-and-roll",
+            "name": "Rock and roll",
+            "type": "urn:tag:genre:music"
+          },
+          {
+            "tag_id": "fx-tag-country",
+            "name": "Country",
+            "type": "urn:tag:genre:music"
+          },
+          {
+            "tag_id": "fx-tag-memphis-sound",
+            "name": "Memphis sound",
+            "type": "urn:tag:scene:music"
+          }
+        ],
+        "popularity": 0.83,
+        "query": {
+          "affinity": 0.85,
+          "affinity_rank": 7,
+          "explainability": {
+            "fx-artist-patsy-cline": 0.52,
+            "fx-film-pillow-talk": 0.47
+          }
+        }
+      },
+      {
+        "entity_id": "fx-artist-johnny-cash",
+        "name": "Johnny Cash",
+        "type": "urn:entity:artist",
+        "properties": {
+          "description": "Hand-made fixture for Johnny Cash."
+        },
+        "tags": [
+          {
+            "tag_id": "fx-tag-country",
+            "name": "Country",
+            "type": "urn:tag:genre:music"
+          },
+          {
+            "tag_id": "fx-tag-rock-and-roll",
+            "name": "Rock and roll",
+            "type": "urn:tag:genre:music"
+          },
+          {
+            "tag_id": "fx-tag-memphis-sound",
+            "name": "Memphis sound",
+            "type": "urn:tag:scene:music"
+          }
+        ],
+        "popularity": 0.81,
+        "query": {
+          "affinity": 0.83,
+          "affinity_rank": 8,
+          "explainability": {
+            "fx-artist-patsy-cline": 0.68
+          }
+        }
+      },
+      {
+        "entity_id": "fx-artist-dolly-parton",
+        "name": "Dolly Parton",
+        "type": "urn:entity:artist",
+        "properties": {
+          "description": "Hand-made fixture for Dolly Parton."
+        },
+        "tags": [
+          {
+            "tag_id": "fx-tag-country",
+            "name": "Country",
+            "type": "urn:tag:genre:music"
+          },
+          {
+            "tag_id": "fx-tag-nashville-sound",
+            "name": "Nashville sound",
+            "type": "urn:tag:genre:music"
+          }
+        ],
+        "popularity": 0.79,
+        "query": {
+          "affinity": 0.82,
+          "affinity_rank": 9,
+          "explainability": {
+            "fx-artist-patsy-cline": 0.72,
+            "fx-film-move-over-darling": 0.35
+          }
+        }
+      },
+      {
+        "entity_id": "fx-artist-roy-orbison",
+        "name": "Roy Orbison",
+        "type": "urn:entity:artist",
+        "properties": {
+          "description": "Hand-made fixture for Roy Orbison."
+        },
+        "tags": [
+          {
+            "tag_id": "fx-tag-rock-and-roll",
+            "name": "Rock and roll",
+            "type": "urn:tag:genre:music"
+          },
+          {
+            "tag_id": "fx-tag-traditional-pop",
+            "name": "Traditional pop",
+            "type": "urn:tag:genre:music"
+          },
+          {
+            "tag_id": "fx-tag-memphis-sound",
+            "name": "Memphis sound",
+            "type": "urn:tag:scene:music"
+          }
+        ],
+        "popularity": 0.77,
+        "query": {
+          "affinity": 0.8,
+          "affinity_rank": 10,
+          "explainability": {
+            "fx-artist-patsy-cline": 0.45,
+            "fx-film-pillow-talk": 0.38
+          }
+        }
+      },
+      {
+        "entity_id": "fx-artist-eddy-arnold",
+        "name": "Eddy Arnold",
+        "type": "urn:entity:artist",
+        "properties": {
+          "description": "Hand-made fixture for Eddy Arnold."
+        },
+        "tags": [
+          {
+            "tag_id": "fx-tag-country",
+            "name": "Country",
+            "type": "urn:tag:genre:music"
+          },
+          {
+            "tag_id": "fx-tag-nashville-sound",
+            "name": "Nashville sound",
+            "type": "urn:tag:genre:music"
+          },
+          {
+            "tag_id": "fx-tag-easy-listening",
+            "name": "Easy listening",
+            "type": "urn:tag:genre:music"
+          }
+        ],
+        "popularity": 0.75,
+        "query": {
+          "affinity": 0.79,
+          "affinity_rank": 11,
+          "explainability": {
+            "fx-artist-patsy-cline": 0.7
+          }
+        }
+      },
+      {
+        "entity_id": "fx-artist-marty-robbins",
+        "name": "Marty Robbins",
+        "type": "urn:entity:artist",
+        "properties": {
+          "description": "Hand-made fixture for Marty Robbins."
+        },
+        "tags": [
+          {
+            "tag_id": "fx-tag-country",
+            "name": "Country",
+            "type": "urn:tag:genre:music"
+          },
+          {
+            "tag_id": "fx-tag-traditional-pop",
+            "name": "Traditional pop",
+            "type": "urn:tag:genre:music"
+          }
+        ],
+        "popularity": 0.73,
+        "query": {
+          "affinity": 0.78,
+          "affinity_rank": 12,
+          "explainability": {
+            "fx-artist-patsy-cline": 0.64,
+            "fx-film-move-over-darling": 0.31
+          }
+        }
+      },
+      {
+        "entity_id": "fx-artist-nat-king-cole",
+        "name": "Nat King Cole",
+        "type": "urn:entity:artist",
+        "properties": {
+          "description": "Hand-made fixture for Nat King Cole."
+        },
+        "tags": [
+          {
+            "tag_id": "fx-tag-traditional-pop",
+            "name": "Traditional pop",
+            "type": "urn:tag:genre:music"
+          },
+          {
+            "tag_id": "fx-tag-easy-listening",
+            "name": "Easy listening",
+            "type": "urn:tag:genre:music"
+          }
+        ],
+        "popularity": 0.71,
+        "query": {
+          "affinity": 0.76,
+          "affinity_rank": 13,
+          "explainability": {
+            "fx-film-pillow-talk": 0.69
+          }
+        }
+      },
+      {
+        "entity_id": "fx-artist-perry-como",
+        "name": "Perry Como",
+        "type": "urn:entity:artist",
+        "properties": {
+          "description": "Hand-made fixture for Perry Como."
+        },
+        "tags": [
+          {
+            "tag_id": "fx-tag-traditional-pop",
+            "name": "Traditional pop",
+            "type": "urn:tag:genre:music"
+          },
+          {
+            "tag_id": "fx-tag-easy-listening",
+            "name": "Easy listening",
+            "type": "urn:tag:genre:music"
+          }
+        ],
+        "popularity": 0.69,
+        "query": {
+          "affinity": 0.74,
+          "affinity_rank": 14,
+          "explainability": {
+            "fx-film-pillow-talk": 0.66,
+            "fx-film-move-over-darling": 0.33
+          }
+        }
+      },
+      {
+        "entity_id": "fx-artist-carla-thomas",
+        "name": "Carla Thomas",
+        "type": "urn:entity:artist",
+        "properties": {
+          "description": "Hand-made fixture for Carla Thomas."
+        },
+        "tags": [
+          {
+            "tag_id": "fx-tag-soul",
+            "name": "Soul",
+            "type": "urn:tag:genre:music"
+          },
+          {
+            "tag_id": "fx-tag-memphis-sound",
+            "name": "Memphis sound",
+            "type": "urn:tag:scene:music"
+          }
+        ],
+        "popularity": 0.67,
+        "query": {
+          "affinity": 0.72,
+          "affinity_rank": 15,
+          "explainability": {
+            "fx-film-pillow-talk": 0.36
+          }
+        }
+      },
+      {
+        "entity_id": "fx-artist-sam-cooke",
+        "name": "Sam Cooke",
+        "type": "urn:entity:artist",
+        "properties": {
+          "description": "Hand-made fixture for Sam Cooke."
+        },
+        "tags": [
+          {
+            "tag_id": "fx-tag-soul",
+            "name": "Soul",
+            "type": "urn:tag:genre:music"
+          },
+          {
+            "tag_id": "fx-tag-gospel-roots",
+            "name": "Gospel roots",
+            "type": "urn:tag:genre:music"
+          }
+        ],
+        "popularity": 0.65,
+        "query": {
+          "affinity": 0.7,
+          "affinity_rank": 16,
+          "explainability": {
+            "fx-artist-patsy-cline": 0.37
+          }
+        }
+      },
+      {
+        "entity_id": "fx-artist-otis-redding",
+        "name": "Otis Redding",
+        "type": "urn:entity:artist",
+        "properties": {
+          "description": "Hand-made fixture for Otis Redding."
+        },
+        "tags": [
+          {
+            "tag_id": "fx-tag-soul",
+            "name": "Soul",
+            "type": "urn:tag:genre:music"
+          },
+          {
+            "tag_id": "fx-tag-memphis-sound",
+            "name": "Memphis sound",
+            "type": "urn:tag:scene:music"
+          }
+        ],
+        "popularity": 0.63,
+        "query": {
+          "affinity": 0.68,
+          "affinity_rank": 17,
+          "explainability": {
+            "fx-artist-patsy-cline": 0.32
+          }
+        }
+      },
+      {
+        "entity_id": "fx-artist-aretha-franklin",
+        "name": "Aretha Franklin",
+        "type": "urn:entity:artist",
+        "properties": {
+          "description": "Hand-made fixture for Aretha Franklin."
+        },
+        "tags": [
+          {
+            "tag_id": "fx-tag-soul",
+            "name": "Soul",
+            "type": "urn:tag:genre:music"
+          },
+          {
+            "tag_id": "fx-tag-gospel-roots",
+            "name": "Gospel roots",
+            "type": "urn:tag:genre:music"
+          }
+        ],
+        "popularity": 0.61,
+        "query": {
+          "affinity": 0.66,
+          "affinity_rank": 18,
+          "explainability": {
+            "fx-artist-patsy-cline": 0.35
+          }
+        }
+      },
+      {
+        "entity_id": "fx-artist-jerry-lee-lewis",
+        "name": "Jerry Lee Lewis",
+        "type": "urn:entity:artist",
+        "properties": {
+          "description": "Hand-made fixture for Jerry Lee Lewis."
+        },
+        "tags": [
+          {
+            "tag_id": "fx-tag-rock-and-roll",
+            "name": "Rock and roll",
+            "type": "urn:tag:genre:music"
+          },
+          {
+            "tag_id": "fx-tag-memphis-sound",
+            "name": "Memphis sound",
+            "type": "urn:tag:scene:music"
+          },
+          {
+            "tag_id": "fx-tag-country",
+            "name": "Country",
+            "type": "urn:tag:genre:music"
+          }
+        ],
+        "popularity": 0.59,
+        "query": {
+          "affinity": 0.63,
+          "affinity_rank": 19,
+          "explainability": {
+            "fx-artist-patsy-cline": 0.41
+          }
+        }
+      },
+      {
+        "entity_id": "fx-artist-ray-price",
+        "name": "Ray Price",
+        "type": "urn:entity:artist",
+        "properties": {
+          "description": "Hand-made fixture for Ray Price."
+        },
+        "tags": [
+          {
+            "tag_id": "fx-tag-country",
+            "name": "Country",
+            "type": "urn:tag:genre:music"
+          },
+          {
+            "tag_id": "fx-tag-honky-tonk",
+            "name": "Honky-tonk",
+            "type": "urn:tag:genre:music"
+          }
+        ],
+        "popularity": 0.57,
+        "query": {
+          "affinity": 0.6,
+          "affinity_rank": 20,
+          "explainability": {
+            "fx-artist-patsy-cline": 0.55
+          }
+        }
+      }
+    ]
+  }
+}

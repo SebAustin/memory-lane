@@ -1,0 +1,154 @@
+/* A Cue as a mounted photograph: paper mat, tilt, tape, and a lift on hover. */
+.card {
+  --tilt: 0deg;
+  /* The mat stays light in dark mode, so text inside it uses the mat's own ink. */
+  --mat-muted: color-mix(in oklch, var(--mat-ink) 72%, var(--mat));
+  --mat-soft: color-mix(in oklch, var(--mat-ink) 86%, var(--mat));
+  --mat-hairline: color-mix(in oklch, var(--mat-ink) 16%, transparent);
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  height: 100%;
+  padding: var(--space-3) var(--space-3) var(--space-4);
+  background: var(--mat);
+  color: var(--mat-ink);
+  border-radius: var(--radius-photo);
+  box-shadow: var(--shadow-photo);
+  transform: rotate(var(--tilt));
+  transition: transform var(--dur-normal) var(--ease-settle);
+}
+.card[data-tilt="a"] { --tilt: var(--tilt-a); }
+.card[data-tilt="b"] { --tilt: var(--tilt-b); }
+.card[data-tilt="c"] { --tilt: var(--tilt-c); }
+
+/* The lift shadow fades in on its own layer: only opacity animates, never the shadow itself. */
+.card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: var(--shadow-lift);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-normal) var(--ease-out);
+}
+.card:hover { transform: rotate(0deg) translateY(-6px); }
+.card:hover::after { opacity: 1; }
+
+/* A strip of tape on some cards. */
+.card[data-taped="true"]::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  top: -0.7rem;
+  left: 50%;
+  width: 4.5rem;
+  height: 1.5rem;
+  margin-left: -2.25rem;
+  background: var(--tape);
+  transform: rotate(-4deg);
+  clip-path: polygon(0 8%, 4% 0, 8% 10%, 12% 0, 100% 0, 96% 50%, 100% 100%, 8% 100%, 4% 90%, 0 100%, 3% 50%);
+}
+
+.photo {
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: color-mix(in oklch, var(--mat-ink) 10%, var(--mat));
+  box-shadow: inset 0 0 0 1px var(--mat-hairline);
+}
+.image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-inline: var(--space-1);
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--mat-muted);
+}
+.glyph { flex: none; width: 1.1rem; height: 1.1rem; }
+.year::before { content: "\00b7"; margin-right: var(--space-2); }
+
+.name {
+  font-size: var(--text-lg);
+  font-weight: 560;
+  line-height: var(--lh-snug);
+  letter-spacing: -0.01em;
+}
+
+.why {
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  color: var(--mat-soft);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: auto;
+  padding-top: var(--space-2);
+  list-style: none;
+}
+.tags li {
+  padding: 0.15rem 0.7rem;
+  border: 1px solid var(--mat-hairline);
+  border-radius: var(--radius-pill);
+  background: color-mix(in oklch, var(--mat-ink) 6%, var(--mat));
+  font-size: var(--text-xs);
+  color: var(--mat-soft);
+}
+
+/* The first card is the featured spread: larger, with a bigger name. */
+@media (min-width: 48rem) {
+  .card[data-featured="true"] .name { font-size: var(--text-xl); }
+  .card[data-featured="true"] .why { font-size: var(--text-base); }
+}
+
+/* In the 2x2 featured slot the picture takes whatever height the slot has. */
+@media (min-width: 64rem) {
+  .card[data-featured="true"] .photo { position: relative; flex: 1 1 auto; }
+  .card[data-featured="true"] .photo > * {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .card[data-featured="true"] .image { object-fit: cover; }
+}
+
+/* Motion explains flow: cards settle onto the page. Transform and opacity only. */
+@media (prefers-reduced-motion: no-preference) {
+  .card {
+    animation: settle var(--dur-settle) var(--ease-settle) backwards;
+    animation-delay: calc(min(var(--enter, 0), 8) * 45ms);
+  }
+}
+@keyframes settle {
+  from {
+    opacity: 0;
+    transform: translateY(18px) rotate(calc(var(--tilt) * 2.2));
+  }
+}
+
+@media (forced-colors: active) {
+  .card { border: 1px solid CanvasText; }
+  .tags li { border-color: CanvasText; }
+}

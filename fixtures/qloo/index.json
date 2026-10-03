@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "insights": [
+    {
+      "type": "urn:entity:artist",
+      "location": "Memphis",
+      "file": "fx-p1-music.json"
+    }
+  ]
+}

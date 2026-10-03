@@ -1,0 +1,200 @@
+/* The album spread. Mobile first; the left page becomes a sticky margin at 64rem. */
+.kit {
+  padding-block: var(--space-5) var(--space-6);
+}
+
+.kicker {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--clay-600);
+}
+.kicker::before {
+  content: "";
+  width: 2rem;
+  border-top: 2px dashed currentColor;
+}
+
+.intro { display: grid; gap: var(--space-3); margin-bottom: var(--space-5); }
+.title {
+  font-size: var(--text-2xl);
+  line-height: var(--lh-tight);
+  letter-spacing: -0.02em;
+  font-weight: 500;
+}
+.lede {
+  max-width: var(--measure);
+  font-size: var(--text-lg);
+  line-height: var(--lh-snug);
+  color: var(--ink-700);
+}
+
+.notices { display: grid; gap: var(--space-3); margin-bottom: var(--space-5); }
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--notice-bd);
+  border-left-width: 6px;
+  border-radius: var(--radius-page);
+  background: var(--notice-bg);
+  color: var(--notice-fg);
+  font-size: var(--text-sm);
+}
+.notice svg { flex: none; margin-top: 0.1rem; }
+.notice[data-level="error"] { background: var(--error-bg); color: var(--error-fg); border-color: var(--error-bd); }
+
+.spread { display: grid; gap: var(--space-6); align-items: start; }
+
+/* Left page: the Person, a sheet of album paper with a stitched edge. */
+.leftPage {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border: 1px solid var(--rule);
+  border-left: 3px dashed var(--ink-500);
+  border-radius: var(--radius-page);
+  background: var(--paper-100);
+  box-shadow: var(--shadow-photo);
+}
+.identity { display: grid; gap: var(--space-2); }
+.personName {
+  font-size: var(--text-2xl);
+  line-height: var(--lh-tight);
+  letter-spacing: -0.02em;
+}
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-4);
+  font-weight: 700;
+  color: var(--ink-700);
+}
+.facts span + span::before {
+  content: "\00b7";
+  margin-right: var(--space-4);
+  color: var(--clay-600);
+}
+
+.block { display: grid; gap: var(--space-2); }
+.blockTitle {
+  font-family: var(--font-body);
+  font-variation-settings: normal;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-700);
+}
+.seeds { display: flex; flex-wrap: wrap; gap: var(--space-2); list-style: none; }
+.seed {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 2.25rem;
+  padding: 0.25rem 0.9rem 0.25rem 0.7rem;
+  border: 1px solid var(--rule);
+  /* A luggage tag: notched on the left. */
+  clip-path: polygon(0.7rem 0, 100% 0, 100% 100%, 0.7rem 100%, 0 50%);
+  padding-left: 1.3rem;
+  background: var(--paper-50);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--ink-900);
+}
+.seedGlyph { width: 1rem; height: 1rem; color: var(--green-700); }
+
+.avoid {
+  border-top: 1px dashed var(--rule);
+  padding-top: var(--space-3);
+  font-size: var(--text-sm);
+}
+.avoid summary {
+  min-height: var(--tap-min);
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--ink-900);
+}
+.avoidNote { margin-top: var(--space-2); color: var(--ink-700); }
+.avoid ul { margin-top: var(--space-2); padding-left: var(--space-5); list-style: disc; color: var(--ink-900); }
+
+/* Right page: the Cues. */
+.sectionHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-5);
+  margin-bottom: var(--space-5);
+  padding-bottom: var(--space-3);
+  border-bottom: 2px solid var(--ink-900);
+}
+.sectionTitle {
+  font-size: var(--text-xl);
+  letter-spacing: -0.01em;
+}
+.count { font-weight: 700; color: var(--ink-700); }
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-6) var(--space-5);
+  padding-block-start: var(--space-3); /* room for tape and tilt */
+  list-style: none;
+}
+.cell { min-width: 0; }
+
+.gap {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-5);
+  border: 2px dashed var(--rule);
+  border-radius: var(--radius-page);
+  color: var(--ink-700);
+}
+.gap h3 { font-size: var(--text-lg); color: var(--ink-900); }
+
+@media (min-width: 30rem) {
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cell[data-featured="true"] { grid-column: span 2; }
+}
+
+@media (min-width: 48rem) {
+  .leftPage {
+    grid-template-columns: 1fr 1fr;
+    column-gap: var(--space-6);
+    align-items: start;
+  }
+  .identity { grid-column: 1; grid-row: 1; }
+  .timeline { grid-column: 2; grid-row: 1 / span 2; }
+  .seedsBlock { grid-column: 1; grid-row: 2; }
+  .avoidBlock { grid-column: 1 / -1; grid-row: 3; }
+
+  /* A stepped baseline: every third card sits lower, like prints pinned by hand.
+     `translate` is compositor-only and leaves the grid rows untouched. */
+  .cell:nth-child(3n + 2) { translate: 0 var(--space-4); }
+}
+
+@media (min-width: 64rem) {
+  .spread { grid-template-columns: minmax(18rem, 22rem) minmax(0, 1fr); gap: var(--space-7); }
+  /* Three columns; the featured Cue takes 2x2, so 15 Cues fill the page with no orphan. */
+  .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .cell[data-featured="true"] { grid-row: span 2; }
+  .leftPage {
+    position: sticky;
+    top: var(--space-5);
+    grid-template-columns: 1fr;
+  }
+  .identity, .timeline, .seedsBlock, .avoidBlock { grid-column: auto; grid-row: auto; }
+}
+
+@media print {
+  .leftPage { box-shadow: none; }
+}

@@ -1,0 +1,301 @@
+/* Landing: "The Family Album" as an editorial opening. Mobile first. */
+
+/* ---------------------------------------------------------------- hero */
+.hero {
+  display: grid;
+  gap: var(--space-6);
+  align-items: center;
+  padding-block: var(--space-5) var(--space-6);
+}
+
+.copy { display: grid; gap: var(--space-4); justify-items: start; }
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--clay-600);
+}
+.eyebrow::before { content: ""; width: 2.5rem; border-top: 2px dashed currentColor; }
+
+/* The LCP element: the headline. Text only, so it paints as soon as the font swaps. */
+.headline {
+  font-size: var(--text-hero);
+  line-height: var(--lh-tight);
+  letter-spacing: -0.025em;
+  font-weight: 450;
+  max-width: 12ch;
+}
+.headline em {
+  font-style: italic;
+  font-variation-settings: "SOFT" 100;
+  color: var(--clay-600);
+}
+
+.lede {
+  max-width: 34rem;
+  font-size: var(--text-lg);
+  line-height: var(--lh-snug);
+  color: var(--ink-700);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-5);
+  margin-top: var(--space-2);
+}
+
+.primary {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--tap-primary);
+  padding-inline: var(--space-5) var(--space-4);
+  border-radius: var(--radius-control);
+  background: var(--green-800);
+  color: var(--paper-50);
+  font-size: var(--text-base);
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 3px 0 color-mix(in oklch, var(--green-800) 55%, black), var(--shadow-photo);
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+.arrow { transition: transform var(--dur-normal) var(--ease-settle); }
+.primary:hover { transform: translateY(-2px); }
+.primary:hover .arrow { transform: translateX(4px); }
+.primary:active { transform: translateY(2px); box-shadow: 0 1px 0 color-mix(in oklch, var(--green-800) 55%, black); }
+
+.secondary {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-min);
+  font-weight: 700;
+  color: var(--ink-900);
+  text-decoration: underline;
+  text-decoration-color: var(--clay-600);
+  text-decoration-thickness: 3px;
+  text-underline-offset: 0.3em;
+  transition: text-underline-offset var(--dur-fast) var(--ease-out);
+}
+.secondary:hover { text-underline-offset: 0.45em; color: var(--clay-600); }
+
+.assurance { font-size: var(--text-sm); color: var(--ink-700); }
+
+/* ----------------------------------------------------------- the album */
+.album { display: grid; gap: var(--space-4); justify-items: center; }
+
+.stack {
+  position: relative;
+  width: min(100%, 30rem);
+  aspect-ratio: 1 / 1.32;
+}
+
+.polaroid {
+  --tilt: 0deg;
+  position: absolute;
+  width: 54%;
+  padding: var(--space-2) var(--space-2) var(--space-3);
+  background: var(--mat);
+  color: var(--mat-ink);
+  border-radius: var(--radius-photo);
+  box-shadow: var(--shadow-photo);
+  transform: rotate(var(--tilt));
+}
+.polaroid[data-position="a"] { --tilt: var(--tilt-a); top: 0; left: 0; z-index: 1; }
+.polaroid[data-position="b"] { --tilt: var(--tilt-b); top: 27%; right: 0; z-index: 3; }
+.polaroid[data-position="c"] { --tilt: var(--tilt-c); top: 61%; left: 7%; z-index: 2; }
+
+/* Tape on the first two prints. */
+.polaroid[data-position="a"]::before,
+.polaroid[data-position="b"]::before {
+  content: "";
+  position: absolute;
+  top: -0.6rem;
+  left: 50%;
+  width: 4rem;
+  height: 1.35rem;
+  margin-left: -2rem;
+  background: var(--tape);
+  transform: rotate(-5deg);
+  clip-path: polygon(0 8%, 4% 0, 8% 10%, 12% 0, 100% 0, 96% 50%, 100% 100%, 8% 100%, 4% 90%, 0 100%, 3% 50%);
+}
+.polaroid[data-position="b"]::before { transform: rotate(4deg); }
+
+.print {
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--mat-ink) 16%, transparent);
+}
+.polaroidMeta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: var(--space-2) var(--space-1) 0;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: color-mix(in oklch, var(--mat-ink) 72%, var(--mat));
+}
+.polaroidGlyph { flex: none; width: 1rem; height: 1rem; }
+.polaroidName {
+  margin: 0 var(--space-1);
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  font-weight: 560;
+  line-height: var(--lh-snug);
+}
+
+.caption {
+  display: grid;
+  gap: var(--space-1);
+  max-width: 24rem;
+  text-align: center;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: var(--text-base);
+  line-height: var(--lh-snug);
+  color: var(--ink-700);
+}
+.captionLabel {
+  font-family: var(--font-body);
+  font-style: normal;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-700);
+}
+
+/* Prints settle onto the page, one after another. Transform and opacity only. */
+@media (prefers-reduced-motion: no-preference) {
+  .polaroid {
+    animation: settle var(--dur-settle) var(--ease-settle) backwards;
+  }
+  .polaroid[data-position="b"] { animation-delay: 140ms; }
+  .polaroid[data-position="c"] { animation-delay: 280ms; }
+}
+@keyframes settle {
+  from {
+    opacity: 0;
+    transform: translateY(26px) rotate(calc(var(--tilt) * 2.4));
+  }
+}
+
+/* ------------------------------------------------------------ sections */
+.sectionTitle {
+  font-size: var(--text-xl);
+  letter-spacing: -0.01em;
+  margin-bottom: var(--space-5);
+}
+
+.how {
+  padding-block: var(--space-6);
+  border-top: 2px dashed var(--rule);
+}
+
+.steps {
+  display: grid;
+  gap: var(--space-5);
+  list-style: none;
+  counter-reset: step;
+}
+.step {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-5) var(--space-5);
+  counter-increment: step;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-page);
+  background: var(--paper-100);
+  box-shadow: var(--shadow-photo);
+  color: var(--ink-700);
+}
+.step::before {
+  content: counter(step);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: var(--text-2xl);
+  line-height: 1;
+  color: var(--clay-600);
+}
+.stepTitle {
+  font-size: var(--text-lg);
+  color: var(--ink-900);
+  letter-spacing: -0.01em;
+}
+
+.difference { padding-block: var(--space-6) var(--space-4); }
+.panels { display: grid; gap: var(--space-5); }
+.panel {
+  display: grid;
+  gap: var(--space-3);
+  align-content: start;
+  padding: var(--space-5);
+  border-radius: var(--radius-page);
+}
+.panel[data-kind="generic"] {
+  border: 2px dashed var(--rule);
+  color: var(--ink-700);
+}
+.panel[data-kind="qloo"] {
+  border: 1px solid var(--rule);
+  background: var(--paper-100);
+  box-shadow: var(--shadow-photo);
+  color: var(--ink-900);
+}
+.panelLabel {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-700);
+}
+.struck { list-style: none; display: grid; gap: var(--space-2); font-size: var(--text-lg); }
+.struck li {
+  width: fit-content;
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
+  text-decoration-color: var(--clay-600);
+  color: var(--ink-700);
+}
+.picks { display: flex; flex-wrap: wrap; gap: var(--space-2); list-style: none; }
+.picks li {
+  padding: 0.35rem 1rem;
+  border: 1px solid var(--green-700);
+  border-radius: var(--radius-pill);
+  background: color-mix(in oklch, var(--green-700) 14%, transparent);
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 560;
+}
+.panelNote { font-size: var(--text-sm); color: var(--ink-700); max-width: 36ch; }
+
+/* -------------------------------------------------------- breakpoints */
+@media (min-width: 48rem) {
+  .steps { grid-template-columns: repeat(3, 1fr); align-items: start; }
+  /* Stepped, not uniform: the middle page sits lower, like a spread. */
+  .step:nth-child(2) { margin-top: var(--space-6); }
+  .step:nth-child(3) { margin-top: var(--space-4); }
+  .panels { grid-template-columns: 1fr 1fr; }
+  .panel[data-kind="generic"] { transform: rotate(-0.6deg); }
+}
+
+@media (min-width: 64rem) {
+  .hero {
+    grid-template-columns: 7fr 5fr;
+    gap: var(--space-7);
+    padding-block: var(--space-6) var(--space-7);
+  }
+}
+
+@media (forced-colors: active) {
+  .primary { border: 2px solid ButtonText; }
+  .polaroid, .step, .panel { border: 1px solid CanvasText; }
+}

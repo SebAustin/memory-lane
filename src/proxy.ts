@@ -11,12 +11,20 @@ import { buildSecurityHeaders, generateNonce } from "@/config/security-headers";
  * Unsafe `QLOO_IMAGE_HOSTS` entries are dropped here (fail closed); the same
  * value is rejected at boot by `getServerConfig`.
  */
+const LOOPBACK_HOSTS: ReadonlySet<string> = new Set(["localhost", "127.0.0.1", "[::1]"]);
+
+/** True only for plain-http loopback requests (local `next start`/`next dev`). */
+function isInsecureLoopback({ protocol, hostname }: URL): boolean {
+  return protocol === "http:" && LOOPBACK_HOSTS.has(hostname);
+}
+
 export function proxy(request: NextRequest): NextResponse {
   const nonce = generateNonce();
   const headers = buildSecurityHeaders({
     nonce,
     imageHosts: parseImageHosts(process.env.QLOO_IMAGE_HOSTS).hosts,
     isDevelopment: process.env.NODE_ENV === "development",
+    upgradeInsecure: !isInsecureLoopback(request.nextUrl),
   });
 
   const requestHeaders = new Headers(request.headers);

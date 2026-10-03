@@ -2,7 +2,8 @@ import { NextRequest } from "next/server";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { proxy } from "./proxy";
 
-const run = (path = "/") => proxy(new NextRequest(`http://localhost${path}`));
+const run = (path = "/", origin = "https://memory-lane.example") =>
+  proxy(new NextRequest(`${origin}${path}`));
 const csp = (res: Response) => res.headers.get("content-security-policy") ?? "";
 const nonceOf = (res: Response) => /'nonce-([^']+)'/.exec(csp(res))?.[1];
 
@@ -72,5 +73,22 @@ describe("proxy security headers (NFR-16)", () => {
 
     vi.stubEnv("NODE_ENV", "production");
     expect(csp(run())).not.toContain("'unsafe-eval'");
+  });
+
+  it("drops upgrade-insecure-requests only for plain-http loopback (WebKit would break local runs)", () => {
+    for (const origin of ["http://localhost:3100", "http://127.0.0.1:3100", "http://[::1]:3100"]) {
+      expect(csp(run("/", origin)), origin).not.toContain("upgrade-insecure-requests");
+    }
+  });
+
+  it("keeps upgrade-insecure-requests for every other origin, even http ones", () => {
+    for (const origin of [
+      "https://memory-lane.example",
+      "https://localhost:3100",
+      "http://memory-lane.example",
+      "http://localhost.evil.example",
+    ]) {
+      expect(csp(run("/", origin)), origin).toContain("upgrade-insecure-requests");
+    }
   });
 });

@@ -1,0 +1,83 @@
+.shell {
+  position: relative;
+  z-index: 1; /* above the grain layer */
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  overflow-x: clip; /* tilted elements never cause a horizontal scrollbar */
+}
+
+.skip {
+  position: absolute;
+  top: var(--space-3);
+  left: var(--space-3);
+  z-index: 10;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-control);
+  background: var(--ink-900);
+  color: var(--paper-50);
+  font-weight: 700;
+  text-decoration: none;
+  transform: translateY(-200%);
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+.skip:focus-visible { transform: translateY(0); }
+
+.header {
+  padding-block: var(--space-4);
+}
+.headerInner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--tap-min);
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  font-variation-settings: "SOFT" 100;
+  letter-spacing: -0.015em;
+  color: var(--ink-900);
+  text-decoration: none;
+}
+.wordmark:hover .mark { transform: rotate(-8deg); }
+.mark {
+  flex: none;
+  transition: transform var(--dur-normal) var(--ease-settle);
+}
+.markPaper { fill: var(--mat); stroke: var(--ink-900); stroke-width: 1.5; }
+.markCorner { fill: var(--clay-600); }
+.markDot { fill: var(--green-700); }
+
+.main {
+  flex: 1;
+  outline: none; /* focus lands here from the skip link; it is not a control */
+}
+
+.footer {
+  margin-top: var(--space-section);
+  padding-block: var(--space-5);
+  border-top: 2px dashed var(--rule); /* the album's stitching */
+}
+.footerInner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-5);
+}
+.advice {
+  font-size: var(--text-sm);
+  color: var(--ink-700);
+}
+.sign {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: var(--text-sm);
+  color: var(--ink-500);
+}

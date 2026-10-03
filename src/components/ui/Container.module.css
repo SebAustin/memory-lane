@@ -1,0 +1,7 @@
+.container {
+  width: min(100% - 2 * var(--gutter), var(--container-max));
+  margin-inline: auto;
+}
+@media (min-width: 90rem) {
+  .container { width: min(100% - 2 * var(--gutter), 96rem); }
+}

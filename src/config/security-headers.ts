@@ -9,6 +9,13 @@ export interface HeaderOptions {
   readonly imageHosts: readonly string[];
   /** Dev needs `'unsafe-eval'` for React's debugging stacks; production never does. */
   readonly isDevelopment: boolean;
+  /**
+   * `upgrade-insecure-requests` (default true). Only plain-http loopback
+   * requests turn it off: WebKit would otherwise upgrade every subresource of
+   * `http://localhost` to https and fail, so local WebKit runs (and the iPad
+   * E2E project) get no styles or scripts. Real deployments are https-only.
+   */
+  readonly upgradeInsecure?: boolean;
 }
 
 /** A fresh 128-bit, base64 nonce. Must be unique per request. */
@@ -17,7 +24,12 @@ export function generateNonce(): string {
   return btoa(String.fromCharCode(...bytes));
 }
 
-export function buildCsp({ nonce, imageHosts, isDevelopment }: HeaderOptions): string {
+export function buildCsp({
+  nonce,
+  imageHosts,
+  isDevelopment,
+  upgradeInsecure = true,
+}: HeaderOptions): string {
   const scriptSrc = ["'self'", `'nonce-${nonce}'`, "'strict-dynamic'"];
   if (isDevelopment) scriptSrc.push("'unsafe-eval'");
 
@@ -33,7 +45,7 @@ export function buildCsp({ nonce, imageHosts, isDevelopment }: HeaderOptions): s
     "frame-ancestors 'none'",
     "base-uri 'self'",
     "form-action 'self'",
-    "upgrade-insecure-requests",
+    ...(upgradeInsecure ? ["upgrade-insecure-requests"] : []),
   ].join("; ");
 }
 
