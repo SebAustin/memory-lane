@@ -1,0 +1,16 @@
+node_modules/
+.next/
+out/
+coverage/
+playwright-report/
+test-results/
+.env
+.env*.local
+.vercel
+.remember/
+*.tsbuildinfo
+.DS_Store
+next-env.d.ts
+*.pem
+.pnpm-debug.log*
+.claude/settings.local.json
