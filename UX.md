@@ -557,3 +557,14 @@ All three keep AAA contrast, 48 px targets, and Skip, Pause and End in the botto
 4. **Atkinson Hyperlegible Next** family name to verify at build.
 5. **Mistaken Distressed taps.** Persistent Undo; validated in the prototypes.
 6. **No bundled third-party artwork.**
+
+## Decision: Session Mode direction (check-in (b), 2026-10-03)
+
+The user picked **Variant C, "Run of Show"**, as the production Session Mode. Its pieces:
+- A Caregiver console with a running-order list of steps, each with a Reaction chip.
+- Prompts presented as a checklist.
+- Reactions in their own row on the bottom bar.
+- A "Show to the Person" toggle that opens a large, clean view.
+- A Distressed Reaction returns automatically to the console.
+
+The reference implementation is `src/app/prototype/session-mode/VariantC.tsx`. Treat it as a reference only, and delete the prototype route once ticket 17 ships. Variants A and B are discarded.

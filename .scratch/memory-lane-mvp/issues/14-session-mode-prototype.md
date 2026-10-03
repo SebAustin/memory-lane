@@ -31,3 +31,7 @@ Build three throwaway Session Mode directions, so the user can pick one at check
 - One Playwright smoke check that each `?variant=` renders the Cue title and the bottom bar (`e2e/prototype.spec.ts`, deleted with the prototype).
 
 ## Comments
+
+## Comments
+
+- 2026-10-03 (orchestrator): the variant decision was pulled forward. Three prototypes were built at `src/app/prototype/session-mode/` and the user picked **Variant C, "Run of Show"** (recorded in UX.md under "Decision: Session Mode direction"). This ticket is reduced to the **templates review only**, which happens once ticket 09 lands. Ticket 17 is unblocked on the variant question.
