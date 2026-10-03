@@ -8,7 +8,7 @@ Status: **v3**, 2026-10-03. Deadline 2026-10-30 23:45 ET.
 
 **Open items.** **[QLOO-GATED]** marks an item that only the Qloo key can settle. Each one has a default and a named check in slice K. Nothing else is open.
 
-**Deviations from REQUIREMENTS** (for user sign-off at check-in (a)):
+**Deviations from REQUIREMENTS** (**signed off by the user 2026-10-03 at check-in (a)**):
 - **FR-9 (partial).** FR-9 asks for an agent tool loop that calls Qloo and composes. The work is split:
   - The **server prefetches** the baseline candidates (fingerprint plus 6 domains) with no model. This makes the run fast, deterministic, and the source for the fallback.
   - The **agent** then makes its own bounded Qloo calls: up to 2 `expand_theme` (deepening a fingerprint tag) and up to 2 `rerank_cues`. Then it composes.
