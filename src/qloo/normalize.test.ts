@@ -75,6 +75,19 @@ describe("normalizeEntity images", () => {
     }
   });
 
+  it("rejects an explicit port, so an allow-listed host cannot be used to reach another service", () => {
+    for (const url of [
+      "https://images.qloo.example:8443/a.jpg",
+      "https://images.qloo.example:444/a.jpg",
+    ]) {
+      expect(normalizeEntity(raw({ image: url }), HOSTS)?.imageUrl, url).toBeNull();
+    }
+    // The default port written out is normalized away by URL parsing, so it stays valid.
+    expect(
+      normalizeEntity(raw({ image: "https://images.qloo.example:443/a.jpg" }), HOSTS)?.imageUrl,
+    ).toBe("https://images.qloo.example:443/a.jpg");
+  });
+
   it("allows no image at all when the allow-list is empty (monogram mode)", () => {
     const entity = normalizeEntity(raw({ image: "https://images.qloo.example/a.jpg" }), []);
     expect(entity?.imageUrl).toBeNull();
@@ -125,6 +138,7 @@ describe("normalizeEntity fields", () => {
     ["empty name", raw({}, { name: "" })],
     ["numeric id", raw({}, { entity_id: 7 })],
     ["id over 64 chars", raw({}, { entity_id: "x".repeat(65) })],
+    ["name over the 120-character contract limit", raw({}, { name: "N".repeat(121) })],
   ])("returns null for %s", (_label, value) => {
     expect(normalizeEntity(value, HOSTS)).toBeNull();
   });
@@ -147,6 +161,28 @@ describe("normalizeEntity fields", () => {
     );
     expect(entity?.tags).toEqual([{ id: "t1", name: "Country" }]);
     expect(entity?.year).toBeUndefined();
+  });
+
+  it("keeps a name at exactly the 120-character limit", () => {
+    expect(normalizeEntity(raw({}, { name: "N".repeat(120) }), HOSTS)?.name).toHaveLength(120);
+  });
+
+  it("drops tags whose id exceeds 64 characters or whose name exceeds 80, keeping the entity", () => {
+    const entity = normalizeEntity(
+      raw(
+        {},
+        {
+          tags: [
+            { tag_id: "ok", name: "Fine" },
+            { tag_id: "x".repeat(65), name: "Long id" },
+            { tag_id: "long-name", name: "n".repeat(81) },
+            { tag_id: "edge", name: "n".repeat(80) },
+          ],
+        },
+      ),
+      HOSTS,
+    );
+    expect(entity?.tags.map((t) => t.id)).toEqual(["ok", "edge"]);
   });
 
   it("keeps only numeric explainability scores", () => {

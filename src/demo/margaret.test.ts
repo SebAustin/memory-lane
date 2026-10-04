@@ -8,13 +8,13 @@ import {
 } from "@/demo/margaret";
 import { reminiscenceWindow } from "@/domain/window";
 
-describe("the Margaret demo persona (P1)", () => {
+describe("the Margaret Demo Person (P1)", () => {
   it("is a valid Life Story with the public demo id", () => {
     const parsed = LifeStory.parse(MARGARET);
     expect(parsed.id).toBe("demo-margaret");
   });
 
-  it("matches the persona in the brief: b. 1946, Memphis, Middle stage", () => {
+  it("matches the Demo Person in the brief: b. 1946, Memphis, Middle stage", () => {
     expect(MARGARET).toMatchObject({
       firstName: "Margaret",
       birthYear: 1946,
@@ -50,12 +50,16 @@ describe("what leaves the device for Margaret", () => {
   it("has a digest without her first name", () => {
     expect(LifeStoryDigest.safeParse(MARGARET_DIGEST).success).toBe(true);
     expect(JSON.stringify(MARGARET_DIGEST)).not.toContain("Margaret");
-    expect(MARGARET_DIGEST.seedNames).toEqual(MARGARET.seeds.map((seed) => seed.name));
+    expect(MARGARET_DIGEST.seeds).toEqual(
+      MARGARET.seeds.map(({ entityId, name }) => ({ entityId, name })),
+    );
   });
 
   it("has a Taste Profile built from her Seeds and Avoid topics", () => {
     expect(TasteProfile.safeParse(MARGARET_PROFILE).success).toBe(true);
-    expect(MARGARET_PROFILE.seedIds).toEqual(MARGARET.seeds.map((seed) => seed.entityId));
+    expect(MARGARET_PROFILE.seeds).toEqual(
+      MARGARET.seeds.map(({ entityId, name }) => ({ entityId, name })),
+    );
     expect(MARGARET_PROFILE.avoidTopics).toEqual(["Vietnam War", "Tennessee Waltz"]);
   });
 

@@ -33,3 +33,7 @@ Bring every surface to the "Family Album" design bar in both themes, with every 
 - An overflow check: `document.documentElement.scrollWidth <= innerWidth` at 320, 375, 768, 1024, 1440 and 1920 px.
 
 ## Comments
+
+- 2026-10-03 (orchestrator, visual check of slice 1): the featured 2×2 Cue card on the Kit page is too dominant at 1440px. The monogram fills most of the viewport. Cap the featured card size, or make it 2×1 at wide breakpoints.
+
+- 2026-10-03 (builder, slice 1 review): **L9 and L10, polish debt.** L9: the landing hero stack uses percentages tuned at 1440 and 375, so check 320, 768 and 1920 for print overlap. L10: Atkinson Hyperlegible Next has no fallback metrics (`next build` warns 'Failed to find font override values'), so measure CLS from the font swap and consider `next/font/local` with vendored files, which also lets `next build` run offline.

@@ -49,3 +49,5 @@ The Kit route is hardened:
 - Seams: 2 injected `fetch`, 5 recording `LanguageModel`, 4 `KvCache` (daily cap), 8 handler factories, 9 `getServerConfig`, 10 clock.
 
 ## Comments
+
+- 2026-10-03 (builder, slice 1 review): **M7, runtime RSC canary scan.** `scan:bundle` covers `.next/static/**` only, so a secret leaking through a server component's RSC payload or HTML would not be caught. Add a runtime check: boot `next start` with canary keys, fetch every route plus `/api/kit`, and assert no canary appears in any response body or header. It belongs here because this ticket owns the privacy spy.

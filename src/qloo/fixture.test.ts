@@ -121,7 +121,7 @@ describe("FixtureQlooClient.insights", () => {
     expect(env.status).toBe("empty");
   });
 
-  it("builds a paramsKey that is stable and free of free text", async () => {
+  it("builds a paramsKey that is stable (it may hold the Hometown; the first name never reaches Qloo)", async () => {
     const a = await client().insights(music({ interests: ["b", "a"], take: 5 }));
     const b = await client().insights(music({ take: 5, interests: ["b", "a"] }));
 
@@ -194,7 +194,7 @@ describe("bundled P1 music fixtures", () => {
     expect(names).not.toContain("Patti Page");
   });
 
-  it("never exposes an image: no host is allow-listed yet, so cards show monograms", async () => {
+  it("never exposes an image: no host is allow-listed yet, so Cues show monograms", async () => {
     const env = await bundled().insights({ ...memphis, take: 50 });
     expect(env.data?.entities.every((e) => e.imageUrl === null)).toBe(true);
   });
@@ -212,8 +212,8 @@ describe("createQlooClient", () => {
     expect(env.data?.entities).toHaveLength(3);
   });
 
-  it("refuses live mode until the HTTP client lands (ticket 05)", () => {
-    const cfg = getServerConfig({ QLOO_MODE: "live", QLOO_API_KEY: "test-key" });
+  it("refuses live mode until the HTTP client lands (ticket 05), even if config let it through", () => {
+    const cfg = { ...getServerConfig({}), qlooMode: "live" as const };
     expect(() => createQlooClient(cfg)).toThrow(/live/i);
   });
 });

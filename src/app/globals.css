@@ -34,6 +34,7 @@
   --lh-body: 1.55;
   --lh-session: 1.5;
   --measure: 62ch;
+  --measure-page: 40rem; /* narrow message pages */
   --measure-session: 40ch;
 
   --space-1: 0.25rem;
@@ -62,6 +63,8 @@
   --dur-normal: 240ms;
   --dur-slow: 480ms;
   --dur-settle: 700ms;
+  --stagger-print: 140ms; /* landing prints settle one after another */
+  --stagger-cue: 45ms; /* Cue cards settle in reading order */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-settle: cubic-bezier(0.2, 0.9, 0.25, 1.04);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
@@ -187,6 +190,8 @@
     --dur-normal: 0.01ms;
     --dur-slow: 0.01ms;
     --dur-settle: 0.01ms;
+    --stagger-print: 0ms;
+    --stagger-cue: 0ms;
   }
 }
 @media (prefers-contrast: more) {

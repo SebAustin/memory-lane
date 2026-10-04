@@ -138,7 +138,7 @@
 @media (prefers-reduced-motion: no-preference) {
   .card {
     animation: settle var(--dur-settle) var(--ease-settle) backwards;
-    animation-delay: calc(min(var(--enter, 0), 8) * 45ms);
+    animation-delay: calc(min(var(--enter, 0), 8) * var(--stagger-cue));
   }
 }
 @keyframes settle {

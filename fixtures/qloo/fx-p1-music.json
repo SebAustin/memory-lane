@@ -4,6 +4,62 @@
   "results": {
     "entities": [
       {
+        "entity_id": "fx-artist-patsy-cline",
+        "name": "Patsy Cline",
+        "type": "urn:entity:artist",
+        "properties": {
+          "description": "Hand-made fixture for Patsy Cline."
+        },
+        "tags": [
+          {
+            "tag_id": "fx-tag-country",
+            "name": "Country",
+            "type": "urn:tag:genre:music"
+          },
+          {
+            "tag_id": "fx-tag-nashville-sound",
+            "name": "Nashville sound",
+            "type": "urn:tag:genre:music"
+          }
+        ],
+        "popularity": 0.95,
+        "query": {
+          "affinity": 0.99,
+          "affinity_rank": 1,
+          "explainability": {
+            "fx-artist-patsy-cline": 0.99
+          }
+        }
+      },
+      {
+        "entity_id": "fx-artist-tennessee-waltz-revue",
+        "name": "Tennessee Waltz Revue",
+        "type": "urn:entity:artist",
+        "properties": {
+          "description": "Hand-made fixture for Tennessee Waltz Revue."
+        },
+        "tags": [
+          {
+            "tag_id": "fx-tag-country",
+            "name": "Country",
+            "type": "urn:tag:genre:music"
+          },
+          {
+            "tag_id": "fx-tag-easy-listening",
+            "name": "Easy listening",
+            "type": "urn:tag:genre:music"
+          }
+        ],
+        "popularity": 0.93,
+        "query": {
+          "affinity": 0.97,
+          "affinity_rank": 2,
+          "explainability": {
+            "fx-artist-patsy-cline": 0.7
+          }
+        }
+      },
+      {
         "entity_id": "fx-artist-loretta-lynn",
         "name": "Loretta Lynn",
         "type": "urn:entity:artist",
@@ -27,10 +83,10 @@
             "type": "urn:tag:genre:music"
           }
         ],
-        "popularity": 0.95,
+        "popularity": 0.91,
         "query": {
           "affinity": 0.94,
-          "affinity_rank": 1,
+          "affinity_rank": 3,
           "explainability": {
             "fx-artist-patsy-cline": 0.88,
             "fx-film-move-over-darling": 0.34
@@ -62,10 +118,10 @@
             "type": "urn:tag:genre:music"
           }
         ],
-        "popularity": 0.93,
+        "popularity": 0.89,
         "query": {
           "affinity": 0.92,
-          "affinity_rank": 2,
+          "affinity_rank": 4,
           "explainability": {
             "fx-artist-patsy-cline": 0.81,
             "fx-film-pillow-talk": 0.42
@@ -96,10 +152,10 @@
             "type": "urn:tag:genre:music"
           }
         ],
-        "popularity": 0.91,
+        "popularity": 0.87,
         "query": {
           "affinity": 0.9,
-          "affinity_rank": 3,
+          "affinity_rank": 5,
           "explainability": {
             "fx-artist-patsy-cline": 0.86
           }
@@ -124,10 +180,10 @@
             "type": "urn:tag:genre:music"
           }
         ],
-        "popularity": 0.89,
+        "popularity": 0.85,
         "query": {
           "affinity": 0.89,
-          "affinity_rank": 4,
+          "affinity_rank": 6,
           "explainability": {
             "fx-artist-patsy-cline": 0.79,
             "fx-film-move-over-darling": 0.3
@@ -158,10 +214,10 @@
             "type": "urn:tag:genre:music"
           }
         ],
-        "popularity": 0.87,
+        "popularity": 0.83,
         "query": {
           "affinity": 0.87,
-          "affinity_rank": 5,
+          "affinity_rank": 7,
           "explainability": {
             "fx-artist-patsy-cline": 0.77
           }
@@ -186,10 +242,10 @@
             "type": "urn:tag:genre:music"
           }
         ],
-        "popularity": 0.85,
+        "popularity": 0.81,
         "query": {
           "affinity": 0.86,
-          "affinity_rank": 6,
+          "affinity_rank": 8,
           "explainability": {
             "fx-film-pillow-talk": 0.74,
             "fx-artist-patsy-cline": 0.4
@@ -223,10 +279,10 @@
             "type": "urn:tag:scene:music"
           }
         ],
-        "popularity": 0.83,
+        "popularity": 0.79,
         "query": {
           "affinity": 0.85,
-          "affinity_rank": 7,
+          "affinity_rank": 9,
           "explainability": {
             "fx-artist-patsy-cline": 0.52,
             "fx-film-pillow-talk": 0.47
@@ -257,10 +313,10 @@
             "type": "urn:tag:scene:music"
           }
         ],
-        "popularity": 0.81,
+        "popularity": 0.77,
         "query": {
           "affinity": 0.83,
-          "affinity_rank": 8,
+          "affinity_rank": 10,
           "explainability": {
             "fx-artist-patsy-cline": 0.68
           }
@@ -285,10 +341,10 @@
             "type": "urn:tag:genre:music"
           }
         ],
-        "popularity": 0.79,
+        "popularity": 0.75,
         "query": {
           "affinity": 0.82,
-          "affinity_rank": 9,
+          "affinity_rank": 11,
           "explainability": {
             "fx-artist-patsy-cline": 0.72,
             "fx-film-move-over-darling": 0.35
@@ -319,10 +375,10 @@
             "type": "urn:tag:scene:music"
           }
         ],
-        "popularity": 0.77,
+        "popularity": 0.73,
         "query": {
           "affinity": 0.8,
-          "affinity_rank": 10,
+          "affinity_rank": 12,
           "explainability": {
             "fx-artist-patsy-cline": 0.45,
             "fx-film-pillow-talk": 0.38
@@ -353,10 +409,10 @@
             "type": "urn:tag:genre:music"
           }
         ],
-        "popularity": 0.75,
+        "popularity": 0.71,
         "query": {
           "affinity": 0.79,
-          "affinity_rank": 11,
+          "affinity_rank": 13,
           "explainability": {
             "fx-artist-patsy-cline": 0.7
           }
@@ -381,10 +437,10 @@
             "type": "urn:tag:genre:music"
           }
         ],
-        "popularity": 0.73,
+        "popularity": 0.69,
         "query": {
           "affinity": 0.78,
-          "affinity_rank": 12,
+          "affinity_rank": 14,
           "explainability": {
             "fx-artist-patsy-cline": 0.64,
             "fx-film-move-over-darling": 0.31
@@ -410,10 +466,10 @@
             "type": "urn:tag:genre:music"
           }
         ],
-        "popularity": 0.71,
+        "popularity": 0.67,
         "query": {
           "affinity": 0.76,
-          "affinity_rank": 13,
+          "affinity_rank": 15,
           "explainability": {
             "fx-film-pillow-talk": 0.69
           }
@@ -438,10 +494,10 @@
             "type": "urn:tag:genre:music"
           }
         ],
-        "popularity": 0.69,
+        "popularity": 0.65,
         "query": {
           "affinity": 0.74,
-          "affinity_rank": 14,
+          "affinity_rank": 16,
           "explainability": {
             "fx-film-pillow-talk": 0.66,
             "fx-film-move-over-darling": 0.33
@@ -467,10 +523,10 @@
             "type": "urn:tag:scene:music"
           }
         ],
-        "popularity": 0.67,
+        "popularity": 0.63,
         "query": {
           "affinity": 0.72,
-          "affinity_rank": 15,
+          "affinity_rank": 17,
           "explainability": {
             "fx-film-pillow-talk": 0.36
           }
@@ -495,10 +551,10 @@
             "type": "urn:tag:genre:music"
           }
         ],
-        "popularity": 0.65,
+        "popularity": 0.61,
         "query": {
           "affinity": 0.7,
-          "affinity_rank": 16,
+          "affinity_rank": 18,
           "explainability": {
             "fx-artist-patsy-cline": 0.37
           }
@@ -523,10 +579,10 @@
             "type": "urn:tag:scene:music"
           }
         ],
-        "popularity": 0.63,
+        "popularity": 0.59,
         "query": {
           "affinity": 0.68,
-          "affinity_rank": 17,
+          "affinity_rank": 19,
           "explainability": {
             "fx-artist-patsy-cline": 0.32
           }
@@ -551,10 +607,10 @@
             "type": "urn:tag:genre:music"
           }
         ],
-        "popularity": 0.61,
+        "popularity": 0.57,
         "query": {
           "affinity": 0.66,
-          "affinity_rank": 18,
+          "affinity_rank": 20,
           "explainability": {
             "fx-artist-patsy-cline": 0.35
           }
@@ -584,10 +640,10 @@
             "type": "urn:tag:genre:music"
           }
         ],
-        "popularity": 0.59,
+        "popularity": 0.55,
         "query": {
           "affinity": 0.63,
-          "affinity_rank": 19,
+          "affinity_rank": 21,
           "explainability": {
             "fx-artist-patsy-cline": 0.41
           }
@@ -612,10 +668,10 @@
             "type": "urn:tag:genre:music"
           }
         ],
-        "popularity": 0.57,
+        "popularity": 0.53,
         "query": {
           "affinity": 0.6,
-          "affinity_rank": 20,
+          "affinity_rank": 22,
           "explainability": {
             "fx-artist-patsy-cline": 0.55
           }

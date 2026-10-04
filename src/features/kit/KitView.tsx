@@ -82,7 +82,7 @@ function PersonPage({ story, window }: Pick<KitViewProps, "story" | "window">) {
       {avoidList.length > 0 && (
         <details className={`${styles.avoid} ${styles.avoidBlock}`}>
           <summary>Avoid List: {avoidList.length}</summary>
-          <p className={styles.avoidNote}>Kept out of the Kit and out of conversation Prompts.</p>
+          <p className={styles.avoidNote}>Cues whose names match these are left out of the Kit.</p>
           <ul>
             {avoidList.map((item) => (
               <li key={avoidLabel(item)}>{avoidLabel(item)}</li>

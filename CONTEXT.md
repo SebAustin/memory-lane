@@ -2,6 +2,8 @@
 
 Helps people who care for someone living with dementia run personalized reminiscence sessions, using cultural cues that people of the same era and place loved.
 
+> **Code vs. copy.** Code identifiers, test names, tickets and docs use the canonical terms below. User-facing copy addressed to Caregivers may use plain words instead ("era", "favorites"), because that is how families talk. "Patient" is never used, in copy or anywhere else.
+
 ## People
 
 **Person**:
@@ -26,6 +28,10 @@ _Avoid_: Profile, intake, patient record
 Where the Person grew up. It is the location signal for cultural affinity.
 _Avoid_: Birthplace, origin
 
+**Young-Adult City**:
+Where the Person lived in early adulthood, if it differs from the Hometown. It is a secondary location signal.
+_Avoid_: Second city, later address
+
 **Care Location**:
 Where the Person lives now. It anchors any suggested outings or local places.
 _Avoid_: Address, facility
@@ -46,6 +52,10 @@ _Avoid_: Severity, level
 The span of years when the Person was roughly 10–30 years old. Memories from this "reminiscence bump" are the most vivid and lasting.
 _Avoid_: Era, decade, nostalgia range
 
+**Widen**:
+A Caregiver-requested extension of one Domain's Reminiscence Window by 3 years when too few Cues are found.
+_Avoid_: Expand, relax
+
 **Taste Profile**:
 The current set of Seeds, Learned Favorites and Exclusions used to ask Qloo for cues. It evolves as Reactions are logged.
 _Avoid_: Preferences, model, persona
@@ -54,11 +64,23 @@ _Avoid_: Preferences, model, persona
 A Cue that drew an Engaged Reaction and has been promoted into the Taste Profile.
 _Avoid_: Like, upvote
 
+**Fingerprint**:
+The set of Qloo tags that the Person's Seeds have in common. It describes the shape of their taste and seeds theme expansion.
+_Avoid_: Taste tags, profile tags
+
 **Exclusion**:
 An entity or tag the Taste Profile tells Qloo to leave out, either from the Avoid List or from a Distressed Reaction.
 _Avoid_: Ban, block
 
+**Demo Person**:
+Margaret, the built-in sample Person used for the instant demo.
+_Avoid_: Persona, sample user
+
 ## Sessions
+
+**Domain**:
+The kind of cultural item a Cue is: music, film, TV, book, place or dish, or brand.
+_Avoid_: Category, type, vertical
 
 **Cue**:
 A single cultural item (an artist, a film, a TV show, a book, a place or dish, a brand) presented in a Session to spark memory and conversation. Every Cue is a Qloo entity; music Cues are artists, not individual songs.
@@ -87,6 +109,10 @@ _Avoid_: History, journal
 **Provenance**:
 Why a Cue was chosen: which Seeds and signals (age cohort, Hometown, Reminiscence Window) drove it, and Qloo's affinity score.
 _Avoid_: Explanation, reasoning, metadata
+
+**Notice**:
+A short status message shown alongside a Kit, such as "cached result", "recorded replay" or "fixture data".
+_Avoid_: Toast, alert, banner
 
 **Baseline Kit**:
 A Kit produced by the LLM alone, without Qloo. It is shown only for comparison.

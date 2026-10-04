@@ -1,5 +1,5 @@
 /**
- * The album's rhythm: which Cue cards tilt, which are taped down, which is the
+ * The album's rhythm: which Cues tilt, which are taped down, which is the
  * featured spread. Deterministic by index, so server and client render alike.
  * Session Mode ignores all of this (`[data-surface="session"]` zeroes the tilts).
  */

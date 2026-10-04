@@ -55,3 +55,5 @@ You can verify it alone through `src/qloo/http.test.ts` and `params.test.ts`.
 - Seams: 2 injected `fetch`, 3 `sleep`/`random`, 4 `KvCache`, 10 clock.
 
 ## Comments
+
+- 2026-10-03 (builder, slice 1 review): **L6, env edge parsing.** `parseEnv` trims and treats blanks as unset, but does not reject duplicate or mixed-case `QLOO_IMAGE_HOSTS` entries, ports in `QLOO_BASE_URL`, or a `QLOO_BASE_URL` that is not https. Tighten these when the HTTP client reads them. Slice 1 also refuses `QLOO_MODE=live` at boot (`assertSafe` in `src/config/server-config.ts`): lift that refusal in ticket 23 once the client is wired, and restore the `QLOO_API_KEY` requirement then.

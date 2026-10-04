@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { cspViolations, watchCsp } from "./support/csp";
 
 test.describe("skeleton smoke", () => {
   test("serves the page with the security headers on every response", async ({ request }) => {
@@ -23,14 +24,28 @@ test.describe("skeleton smoke", () => {
   });
 
   test("hydrates without a single CSP violation", async ({ page }) => {
-    const violations: string[] = [];
-    page.on("console", (msg) => {
-      if (/content security policy/i.test(msg.text())) violations.push(msg.text());
-    });
+    await watchCsp(page);
 
     await page.goto("/");
     await page.waitForLoadState("networkidle");
 
-    expect(violations).toEqual([]);
+    expect(await cspViolations(page)).toEqual([]);
+  });
+
+  test("the CSP detector really sees a violation in this engine (guards against a silent no-op)", async ({ page }) => {
+    await watchCsp(page);
+    await page.goto("/");
+
+    // `img-src` allows only our own origin, `data:`, `blob:` and allow-listed hosts, so an
+    // image from anywhere else must be blocked (before any network request) and reported.
+    await page.evaluate(() => {
+      const image = new Image();
+      image.src = "https://not-allow-listed.example/pixel.png";
+    });
+
+    // The event is queued as a task, so wait for it instead of reading straight away.
+    await page.waitForFunction(() => (window.__csp?.length ?? 0) > 0);
+    const violations = await cspViolations(page);
+    expect(violations[0]?.directive).toContain("img-src");
   });
 });

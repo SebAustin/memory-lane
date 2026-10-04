@@ -6,7 +6,7 @@ describe("cardRhythm", () => {
     expect(cardRhythm(4)).toEqual(cardRhythm(4));
   });
 
-  it("makes the first card the featured one, and only the first", () => {
+  it("makes the first Cue the featured one, and only the first", () => {
     expect(cardRhythm(0).featured).toBe(true);
     const featured = Array.from({ length: 15 }, (_, i) => cardRhythm(i)).filter((r) => r.featured);
     expect(featured).toHaveLength(1);
@@ -23,7 +23,7 @@ describe("cardRhythm", () => {
     }
   });
 
-  it("tapes some cards but not most", () => {
+  it("tapes some Cues but not most", () => {
     const taped = Array.from({ length: 15 }, (_, i) => cardRhythm(i)).filter((r) => r.taped);
     expect(taped.length).toBeGreaterThan(0);
     expect(taped.length).toBeLessThan(8);

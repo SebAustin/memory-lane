@@ -1,4 +1,3 @@
-import "server-only";
 import { z } from "zod";
 import { parseImageHosts } from "./image-hosts";
 import { BUCKET_NAMES, limitEnvVar, type BucketName, type RateLimit } from "./limits";
@@ -42,7 +41,7 @@ const envSchema = z.object({
   QLOO_IMAGE_HOSTS: z.string().optional(),
   ALLOW_MOCK_LLM: z.enum(["0", "1"]).optional(),
   QLOO_FIXTURE_FAULTS: text.optional(),
-  VERCEL_ENV: text.optional(),
+  VERCEL_ENV: z.enum(["development", "preview", "production"]).optional(),
   ...limitShape,
 });
 
@@ -57,7 +56,7 @@ export interface ServerEnv {
   readonly imageHosts: readonly string[];
   readonly allowMockLlm: boolean;
   readonly fixtureFaults: string | undefined;
-  readonly vercelEnv: string | undefined;
+  readonly vercelEnv: "development" | "preview" | "production" | undefined;
   readonly limitOverrides: Readonly<Partial<Record<BucketName, RateLimit>>>;
 }
 

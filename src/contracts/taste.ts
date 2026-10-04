@@ -1,11 +1,11 @@
 import { z } from "zod";
 import { AGE_BUCKET } from "@/domain/window";
-import { Domain, Id } from "./primitives";
+import { Domain, Id, SeedRef } from "./primitives";
 
 /** Seeds, Learned Favorites and Exclusions used to ask Qloo for Cues. */
 export const TasteProfile = z.object({
   version: z.number().int().min(0),
-  seedIds: z.array(Id).min(2).max(5),
+  seeds: z.array(SeedRef).min(2).max(5),
   learnedFavorites: z
     .array(
       z.object({

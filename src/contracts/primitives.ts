@@ -21,6 +21,13 @@ export const WidenableDomain = z.enum(["film", "tv", "book"]);
 export const Stage = z.enum(["early", "middle", "late"]);
 export type Stage = z.infer<typeof Stage>;
 
-/** A Life Story id: a uuid, or the public demo persona. */
+/** A Life Story id: a uuid, or the public Demo Person. */
 export const StoryId = z.union([z.uuid(), z.literal("demo-margaret")]);
 export type StoryId = z.infer<typeof StoryId>;
+
+/**
+ * A Seed (or Learned Favorite) as an `{entityId, name}` pair. Ids and names
+ * travel together, never as parallel arrays that could drift out of step.
+ */
+export const SeedRef = z.object({ entityId: Id, name: z.string().max(120) });
+export type SeedRef = z.infer<typeof SeedRef>;

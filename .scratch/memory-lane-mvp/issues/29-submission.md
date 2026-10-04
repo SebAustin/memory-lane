@@ -45,3 +45,5 @@ Package Memory Lane for judging:
 - The fresh-container CI job is the test for SC-14. The manual SC-16 checklist goes under Comments.
 
 ## Comments
+
+- 2026-10-03 (builder, slice 1 review): **SC-14, fresh-clone CI job.** Add a CI job that clones into an empty directory and runs exactly `pnpm install`, `cp .env.example .env.local`, `pnpm dev`, then asserts `/p/demo-margaret/kit` shows 15 `[data-entity-id]` Cues with no keys set. Slice 1 verifies the same flow only through `pnpm test:e2e` on a built tree.

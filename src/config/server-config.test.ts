@@ -1,5 +1,12 @@
-import { describe, expect, it } from "vitest";
-import { getServerConfig } from "./config";
+import { describe, expect, it, vi } from "vitest";
+import type { LogEvent } from "../lib/log";
+import { getServerConfig } from "./server-config";
+
+/** A logger that records what it was asked to log. */
+const recorder = () => {
+  const events: LogEvent[] = [];
+  return { events, log: vi.fn((event: LogEvent) => void events.push(event)) };
+};
 
 describe("getServerConfig defaults", () => {
   it("runs a clean clone in fixture mode with no keys (NFR-22)", () => {
@@ -86,61 +93,106 @@ describe("getServerConfig overrides and validation", () => {
 });
 
 describe("getServerConfig refuses unsafe combinations (R5, A31, SC-12)", () => {
-  it("throws when RATE_LIMIT_MODE=off while VERCEL_ENV is set", () => {
-    for (const vercelEnv of ["preview", "production", "development"]) {
+  it("throws when RATE_LIMIT_MODE=off while deployed (preview or production)", () => {
+    for (const vercelEnv of ["preview", "production"]) {
       expect(() =>
-        getServerConfig({ RATE_LIMIT_MODE: "off", VERCEL_ENV: vercelEnv }),
+        getServerConfig({ RATE_LIMIT_MODE: "off", VERCEL_ENV: vercelEnv }, vi.fn()),
       ).toThrow(/RATE_LIMIT_MODE=off/);
     }
   });
 
-  it("allows RATE_LIMIT_MODE=off locally (E2E)", () => {
+  it("allows RATE_LIMIT_MODE=off locally, including under `vercel dev` (E2E)", () => {
     expect(getServerConfig({ RATE_LIMIT_MODE: "off" }).rateLimitMode).toBe("off");
+    expect(
+      getServerConfig({ RATE_LIMIT_MODE: "off", VERCEL_ENV: "development" }).rateLimitMode,
+    ).toBe("off");
   });
 
   it("treats RATE_LIMIT_MODE=on with VERCEL_ENV set as normal", () => {
     expect(getServerConfig({ VERCEL_ENV: "production" }).rateLimitMode).toBe("on");
   });
 
-  it("makes live Qloo mode without QLOO_API_KEY a boot error", () => {
-    expect(() => getServerConfig({ QLOO_MODE: "live" })).toThrow(/QLOO_API_KEY/);
-    expect(() => getServerConfig({ QLOO_MODE: "live", QLOO_API_KEY: "  " })).toThrow(
-      /QLOO_API_KEY/,
+  it("rejects a VERCEL_ENV value it does not know, so nothing sneaks past the deployed check", () => {
+    expect(() => getServerConfig({ VERCEL_ENV: "staging" })).toThrow(/VERCEL_ENV/);
+  });
+
+  it("treats an empty VERCEL_ENV as unset (the E2E servers force it empty)", () => {
+    expect(getServerConfig({ VERCEL_ENV: "", RATE_LIMIT_MODE: "off" }).rateLimitMode).toBe("off");
+  });
+
+  it("refuses live Qloo mode, with or without a key, until the live client exists", () => {
+    expect(() => getServerConfig({ QLOO_MODE: "live" })).toThrow(/QLOO_MODE=live is not available/);
+    expect(() => getServerConfig({ QLOO_MODE: "live", QLOO_API_KEY: "k" })).toThrow(
+      /QLOO_MODE=live is not available/,
     );
   });
 
-  it("accepts live Qloo mode with a key", () => {
-    expect(getServerConfig({ QLOO_MODE: "live", QLOO_API_KEY: "k" }).qlooMode).toBe("live");
+  it("never echoes the Qloo key when refusing live mode", () => {
+    try {
+      getServerConfig({ QLOO_MODE: "live", QLOO_API_KEY: "sk-live-secret" });
+      expect.unreachable("should have thrown");
+    } catch (error) {
+      expect(String(error)).not.toContain("sk-live-secret");
+    }
   });
 });
 
 describe("getServerConfig dev-only flags", () => {
-  it("honours LLM_MODE=mock only with ALLOW_MOCK_LLM=1 and no VERCEL_ENV", () => {
+  it("honours LLM_MODE=mock only with ALLOW_MOCK_LLM=1 and not deployed", () => {
     expect(getServerConfig({ LLM_MODE: "mock", ALLOW_MOCK_LLM: "1" }).llmMode).toBe("mock");
+    expect(
+      getServerConfig({ LLM_MODE: "mock", ALLOW_MOCK_LLM: "1", VERCEL_ENV: "development" }).llmMode,
+    ).toBe("mock");
   });
 
-  it("ignores LLM_MODE=mock without ALLOW_MOCK_LLM", () => {
-    expect(getServerConfig({ LLM_MODE: "mock" }).llmMode).toBe("gateway");
+  it("throws, instead of falling back to the gateway, on LLM_MODE=mock without ALLOW_MOCK_LLM", () => {
+    expect(() => getServerConfig({ LLM_MODE: "mock" })).toThrow(/LLM_MODE=mock/);
+    expect(() => getServerConfig({ LLM_MODE: "mock", ALLOW_MOCK_LLM: "0" })).toThrow(/LLM_MODE=mock/);
   });
 
-  it("ignores ALLOW_MOCK_LLM when VERCEL_ENV is set", () => {
-    const config = getServerConfig({
-      LLM_MODE: "mock",
-      ALLOW_MOCK_LLM: "1",
-      VERCEL_ENV: "preview",
-    });
-
-    expect(config.llmMode).toBe("gateway");
+  it("throws on LLM_MODE=mock when deployed, even with ALLOW_MOCK_LLM=1", () => {
+    for (const vercelEnv of ["preview", "production"]) {
+      expect(() =>
+        getServerConfig({ LLM_MODE: "mock", ALLOW_MOCK_LLM: "1", VERCEL_ENV: vercelEnv }),
+      ).toThrow(/LLM_MODE=mock/);
+    }
   });
 
   it("keeps LLM_MODE=off regardless of VERCEL_ENV", () => {
     expect(getServerConfig({ LLM_MODE: "off", VERCEL_ENV: "production" }).llmMode).toBe("off");
   });
 
-  it("honours QLOO_FIXTURE_FAULTS only when VERCEL_ENV is unset", () => {
+  it("honours QLOO_FIXTURE_FAULTS unless deployed", () => {
     expect(getServerConfig({ QLOO_FIXTURE_FAULTS: "all" }).fixtureFaults).toBe("all");
     expect(
-      getServerConfig({ QLOO_FIXTURE_FAULTS: "all", VERCEL_ENV: "production" }).fixtureFaults,
+      getServerConfig({ QLOO_FIXTURE_FAULTS: "all", VERCEL_ENV: "development" }).fixtureFaults,
+    ).toBe("all");
+    expect(
+      getServerConfig({ QLOO_FIXTURE_FAULTS: "all", VERCEL_ENV: "production" }, vi.fn()).fixtureFaults,
     ).toBeUndefined();
+  });
+
+  it("logs each dev flag a deployment ignores, by name and never by value", () => {
+    const { events, log } = recorder();
+
+    getServerConfig(
+      { ALLOW_MOCK_LLM: "1", QLOO_FIXTURE_FAULTS: "book:500-secretish", VERCEL_ENV: "production" },
+      log,
+    );
+
+    expect(events).toEqual([
+      { event: "config.dev_flag_ignored", level: "warn", flag: "ALLOW_MOCK_LLM" },
+      { event: "config.dev_flag_ignored", level: "warn", flag: "QLOO_FIXTURE_FAULTS" },
+    ]);
+    expect(JSON.stringify(events)).not.toContain("secretish");
+  });
+
+  it("logs nothing for dev flags when running locally or when none are set", () => {
+    const { events, log } = recorder();
+
+    getServerConfig({ ALLOW_MOCK_LLM: "1", QLOO_FIXTURE_FAULTS: "all" }, log);
+    getServerConfig({ VERCEL_ENV: "production" }, log);
+
+    expect(events).toEqual([]);
   });
 });

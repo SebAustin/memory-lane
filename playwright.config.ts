@@ -13,6 +13,9 @@ const baseEnv = {
   QLOO_MODE: "fixture",
   LLM_MODE: "mock",
   ALLOW_MOCK_LLM: "1",
+  // The mock LLM and RATE_LIMIT_MODE=off are refused when deployed (A31).
+  // Force "not deployed" even if the developer's shell carries a VERCEL_ENV.
+  VERCEL_ENV: "",
 };
 
 const server = (port: number, rateLimitMode: "on" | "off") => ({

@@ -1,4 +1,5 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test } from "@playwright/test";
+import { cspViolations, watchCsp } from "./support/csp";
 
 /**
  * Golden path (PLAN section 8.2), the part ticket 02 owns: click 1.
@@ -7,14 +8,6 @@ import { expect, test, type Page } from "@playwright/test";
 
 const CUE = "[data-entity-id]";
 const MARGARET_KIT = "/p/demo-margaret/kit";
-
-function collectCspViolations(page: Page): string[] {
-  const violations: string[] = [];
-  page.on("console", (msg) => {
-    if (/content security policy/i.test(msg.text())) violations.push(msg.text());
-  });
-  return violations;
-}
 
 test.describe("click 1: Meet Margaret", () => {
   test("the landing page offers both ways in as plain links", async ({ page }) => {
@@ -62,6 +55,16 @@ test.describe("click 1: Meet Margaret", () => {
     }
   });
 
+  test("keeps the Avoid List true: no Seed echo and no Avoid-topic name among the Cues", async ({ page }) => {
+    await page.goto(MARGARET_KIT);
+
+    const names = await page.locator(`${CUE} h3`).allTextContents();
+    expect(names).toHaveLength(15);
+    expect(names).not.toContain("Patsy Cline");
+    for (const name of names) expect(name).not.toMatch(/tennessee waltz|vietnam war/i);
+    await expect(page.getByRole("status").filter({ hasText: "matched the Avoid List" })).toBeVisible();
+  });
+
   test("labels the data as fixture data", async ({ page }) => {
     await page.goto(MARGARET_KIT);
     await expect(page.getByRole("status").filter({ hasText: "Fixture data" })).toBeVisible();
@@ -75,7 +78,32 @@ test.describe("click 1: Meet Margaret", () => {
     await expect(aside).toContainText("Memphis");
     await expect(aside).toContainText("Patsy Cline");
     await expect(aside.getByText("Avoid List: 2")).toBeVisible();
+    await expect(aside).toContainText("Cues whose names match these are left out of the Kit.");
     await expect(aside).toContainText("1956 to 1976");
+  });
+
+  test("the landing page's Qloo sample is real fixture Cues carrying entity ids (ADR 0003)", async ({ page }) => {
+    await page.goto("/");
+
+    const picks = page.locator('[data-kind="qloo"] [data-entity-id]');
+    await expect(picks).toHaveCount(3);
+    const ids = await picks.evaluateAll((els) => els.map((el) => el.getAttribute("data-entity-id")));
+    for (const id of ids) expect(id).toMatch(/^fx-/);
+    await expect(page.locator('[data-kind="baseline"] [data-entity-id]')).toHaveCount(0);
+
+    await page.goto(MARGARET_KIT);
+    const kitNames = await page.locator(`${CUE} h3`).allTextContents();
+    const pickNames = await page.goto("/").then(() => picks.allTextContents());
+    for (const name of pickNames) expect(kitNames).toContain(name);
+  });
+
+  test("a missing page is branded: calm copy and the not-medical-advice footer", async ({ page }) => {
+    const res = await page.goto("/p/not-a-story/kit");
+
+    expect(res?.status()).toBe(404);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("We couldn't find that page");
+    await expect(page.getByText("Your Life Story is safe on this device.")).toBeVisible();
+    await expect(page.getByRole("contentinfo")).toContainText("Suggestions only, not medical advice.");
   });
 
   test("the footer carries the not-medical-advice line on both pages (FR-28)", async ({ page }) => {
@@ -85,7 +113,7 @@ test.describe("click 1: Meet Margaret", () => {
     }
   });
 
-  test("Start a Life Story reaches the intake stub", async ({ page }) => {
+  test("Start a Life Story reaches the Life Story stub", async ({ page }) => {
     await page.goto("/");
     await page.getByRole("link", { name: "Start a Life Story" }).click();
 
@@ -96,13 +124,13 @@ test.describe("click 1: Meet Margaret", () => {
   test("a story that lives on another device says so", async ({ page }) => {
     await page.goto("/p/3f1c2a9e-5b7d-4c1e-9a52-0d8f6e4b7a11/kit");
     await expect(page.getByRole("heading", { level: 1 })).toContainText("lives on another device");
-    expect((await page.request.get("/p/not-a-story/kit")).status()).toBe(404);
   });
 });
 
 test.describe("quality guards", () => {
-  test("neither page triggers a CSP violation (no inline script, no external host)", async ({ page }) => {
-    const violations = collectCspViolations(page);
+  test("no page triggers a CSP violation (no inline script, no external host)", async ({ page }) => {
+    await watchCsp(page);
+    const violations: unknown[] = [];
     const external: string[] = [];
     page.on("request", (req) => {
       const url = new URL(req.url());
@@ -111,9 +139,10 @@ test.describe("quality guards", () => {
       }
     });
 
-    for (const path of ["/", MARGARET_KIT]) {
+    for (const path of ["/", MARGARET_KIT, "/intake", "/no-such-page"]) {
       await page.goto(path);
       await page.waitForLoadState("networkidle");
+      violations.push(...(await cspViolations(page)));
     }
 
     expect(violations).toEqual([]);

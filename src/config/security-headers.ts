@@ -55,7 +55,6 @@ const PERMISSIONS_POLICY = [
   "geolocation=()",
   "payment=()",
   "usb=()",
-  "interest-cohort=()",
 ].join(", ");
 
 /** Every header sent on every response, CSP included. */

@@ -76,3 +76,48 @@ Agent, intake and store are stubbed. Until ticket 15 the Kit page gets its data 
   - The Seeds-to-store seeding (ticket 15).
   - Axe, screenshots and visual-regression specs (ticket 28). The overflow, CSP, skip-link, focus and reduced-motion checks are already in `e2e/golden.spec.ts`.
 - `next dev` re-added a "This is NOT the Next.js you know" block to `CLAUDE.md`. It is not part of this commit.
+
+### 2026-10-03, builder (Claude Opus 5.5): slice 1 review fixes
+
+All MUST and SHOULD findings are fixed in one pass (`fix: slice 1 review findings`). The DEFER items are noted in tickets 05, 06, 16, 28 and 29.
+
+- **H1, boot-time config.**
+  - Env validation moved to `src/config/server-config.ts` (no `server-only`, relative imports), and `next.config.ts` runs it, so a bad environment fails the build.
+  - `QLOO_MODE=live` is refused in `assertSafe` until ticket 05.
+  - The route wraps `getKitDeps()` and answers a JSON 500 through `jsonError`.
+  - New branded `src/app/error.tsx` and `src/app/not-found.tsx` (shared `MessagePage`, footer included).
+- **M2.**
+  - A refused `LLM_MODE=mock` now throws.
+  - Only `VERCEL_ENV` of `preview` or `production` counts as deployed. Any other value is a boot error.
+  - Ignored dev flags are logged by name only.
+  - The Playwright servers force `VERCEL_ENV: ""`.
+- **M1.** E2E CSP detection uses a `securitypolicyviolation` listener (`e2e/support/csp.ts`). A smoke test proves it fires in all three engines, because an `img-src` violation is injected on purpose.
+- **Avoid List (§14.1).**
+  - `src/domain/screening.ts` is a whole-word, plural-tolerant, accent- and case-insensitive matcher.
+  - The fixtures now include two deliberate traps: a "Tennessee Waltz Revue" entity and a Patsy Cline echo. Both are dropped, with a "Left out 1 Cue that matched the Avoid List." notice.
+  - The Avoid List copy now claims only what is true.
+- **M4.** Seeds, Learned Favorites and excluded entity ids are filtered out of Cues in code. The Kit fetches 25 and shows 15.
+- **ADR 0003 on the landing page.**
+  - The "With Qloo" names are real fixture Cues carrying `data-entity-id`.
+  - The hero prints are Margaret's own Seeds. "Beale Street" is gone.
+  - Baseline copy is renamed to Baseline and marked illustrative.
+  - The comparison section is left out if no sample Cues load.
+- **M5, M6 and the PLAN.**
+  - Seeds are `{entityId, name}` pairs in the Taste Profile and the digest.
+  - `firstName` is NFC-normalized and accepts accents, Devanagari, ’ and "Mary Ann".
+  - PLAN §4.1, §7, a new §15 and the revision log are amended. The key is `entityId` (not `id`), to match `Seed`.
+- **M3.** Entity names are bounded to 120 and tags to 64 and 80. Each Cue is parsed before it is returned, with drops logged. The handler parses the outgoing `InterimKit` before responding.
+- **Structure.** The kit core is now `src/server/kit/buildInterimKit.ts` (plus `musicCue.ts` and `demoKit.ts`), behind the `QlooClient` dependency. The handler, route and pages are thin shells. `logEvent` is in `src/lib/log.ts`.
+- **Handler (L2).** Internal errors answer 500, error values are guarded, and a broken body stream answers 400.
+- **Other SHOULD items:**
+  - The loopback CSP carve-out also needs `VERCEL_ENV` unset (L1).
+  - `interest-cohort` and the `x-nonce` request header are removed.
+  - The image allow-list requires an empty port (L5).
+  - The envelope status flows into provenance (L3).
+  - Tokens replace the hardcoded stagger durations and 40rem, and `theme-color` comes from `src/config/theme.ts`, which a test keeps in step with the CSS.
+  - The text-underline-offset transition is gone.
+  - Coverage gates now cover `src/server/**` and `src/config/**` (≥ 80%), and the validator gate matches `validator*.ts` and `validator/**`.
+  - `CueCard`, landing and error pages are tested with Testing Library (jsdom). New dev deps: `@testing-library/react`, `@testing-library/dom`, `jsdom`.
+  - The CI workflow gains a weekly and manual full-history gitleaks run. A local `gitleaks detect --log-opts=--all` found no leaks across 7 commits.
+  - Ticket 01's Status now reads "code resolved; human gates pending".
+

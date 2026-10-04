@@ -81,6 +81,25 @@ describe("proxy security headers (NFR-16)", () => {
     }
   });
 
+  it("keeps upgrade-insecure-requests on loopback when VERCEL_ENV is set (L1)", () => {
+    for (const vercelEnv of ["development", "preview", "production"]) {
+      vi.stubEnv("VERCEL_ENV", vercelEnv);
+      expect(csp(run("/", "http://localhost:3100")), vercelEnv).toContain("upgrade-insecure-requests");
+    }
+  });
+
+  it("does not forward a separate x-nonce header: Next reads the nonce from the CSP header", () => {
+    const res = run();
+    const forwarded = [...res.headers.keys()].filter((name) => name.startsWith("x-middleware-request-"));
+
+    expect(forwarded).toContain("x-middleware-request-content-security-policy");
+    expect(forwarded).not.toContain("x-middleware-request-x-nonce");
+  });
+
+  it("does not send the retired interest-cohort feature in Permissions-Policy", () => {
+    expect(run().headers.get("permissions-policy")).not.toContain("interest-cohort");
+  });
+
   it("keeps upgrade-insecure-requests for every other origin, even http ones", () => {
     for (const origin of [
       "https://memory-lane.example",

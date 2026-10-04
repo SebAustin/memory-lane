@@ -49,7 +49,10 @@ const lifeStory = () => ({
 
 const profile = () => ({
   version: 0,
-  seedIds: ["fx-artist-1", "fx-artist-2"],
+  seeds: [
+    { entityId: "fx-artist-1", name: "Seed 1" },
+    { entityId: "fx-artist-2", name: "Seed 2" },
+  ],
   learnedFavorites: [],
   exclusions: [],
   avoidTopics: ["Vietnam War"],
@@ -60,7 +63,10 @@ const digest = () => ({
   hometown: "Memphis",
   dementiaStage: "middle" as const,
   sensitiveThemesOptIn: false,
-  seedNames: ["Patsy Cline", "Pillow Talk"],
+  seeds: [
+    { entityId: "fx-artist-patsy-cline", name: "Patsy Cline" },
+    { entityId: "fx-film-pillow-talk", name: "Pillow Talk" },
+  ],
   avoidTopics: ["Vietnam War"],
 });
 
@@ -184,7 +190,6 @@ describe("LifeStory", () => {
   it("enforces the first-name, birth-year and Seed-count bounds", () => {
     expectSchema(LifeStory, lifeStory(), {
       "surname with a digit": { ...lifeStory(), firstName: "Margaret2" },
-      "full name with a space": { ...lifeStory(), firstName: "Margaret Smith" },
       "too early": { ...lifeStory(), birthYear: 1919 },
       "too late": { ...lifeStory(), birthYear: 1976 },
       "fractional year": { ...lifeStory(), birthYear: 1946.5 },
@@ -193,6 +198,37 @@ describe("LifeStory", () => {
       "bad stage": { ...lifeStory(), dementiaStage: "severe" },
       "bad id": { ...lifeStory(), id: "not-a-story" },
     });
+  });
+
+  it.each([
+    ["a plain name", "Margaret", "Margaret"],
+    ["an apostrophe", "D'Arcy", "D'Arcy"],
+    ["a typographic apostrophe, mapped to '", "O\u2019Brien", "O'Brien"],
+    ["a modifier-letter apostrophe, mapped to '", "O\u02BCBrien", "O'Brien"],
+    ["a single inner space", "Mary Ann", "Mary Ann"],
+    ["a hyphen", "Anne-Marie", "Anne-Marie"],
+    ["a precomposed accent", "Jos\u00E9", "Jos\u00E9"],
+    ["a decomposed accent, normalized to NFC", "Jose\u0301", "Jos\u00E9"],
+    ["Devanagari with combining signs", "\u0905\u0928\u093F\u0924\u093E", "\u0905\u0928\u093F\u0924\u093E"],
+    ["Arabic", "\u0645\u0631\u064A\u0645", "\u0645\u0631\u064A\u0645"],
+    ["surrounding spaces, trimmed", "  Margaret  ", "Margaret"],
+  ])("accepts first names with %s", (_label, input, expected) => {
+    const parsed = LifeStory.safeParse({ ...lifeStory(), firstName: input });
+    expect(parsed.success).toBe(true);
+    expect(parsed.data?.firstName).toBe(expected);
+  });
+
+  it.each([
+    ["two inner spaces", "Mary  Ann"],
+    ["a tab", "Mary\tAnn"],
+    ["a digit", "Margaret2"],
+    ["an email", "mary@example.com"],
+    ["only punctuation", "'-'"],
+    ["a combining mark with no letter", "\u0301"],
+    ["more than 30 characters once normalized", "A".repeat(31)],
+    ["empty after trimming", "   "],
+  ])("rejects first names with %s", (_label, input) => {
+    expect(LifeStory.safeParse({ ...lifeStory(), firstName: input }).success).toBe(false);
   });
 
   it("accepts the birth-year edges 1920 and 1975, and apostrophes in names", () => {
@@ -220,12 +256,21 @@ describe("LifeStoryDigest", () => {
     expect(LifeStoryDigest.safeParse({ ...digest(), firstName: "Margaret" }).success).toBe(false);
     expect(LifeStoryDigest.safeParse({ ...digest(), seeds: [] }).success).toBe(false);
   });
+
+  it("carries Seeds as {entityId, name} pairs, not parallel arrays", () => {
+    expect(LifeStoryDigest.safeParse({ ...digest(), seeds: [{ entityId: "a" }] }).success).toBe(false);
+    expect(LifeStoryDigest.safeParse({ ...digest(), seedNames: ["x", "y"] }).success).toBe(false);
+    const { seeds } = LifeStoryDigest.parse(digest());
+    expect(seeds[0]).toEqual({ entityId: "fx-artist-patsy-cline", name: "Patsy Cline" });
+  });
 });
 
 describe("TasteProfile and Provenance", () => {
   it("validates a TasteProfile", () => {
     expectSchema(TasteProfile, profile(), {
-      "one Seed id": { ...profile(), seedIds: ["a"] },
+      "one Seed": { ...profile(), seeds: [{ entityId: "a", name: "A" }] },
+      "Seed without a name": { ...profile(), seeds: [{ entityId: "a" }, { entityId: "b" }] },
+      "parallel id list instead of pairs": { ...profile(), seeds: undefined, seedIds: ["a", "b"] },
       "weight 4": {
         ...profile(),
         learnedFavorites: [

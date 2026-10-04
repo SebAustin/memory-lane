@@ -3,7 +3,7 @@ import type { KitRequest, LifeStory, LifeStoryDigest, TasteProfile } from "@/con
 import { deepFreeze } from "@/lib/deep-freeze";
 
 /**
- * The public demo persona P1, "Margaret, b. 1946, Memphis" (FR-1). One click on
+ * The public Demo Person P1, "Margaret, b. 1946, Memphis" (FR-1). One click on
  * the landing page opens her Kit with no signup and no keys. Seeding her into
  * the browser store comes in ticket 15; until then the Kit page reads this constant.
  *
@@ -54,14 +54,14 @@ export const MARGARET_DIGEST: LifeStoryDigest = deepFreeze({
   hometown: MARGARET.hometown,
   dementiaStage: MARGARET.dementiaStage,
   sensitiveThemesOptIn: MARGARET.sensitiveThemesOptIn,
-  seedNames: MARGARET.seeds.map((seed) => seed.name),
+  seeds: MARGARET.seeds.map(({ entityId, name }) => ({ entityId, name })),
   avoidTopics: MARGARET.avoidList.flatMap((item) => (item.kind === "topic" ? [item.text] : [])),
 });
 
 /** Margaret's starting Taste Profile: her Seeds, no Learned Favorites, no Exclusions yet. */
 export const MARGARET_PROFILE: TasteProfile = deepFreeze({
   version: 0,
-  seedIds: MARGARET.seeds.map((seed) => seed.entityId),
+  seeds: MARGARET.seeds.map(({ entityId, name }) => ({ entityId, name })),
   learnedFavorites: [],
   exclusions: [],
   avoidTopics: [...MARGARET_DIGEST.avoidTopics],

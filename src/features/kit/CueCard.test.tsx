@@ -1,7 +1,10 @@
-import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, it } from "vitest";
+// @vitest-environment jsdom
+import { cleanup, render, screen, within } from "@testing-library/react";
+import { afterEach, describe, expect, it } from "vitest";
 import type { Cue } from "@/contracts";
-import { CueCard } from "@/features/kit/CueCard";
+import { CueCard, type CueCardProps } from "@/features/kit/CueCard";
+
+afterEach(cleanup);
 
 const cue = (overrides: Partial<Cue> = {}): Cue => ({
   entityId: "fx-artist-loretta-lynn",
@@ -29,81 +32,98 @@ const cue = (overrides: Partial<Cue> = {}): Cue => ({
   ...overrides,
 });
 
-const html = (c: Cue, props: Partial<Parameters<typeof CueCard>[0]> = {}) =>
-  renderToStaticMarkup(<CueCard cue={c} personName="Margaret" index={0} {...props} />);
+function renderCue(c: Cue, props: Partial<CueCardProps> = {}) {
+  return render(<CueCard cue={c} personName="Margaret" index={0} {...props} />);
+}
 
 describe("CueCard", () => {
-  it("renders an article carrying the Qloo entity id (SC-1)", () => {
-    expect(html(cue())).toMatch(/<article[^>]*data-entity-id="fx-artist-loretta-lynn"/);
+  it("is an article carrying the Qloo entity id (SC-1)", () => {
+    renderCue(cue());
+
+    const article = screen.getByRole("article");
+    expect(article.getAttribute("data-entity-id")).toBe("fx-artist-loretta-lynn");
   });
 
-  it("names the Cue in a heading that labels the article", () => {
-    const markup = html(cue());
-    const labelledBy = /<article[^>]*aria-labelledby="([^"]+)"/.exec(markup)?.[1];
+  it("is named by its heading", () => {
+    renderCue(cue());
 
-    expect(labelledBy).toBeTruthy();
-    expect(markup).toContain(`<h3 id="${labelledBy}"`);
-    expect(markup).toMatch(/<h3[^>]*>Loretta Lynn<\/h3>/);
+    expect(screen.getByRole("article", { name: "Loretta Lynn" })).toBeTruthy();
+    expect(screen.getByRole("heading", { level: 3, name: "Loretta Lynn" })).toBeTruthy();
   });
 
   it("fills the {name} placeholder at render time", () => {
-    const markup = html(cue());
-    expect(markup).toContain("Often loved by people who share Margaret&#x27;s era, hometown and favorites.");
-    expect(markup).not.toContain("{name}");
+    renderCue(cue());
+
+    expect(
+      screen.getByText("Often loved by people who share Margaret's era, hometown and favorites."),
+    ).toBeTruthy();
+    expect(document.body.textContent).not.toContain("{name}");
   });
 
   it("shows the monogram fallback, with explicit dimensions, when there is no image", () => {
-    const markup = html(cue({ imageUrl: null }));
+    const { container } = renderCue(cue({ imageUrl: null }));
 
-    expect(markup).toMatch(/<svg[^>]*data-cue-image="monogram"/);
-    expect(markup).toMatch(/<svg[^>]*width="320"[^>]*height="240"/);
-    expect(markup).not.toContain("<img");
+    const picture = container.querySelector("[data-cue-image]");
+    expect(picture?.tagName.toLowerCase()).toBe("svg");
+    expect(picture?.getAttribute("data-cue-image")).toBe("monogram");
+    expect(picture?.getAttribute("width")).toBe("320");
+    expect(picture?.getAttribute("height")).toBe("240");
+    expect(container.querySelector("img")).toBeNull();
   });
 
-  it("shows initials in the monogram", () => {
-    expect(html(cue())).toContain(">LL</text>");
+  it("shows the Cue's initials in the monogram", () => {
+    const { container } = renderCue(cue());
+
+    expect(container.querySelector("svg[data-cue-image] text")?.textContent).toBe("LL");
   });
 
   it("renders a real image with explicit width and height, lazy by default (NFR-9)", () => {
-    const markup = html(cue({ imageUrl: "https://images.qloo.example/a.jpg" }));
+    const { container } = renderCue(cue({ imageUrl: "https://images.qloo.example/a.jpg" }));
 
-    expect(markup).toMatch(/<img[^>]*data-cue-image="photo"/);
-    expect(markup).toMatch(/<img[^>]*src="https:\/\/images\.qloo\.example\/a\.jpg"/);
-    expect(markup).toMatch(/<img[^>]*width="320"/);
-    expect(markup).toMatch(/<img[^>]*height="240"/);
-    expect(markup).toMatch(/<img[^>]*loading="lazy"/);
-    expect(markup).not.toContain("<svg data-cue-image");
+    const img = container.querySelector("img");
+    expect(img?.getAttribute("src")).toBe("https://images.qloo.example/a.jpg");
+    expect(img?.getAttribute("width")).toBe("320");
+    expect(img?.getAttribute("height")).toBe("240");
+    expect(img?.getAttribute("loading")).toBe("lazy");
+    expect(img?.getAttribute("data-cue-image")).toBe("photo");
+    expect(container.querySelector("svg[data-cue-image]")).toBeNull();
   });
 
   it("loads the first image eagerly with high priority when asked", () => {
-    const markup = html(cue({ imageUrl: "https://images.qloo.example/a.jpg" }), { eager: true });
+    const { container } = renderCue(cue({ imageUrl: "https://images.qloo.example/a.jpg" }), {
+      eager: true,
+    });
 
-    expect(markup).toMatch(/<img[^>]*loading="eager"/);
-    expect(markup).toMatch(/<img[^>]*fetchPriority="high"/i);
+    const img = container.querySelector("img");
+    expect(img?.getAttribute("loading")).toBe("eager");
+    expect(img?.getAttribute("fetchpriority")).toBe("high");
   });
 
-  it("labels the domain and shows the year when there is one", () => {
-    expect(html(cue())).toContain("Music");
-    const film = html(cue({ domain: "film", year: 1959, name: "Pillow Talk" }));
-    expect(film).toContain("Film");
-    expect(film).toContain("1959");
+  it("labels the domain, and shows the year when there is one", () => {
+    renderCue(cue({ domain: "film", year: 1959, name: "Pillow Talk" }));
+
+    const article = screen.getByRole("article", { name: "Pillow Talk" });
+    expect(within(article).getByText("Film")).toBeTruthy();
+    expect(within(article).getByText("1959")).toBeTruthy();
   });
 
-  it("lists at most the tags it is given, as a labelled list", () => {
-    const markup = html(cue());
-    expect(markup).toContain("Country");
-    expect(markup).toContain("Honky-tonk");
-    expect(markup).toContain("Nashville sound");
-    expect(markup).toMatch(/<ul[^>]*aria-label="Tags"/);
+  it("lists the three tags a Cue can carry, as a labelled list", () => {
+    renderCue(cue());
+
+    const tags = within(screen.getByRole("list", { name: "Tags" })).getAllByRole("listitem");
+    expect(tags.map((tag) => tag.textContent)).toEqual(["Country", "Honky-tonk", "Nashville sound"]);
   });
 
   it("omits the tag list when the Cue has no tags", () => {
-    expect(html(cue({ tags: [] }))).not.toContain("<ul");
+    renderCue(cue({ tags: [] }));
+
+    expect(screen.queryByRole("list")).toBeNull();
   });
 
-  it("escapes names instead of injecting markup", () => {
-    const markup = html(cue({ name: '<img src=x onerror="alert(1)">' }));
-    expect(markup).not.toContain('<img src=x');
-    expect(markup).toContain("&lt;img");
+  it("renders a hostile name as text, never as markup", () => {
+    const { container } = renderCue(cue({ name: '<img src=x onerror="alert(1)">' }));
+
+    expect(container.querySelector("img")).toBeNull();
+    expect(screen.getByRole("heading", { level: 3 }).textContent).toBe('<img src=x onerror="alert(1)">');
   });
 });

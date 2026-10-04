@@ -1,26 +1,20 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { SiteChrome } from "@/components/site/SiteChrome";
-import { Container } from "@/components/ui/Container";
-import styles from "./intake.module.css";
+import { MessagePage, PrimaryLink } from "@/components/site/MessagePage";
 
 export const metadata: Metadata = { title: "Start a Life Story" };
 
-/** Stub (ticket 02): the six-step wizard lands in ticket 03. */
-export default function IntakePage() {
+/** Stub (ticket 02): the six-step Life Story wizard lands in ticket 03. The `/intake` path is fixed by PLAN section 3.6. */
+export default function StartLifeStoryPage() {
   return (
-    <SiteChrome>
-      <Container className={styles.wrap}>
-        <p className={styles.kicker}>Life Story</p>
-        <h1 className={styles.title}>Start a Life Story</h1>
-        <p className={styles.body}>
-          The Life Story steps are not ready yet. Meet Margaret to see what a Kit looks like in the
-          meantime.
-        </p>
-        <Link className={styles.link} href="/p/demo-margaret/kit">
-          Meet Margaret
-        </Link>
-      </Container>
-    </SiteChrome>
+    <MessagePage
+      kicker="Life Story"
+      title="Start a Life Story"
+      actions={<PrimaryLink href="/p/demo-margaret/kit">Meet Margaret</PrimaryLink>}
+    >
+      <p>
+        The Life Story steps are not ready yet. Meet Margaret to see what a Kit looks like in the
+        meantime.
+      </p>
+    </MessagePage>
   );
 }

@@ -1,6 +1,6 @@
 # 01: Repo, CI and quality gates
 
-Status: resolved (code complete; human-gated items pending: `vercel link` / `vercel env ls`, public GitHub repo, first push)
+Status: code resolved; human gates pending (`vercel link` / `vercel env ls`, public GitHub repo, first push)
 Blocked by: None (can start immediately)
 Slice: 1 Skeleton (CORE), part 1 of 2 · Size: S-M · Spec: ../spec.md
 

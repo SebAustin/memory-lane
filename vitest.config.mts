@@ -22,12 +22,18 @@ const uniform = (pct: number): Threshold => ({
 /**
  * Coverage gates (SC-15, NFR-23). A gate is only registered once the files it
  * guards exist, so the skeleton is green while later tickets land the modules:
- * src/domain/** >= 80%, src/domain/validator.ts >= 90%, src/qloo/** >= 80%.
+ * src/domain/** >= 80%, the validator >= 90%, src/qloo/** >= 80%, plus
+ * src/server/** and src/config/** >= 80%. Ticket 10 may name the validator
+ * `validator.ts`, `validator*.ts` or `validator/*.ts` (its ticket allows the
+ * first and the last), so each form has its own gate and registers when present.
  */
 const gates: ReadonlyArray<readonly [glob: string, probe: string, pct: number]> = [
   ["src/domain/**", "src/domain", 80],
-  ["src/domain/validator.ts", "src/domain/validator.ts", 90],
+  ["src/domain/validator*.ts", "src/domain/validator.ts", 90],
+  ["src/domain/validator/**", "src/domain/validator", 90],
   ["src/qloo/**", "src/qloo", 80],
+  ["src/server/**", "src/server", 80],
+  ["src/config/**", "src/config", 80],
 ];
 
 const thresholds = Object.fromEntries(

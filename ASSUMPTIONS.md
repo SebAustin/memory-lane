@@ -31,7 +31,7 @@ These decisions were made autonomously, because the user chose "mostly autonomou
 | A23 | No paid resources beyond the existing Vercel and Gateway accounts. Hobby limits are acceptable | Plan guardrail | Limits are hit |
 | A29 | SC-5: **≤ 7, met at click 6**. The improved Kit arrives at click 6; click 7 (Without Qloo) completes the judge story. End sits in the Session Mode bottom bar on every layout | Orchestrator decisions D2 and R8 | — |
 | A30 | Every LLM call requests Gateway `zeroDataRetention` and `disallowPromptTraining` | Responsible data (R7) | No ZDR route → ZDR off, training still disallowed, documented |
-| A31 | `RATE_LIMIT_MODE=off` (used by E2E) is honoured only when `VERCEL_ENV` is unset. `getServerConfig` throws otherwise | E2E across 4 projects would otherwise hit the live bucket | — |
+| A31 | `RATE_LIMIT_MODE=off` (used by E2E) is honoured only when not deployed (`VERCEL_ENV` is not `preview` or `production`). `getServerConfig` throws otherwise | E2E across 4 projects would otherwise hit the live bucket | — |
 | A32 | **FR-9 is a partial deviation** (pending user sign-off). The server prefetches the baseline candidates. The agent then makes bounded Qloo calls of its own (`expand_theme` ≤ 2, `rerank_cues` ≤ 2) before composing | Speed and a deterministic fallback, while keeping a real agent decision | User wants the agent to drive all fetching |
 
 ## Credential-scope preflight

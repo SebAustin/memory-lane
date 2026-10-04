@@ -313,15 +313,18 @@ export const AvoidItem = z.discriminatedUnion('kind', [
   z.object({ kind: z.literal('entity'), entityId: Id, name: z.string().max(120), domain: Domain }),
   z.object({ kind: z.literal('tag'), tagId: Id, name: z.string().max(80) }),
   z.object({ kind: z.literal('topic'), text: z.string().trim().min(2).max(60) }) ]);
-export const LifeStory = z.object({ id: StoryId, firstName: z.string().trim().min(1).max(30).regex(/^[\p{L}'-]+$/u),
+export const SeedRef = z.object({ entityId: Id, name: z.string().max(120) });   // Seeds and Learned Favorites travel as {entityId, name} pairs, never as parallel arrays
+export const FirstName = z.string().transform(s => s.normalize('NFC').trim().replace(/[\u2019\u02BC]/g, "'"))   // NFC; typographic apostrophes map to '
+  .pipe(z.string().min(1).max(30).regex(/^[\p{L}\p{M}'-]+(?: [\p{L}\p{M}'-]+)*$/u).regex(/\p{L}/u));   // letters, marks, ' and -, single inner spaces
+export const LifeStory = z.object({ id: StoryId, firstName: FirstName,
   birthYear: z.number().int().min(1920).max(1975), hometown: Place, youngAdultCity: Place.optional(), careLocation: Place.optional(),
   heritage: z.string().max(60).optional(), language: z.string().max(40).optional(), occupation: z.string().max(60).optional(),
   seeds: z.array(Seed).min(2).max(5), avoidList: z.array(AvoidItem).max(10), dementiaStage: Stage,
   sensitiveThemesOptIn: z.boolean().default(false), createdAt: z.iso.datetime() });
 export const LifeStoryDraft = z.object({ step: z.number().int().min(1).max(6), values: LifeStory.partial(), updatedAt: z.iso.datetime() });
 export const LifeStoryDigest = LifeStory.omit({ id: true, firstName: true, createdAt: true, seeds: true, avoidList: true })
-  .extend({ seedNames: z.array(z.string().max(120)).max(5), avoidTopics: z.array(z.string().max(60)).max(10) }).strict();
-export const TasteProfile = z.object({ version: z.number().int().min(0), seedIds: z.array(Id).min(2).max(5),
+  .extend({ seeds: z.array(SeedRef).min(2).max(5), avoidTopics: z.array(z.string().max(60)).max(10) }).strict();
+export const TasteProfile = z.object({ version: z.number().int().min(0), seeds: z.array(SeedRef).min(2).max(5),
   learnedFavorites: z.array(z.object({ entityId: Id, name: z.string().max(120), domain: Domain, weight: z.number().int().min(1).max(3), fromSessionId: Id })).max(20),
   exclusions: z.array(z.object({ kind: z.enum(['entity','tag']), id: Id, label: z.string().max(120), source: z.enum(['avoid','reaction']), addedAt: z.iso.datetime() })).max(100),
   avoidTopics: z.array(z.string().max(60)).max(10) });
@@ -462,7 +465,7 @@ All of it is `scrubQuery`'d and capped:
 - **Environment** (`src/config/env.ts`, server-only, Zod):
   - Variables: `QLOO_MODE`, `QLOO_API_KEY`, `QLOO_BASE_URL`, `LLM_MODE`, `MODEL_ID`, `JUDGE_MODEL_ID`, `AI_GATEWAY_API_KEY` (local/CI; OIDC on Vercel), `LLM_DAILY_RUN_CAP=150`, `RATE_LIMIT_MODE=on`, optional `RL_<BUCKET>` overrides, `QLOO_IMAGE_HOSTS`.
   - No `NEXT_PUBLIC_` variables.
-  - `ALLOW_MOCK_LLM`, `QLOO_FIXTURE_FAULTS` and `RATE_LIMIT_MODE=off` are honoured **only when `VERCEL_ENV` is unset**. With `RATE_LIMIT_MODE=off` and `VERCEL_ENV` set, `getServerConfig` throws, and a test covers it.
+  - `ALLOW_MOCK_LLM`, `QLOO_FIXTURE_FAULTS` and `RATE_LIMIT_MODE=off` are honoured **only when not deployed**; only `VERCEL_ENV` of `preview` or `production` counts as deployed. With `RATE_LIMIT_MODE=off`, or `LLM_MODE=mock` (which also needs `ALLOW_MOCK_LLM=1`), on a deployment, `getServerConfig` throws, and a test covers it. The dev-only flags are ignored when deployed, and logged by name, never by value. `QLOO_MODE=live` is refused until ticket 05.
 - **Credential scopes:**
   - Qloo: read-only GETs.
   - Gateway: inference only, prepaid, auto top-up off.
@@ -652,6 +655,7 @@ From REQUIREMENTS §4:
 | 2026-10-03 | v1 | Initial plan: model ID corrected; Gateway caching; `proxy.ts`; one-session slices; slice K; Baseline definition. |
 | 2026-10-03 | v2 (critic 71) | Orchestrator decisions D1-D11 (routes, golden path, server prefetch, replay-first, `data-candidates`, judge, preflights, injected `fetch`, 6-step wizard, widen +3, trace a11y). Critic fixes #4-#9, #13, #15-#17, #19, #22-#28. Found v7 `isStepCount`. |
 | 2026-10-03 | v3 (critic 80) | Defect-by-defect changes are listed below. |
+| 2026-10-03 | slice 1 review | **Orchestrator-approved post-review change:** Seeds as `{entityId, name}` pairs, an amended `firstName` rule, boot-time config validation, and name screening as a domain module. See section 15. |
 
 **v3 changes, by defect:**
 - **#1 Fixtures (R3).** The fixture client matches on `(endpoint, type, window, location)`, applies excludes itself, computes deterministic labelled explainability for Seed and LF IDs, and returns an empty-plus-hint for unknown `/search`. Added the arbitrary-Reactions property test (§3.1, §8.1).
@@ -692,3 +696,10 @@ From REQUIREMENTS §4:
    - Revision-log entry #2 should read: headings also get the claim lexicon.
    - "Quoted strings" means quoted strings *that match no registry name*. A quoted Cue name is OK, e.g. "Tell me about seeing \"Pillow Talk\"". Add this as an OK test case.
    - Slice K's coverage check now includes `tv_show` year coverage, alongside books. If year coverage turns out to be low, switch that domain to "era reported, not gated".
+
+## 15. Post-review amendments (slice 1; orchestrator-approved post-review changes, 2026-10-03)
+
+1. **Seeds travel as `{entityId, name}` pairs** (`SeedRef`) in `TasteProfile.seeds` and `LifeStoryDigest.seeds`. This replaces the parallel `seedIds` and `seedNames` arrays, which could drift out of step and forced name lookups by index. `KitRequest` stays strict, so the old shapes are rejected.
+2. **`firstName`** is normalized to NFC, with typographic apostrophes (U+2019, U+02BC) mapped to `'`. It allows letters in any script, combining marks (accents, Devanagari), `'`, `-` and single inner spaces ("Mary Ann", "O’Brien", a decomposed "José"). It still needs at least one letter, at most 30 characters, and no digits or other punctuation.
+3. **Boot-time configuration (H1).** The pure env validation has no `server-only` import and `next.config.ts` runs it, so a bad environment fails the build or deploy. `QLOO_MODE=live` is refused until ticket 05. A refused `LLM_MODE=mock` throws instead of falling back to the gateway. Only `VERCEL_ENV` of `preview` or `production` counts as deployed.
+4. **Avoid List name screening (section 14.1) is a pure domain module**, `src/domain/screening.ts`: whole-word, in-order, case-, accent- and punctuation-insensitive, with a trailing plural "s" ignored. Seeds, Learned Favorites and excluded entity ids are also removed from Cues in code.

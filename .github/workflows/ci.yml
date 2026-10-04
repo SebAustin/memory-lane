@@ -3,6 +3,11 @@ name: CI
 on:
   push:
   pull_request:
+  workflow_dispatch:
+  schedule:
+    # Weekly full-history secret scan (NFR-13). On push and pull_request the
+    # gitleaks action scans only the new commits; this run scans everything.
+    - cron: "17 5 * * 1"
 
 permissions:
   contents: read

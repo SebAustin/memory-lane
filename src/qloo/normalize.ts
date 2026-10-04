@@ -9,9 +9,14 @@ import { DOMAIN_URN, type EntityUrn, type QlooEntity, type QlooTag } from "./typ
  * that cannot be trusted degrades to a safe default; only an entity with no
  * usable id, name or type is rejected.
  */
+/** Contract limits (Id is 64, Seed and Baseline names 120, AvoidItem tag names 80). */
+const MAX_ID = 64;
+const MAX_ENTITY_NAME = 120;
+const MAX_TAG_NAME = 80;
+
 const RawEntity = z.looseObject({
-  entity_id: z.string().min(1).max(64),
-  name: z.string().min(1),
+  entity_id: z.string().min(1).max(MAX_ID),
+  name: z.string().min(1).max(MAX_ENTITY_NAME),
   type: z.string(),
   properties: z.unknown().optional(),
   tags: z.unknown().optional(),
@@ -22,7 +27,10 @@ const URN_DOMAIN: ReadonlyMap<string, { urn: EntityUrn; domain: Domain }> = new 
   Object.entries(DOMAIN_URN).map(([domain, urn]) => [urn, { urn, domain: domain as Domain }]),
 );
 
-const RawTag = z.looseObject({ tag_id: z.string().min(1), name: z.string().min(1) });
+const RawTag = z.looseObject({
+  tag_id: z.string().min(1).max(MAX_ID),
+  name: z.string().min(1).max(MAX_TAG_NAME),
+});
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -35,7 +43,7 @@ function hostMatches(host: string, allowed: string): boolean {
 }
 
 /**
- * Whether `rawUrl` is an https URL whose hostname is on the allow-list
+ * Whether `rawUrl` is an https URL, with no credentials or explicit port, whose hostname is on the allow-list
  * (`QLOO_IMAGE_HOSTS` format: bare hosts or `*.host`). Parses the URL, never
  * pattern-matches the string, so look-alike hosts and `user@host` tricks fail.
  */
@@ -46,7 +54,11 @@ export function isAllowedImageHost(rawUrl: string, imageHosts: readonly string[]
   } catch {
     return false;
   }
-  if (url.protocol !== "https:" || url.username !== "" || url.password !== "") return false;
+  // An explicit port could point an allow-listed host at another service. The
+  // default port (443) is normalized away by URL parsing, so it stays valid.
+  if (url.protocol !== "https:" || url.username !== "" || url.password !== "" || url.port !== "") {
+    return false;
+  }
   const host = url.hostname.toLowerCase();
   return imageHosts.some((allowed) => hostMatches(host, allowed.toLowerCase()));
 }
@@ -93,7 +105,7 @@ function readYear(properties: unknown): number | undefined {
 /**
  * Validates and normalizes one raw Qloo entity. Returns null for anything that
  * is not a usable Cue candidate. An image on a host that is not allow-listed
- * becomes `imageUrl: null`, so the card shows the monogram fallback.
+ * becomes `imageUrl: null`, so the Cue shows the monogram fallback.
  */
 export function normalizeEntity(raw: unknown, imageHosts: readonly string[]): QlooEntity | null {
   const parsed = RawEntity.safeParse(raw);

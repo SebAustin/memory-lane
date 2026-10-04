@@ -4,25 +4,16 @@ import { Container } from "@/components/ui/Container";
 import { DomainGlyph } from "@/components/ui/DomainGlyph";
 import { DOMAIN_LABEL } from "@/components/ui/domain";
 import { Monogram } from "@/components/ui/Monogram";
-import type { Domain } from "@/contracts";
+import type { Cue, Seed } from "@/contracts";
 import { MARGARET_STORY_ID } from "@/demo/margaret";
 import styles from "./Landing.module.css";
 
 const MEET_MARGARET_HREF = `/p/${MARGARET_STORY_ID}/kit`;
 
-interface Sample {
-  readonly name: string;
-  readonly domain: Domain;
-  readonly detail: string;
-  readonly position: "a" | "b" | "c";
-}
+type Position = "a" | "b" | "c";
 
-/** The three sample prints on the hero: Margaret's own Seeds and her hometown. */
-const SAMPLES: readonly Sample[] = [
-  { name: "Patsy Cline", domain: "music", detail: "Music", position: "a" },
-  { name: "Pillow Talk", domain: "film", detail: "Film, 1959", position: "b" },
-  { name: "Beale Street", domain: "place", detail: "Place", position: "c" },
-];
+/** The hero shows at most three of Margaret's own Seeds, one print per slot. */
+const POSITIONS: readonly Position[] = ["a", "b", "c"];
 
 const STEPS = [
   {
@@ -39,26 +30,32 @@ const STEPS = [
   },
 ] as const;
 
-const GENERIC_LIST = ["Top hits of the 1950s", "Songs everyone knows", "Whatever the AI remembers"] as const;
-const QLOO_SAMPLE = ["Loretta Lynn", "Brenda Lee", "Skeeter Davis"] as const;
+/**
+ * Illustrative Baseline copy (CONTEXT.md: a Kit written without Qloo, shown for
+ * comparison only). These are not recommendations and carry no entity ids.
+ */
+const BASELINE_SAMPLE = ["Top hits of the 1950s", "Songs everyone knows", "Whatever the AI remembers"] as const;
 
-function Polaroid({ sample }: { sample: Sample }) {
+/** How many real Qloo Cues the comparison shows. */
+export const QLOO_SAMPLE_COUNT = 3;
+
+function Polaroid({ seed, position }: { seed: Seed; position: Position }) {
   return (
-    <div className={styles.polaroid} data-position={sample.position}>
+    <div className={styles.polaroid} data-position={position} data-seed-id={seed.entityId}>
       <div className={styles.print}>
-        <Monogram name={sample.name} domain={sample.domain} />
+        <Monogram name={seed.name} domain={seed.domain} />
       </div>
       <p className={styles.polaroidMeta}>
-        <DomainGlyph domain={sample.domain} className={styles.polaroidGlyph} />
-        <span>{DOMAIN_LABEL[sample.domain]}</span>
-        {sample.domain === "film" && <span>1959</span>}
+        <DomainGlyph domain={seed.domain} className={styles.polaroidGlyph} />
+        <span>{DOMAIN_LABEL[seed.domain]}</span>
+        {seed.year !== undefined && <span>{seed.year}</span>}
       </p>
-      <p className={styles.polaroidName}>{sample.name}</p>
+      <p className={styles.polaroidName}>{seed.name}</p>
     </div>
   );
 }
 
-function Hero() {
+function Hero({ seeds }: { seeds: readonly Seed[] }) {
   return (
     <Container className={styles.hero}>
       <div className={styles.copy}>
@@ -88,9 +85,10 @@ function Hero() {
 
       <figure className={styles.album}>
         <div className={styles.stack} aria-hidden="true">
-          {SAMPLES.map((sample) => (
-            <Polaroid key={sample.name} sample={sample} />
-          ))}
+          {POSITIONS.flatMap((position, index) => {
+            const seed = seeds[index];
+            return seed === undefined ? [] : [<Polaroid key={seed.entityId} seed={seed} position={position} />];
+          })}
         </div>
         <figcaption className={styles.caption}>
           <span className={styles.captionLabel}>A sample Life Story</span>
@@ -121,7 +119,7 @@ function HowItWorks() {
   );
 }
 
-function Difference() {
+function Difference({ sampleCues }: { sampleCues: readonly Cue[] }) {
   return (
     <section className={styles.difference} aria-labelledby="difference-heading">
       <Container>
@@ -129,10 +127,10 @@ function Difference() {
           Not just a list of old hits
         </h2>
         <div className={styles.panels}>
-          <div className={styles.panel} data-kind="generic">
+          <div className={styles.panel} data-kind="baseline">
             <p className={styles.panelLabel}>Without Qloo</p>
             <ul className={styles.struck}>
-              {GENERIC_LIST.map((item) => (
+              {BASELINE_SAMPLE.map((item) => (
                 <li key={item}>{item}</li>
               ))}
             </ul>
@@ -141,8 +139,10 @@ function Difference() {
           <div className={styles.panel} data-kind="qloo">
             <p className={styles.panelLabel}>With Qloo, for someone like Margaret</p>
             <ul className={styles.picks}>
-              {QLOO_SAMPLE.map((item) => (
-                <li key={item}>{item}</li>
+              {sampleCues.map((cue) => (
+                <li key={cue.entityId} data-entity-id={cue.entityId}>
+                  {cue.name}
+                </li>
               ))}
             </ul>
             <p className={styles.panelNote}>
@@ -156,13 +156,20 @@ function Difference() {
   );
 }
 
+export interface LandingProps {
+  /** The Demo Person's Seeds: the three prints in the hero. */
+  readonly seeds: readonly Seed[];
+  /** Real Cues from the demo Kit. When empty, the comparison section is left out. */
+  readonly sampleCues: readonly Cue[];
+}
+
 /** The landing page (UX 4.1): an editorial opening, one primary action, one quiet one. */
-export function Landing() {
+export function Landing({ seeds, sampleCues }: LandingProps) {
   return (
     <SiteChrome>
-      <Hero />
+      <Hero seeds={seeds} />
       <HowItWorks />
-      <Difference />
+      {sampleCues.length > 0 && <Difference sampleCues={sampleCues} />}
     </SiteChrome>
   );
 }

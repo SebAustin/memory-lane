@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { Domain, Id, ImageUrl, Place, Stage, StoryId } from "./primitives";
+import { Domain, Id, ImageUrl, Place, SeedRef, Stage, StoryId } from "./primitives";
 
 /** A remembered favorite that has been confirmed as a specific Qloo entity. */
 export const Seed = z.object({
@@ -17,15 +17,31 @@ export const AvoidItem = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("topic"), text: z.string().trim().min(2).max(60) }),
 ]);
 
+const TYPOGRAPHIC_APOSTROPHES = /[\u2019\u02BC]/g;
+
+/**
+ * A first name, normalized to NFC with typographic apostrophes mapped to `'`,
+ * so "O\u2019Brien" and a decomposed "Jose\u0301" match what the Caregiver sees.
+ * Letters in any script, combining marks (Devanagari, accents), `'`, `-` and
+ * single inner spaces ("Mary Ann"). The name is the only PII the app asks for,
+ * so it stays short and free of digits, `@` and other punctuation.
+ */
+export const FirstName = z
+  .string()
+  .transform((raw) => raw.normalize("NFC").trim().replace(TYPOGRAPHIC_APOSTROPHES, "'"))
+  .pipe(
+    z
+      .string()
+      .min(1)
+      .max(30)
+      .regex(/^[\p{L}\p{M}'-]+(?: [\p{L}\p{M}'-]+)*$/u)
+      .regex(/\p{L}/u),
+  );
+
 /** What the Caregiver knows about the Person. Lives only in the browser (ADR 0001). */
 export const LifeStory = z.object({
   id: StoryId,
-  firstName: z
-    .string()
-    .trim()
-    .min(1)
-    .max(30)
-    .regex(/^[\p{L}'-]+$/u),
+  firstName: FirstName,
   birthYear: z.number().int().min(1920).max(1975),
   hometown: Place,
   youngAdultCity: Place.optional(),
@@ -59,7 +75,7 @@ export const LifeStoryDigest = LifeStory.omit({
   avoidList: true,
 })
   .extend({
-    seedNames: z.array(z.string().max(120)).max(5),
+    seeds: z.array(SeedRef).min(2).max(5),
     avoidTopics: z.array(z.string().max(60)).max(10),
   })
   .strict();

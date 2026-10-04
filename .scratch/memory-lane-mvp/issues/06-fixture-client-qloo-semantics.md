@@ -47,3 +47,5 @@ You can verify it alone through the fixture-client tests and strict mode.
 - Seam: 1 `QlooClient`.
 
 ## Comments
+
+- 2026-10-03 (builder, slice 1 review): **L4, fixture `take` validation.** `FixtureQlooClient.insights` passes `params.take` straight to `slice`: a negative, fractional or `NaN` value gives surprising results (`slice(0, -1)` drops the last item). Validate it as a positive integer, capped at Qloo's 50, and answer `error:'bad_param'` like the live client will. Slice 1 over-fetches with `take: 25` and trims to 15 after filtering, so keep that behaviour when the client grows.

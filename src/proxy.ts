@@ -13,9 +13,12 @@ import { buildSecurityHeaders, generateNonce } from "@/config/security-headers";
  */
 const LOOPBACK_HOSTS: ReadonlySet<string> = new Set(["localhost", "127.0.0.1", "[::1]"]);
 
-/** True only for plain-http loopback requests (local `next start`/`next dev`). */
+/**
+ * True only for plain-http loopback requests (local `next start`/`next dev`)
+ * with no `VERCEL_ENV` at all: a Vercel build or `vercel dev` never takes the carve-out.
+ */
 function isInsecureLoopback({ protocol, hostname }: URL): boolean {
-  return protocol === "http:" && LOOPBACK_HOSTS.has(hostname);
+  return protocol === "http:" && LOOPBACK_HOSTS.has(hostname) && !process.env.VERCEL_ENV;
 }
 
 export function proxy(request: NextRequest): NextResponse {
@@ -28,7 +31,6 @@ export function proxy(request: NextRequest): NextResponse {
   });
 
   const requestHeaders = new Headers(request.headers);
-  requestHeaders.set("x-nonce", nonce);
   requestHeaders.set("Content-Security-Policy", headers["Content-Security-Policy"]);
 
   const response = NextResponse.next({ request: { headers: requestHeaders } });

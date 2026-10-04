@@ -55,7 +55,12 @@ export async function parseJson<T>(
   const declared = Number(req.headers.get("content-length"));
   if (Number.isFinite(declared) && declared > maxBytes) return tooLarge();
 
-  const text = await readCapped(req, maxBytes);
+  let text: string | null;
+  try {
+    text = await readCapped(req, maxBytes);
+  } catch {
+    return badRequest(); // the client hung up or the stream broke mid-body
+  }
   if (text === null) return tooLarge();
 
   let json: unknown;

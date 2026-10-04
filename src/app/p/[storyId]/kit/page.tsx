@@ -2,12 +2,11 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { SiteChrome } from "@/components/site/SiteChrome";
 import { StoryId } from "@/contracts";
-import { MARGARET, MARGARET_STORY_ID, margaretKitRequest } from "@/demo/margaret";
+import { MARGARET, MARGARET_STORY_ID } from "@/demo/margaret";
 import { reminiscenceWindow } from "@/domain/window";
 import { KitView } from "@/features/kit/KitView";
 import { StoryOnAnotherDevice } from "@/features/kit/StoryOnAnotherDevice";
-import { getKitDeps } from "@/server/deps";
-import { loadInterimKit } from "@/server/handlers/kit";
+import { loadDemoKit } from "@/server/kit/demoKit";
 
 export async function generateMetadata({ params }: PageProps<"/p/[storyId]/kit">): Promise<Metadata> {
   const { storyId } = await params;
@@ -16,7 +15,7 @@ export async function generateMetadata({ params }: PageProps<"/p/[storyId]/kit">
 
 /**
  * `/p/[storyId]/kit`. Interim (ticket 02): only the public demo story exists, and
- * its music Cues come from the same `/api/kit` core the route uses. Ticket 15
+ * its music Cues come from `buildInterimKit`, the core behind `/api/kit`. Ticket 15
  * replaces this with the streamed build; ticket 03 adds Life Stories from the store.
  */
 export default async function KitPage({ params }: PageProps<"/p/[storyId]/kit">) {
@@ -25,14 +24,10 @@ export default async function KitPage({ params }: PageProps<"/p/[storyId]/kit">)
   if (!parsed.success) notFound();
 
   if (parsed.data !== MARGARET_STORY_ID) {
-    return (
-      <SiteChrome>
-        <StoryOnAnotherDevice />
-      </SiteChrome>
-    );
+    return <StoryOnAnotherDevice />;
   }
 
-  const kit = await loadInterimKit(margaretKitRequest(), getKitDeps());
+  const kit = await loadDemoKit();
   return (
     <SiteChrome>
       <KitView

@@ -1,3 +1,4 @@
+import "server-only";
 import type { Domain } from "@/contracts";
 
 export type { Domain } from "@/contracts";
@@ -43,7 +44,10 @@ export type ErrorCode =
 /** How a result was obtained. Never contains names or free text. */
 export interface QlooProvenance {
   readonly endpoint: string;
-  /** Canonical, name-free key of the request parameters. */
+  /**
+   * Canonical key of the request parameters. It can hold the Hometown or ids;
+   * the Person's first name never reaches Qloo, so it is never in here.
+   */
   readonly paramsKey: string;
   readonly cached: boolean;
   readonly stale: boolean;
