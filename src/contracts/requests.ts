@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "./z";
 import { Id, StoryId, WidenableDomain } from "./primitives";
 import { LifeStoryDigest } from "./life-story";
 import { TasteProfile } from "./taste";

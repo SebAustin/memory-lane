@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "./z";
 import { Domain, Id, ImageUrl } from "./primitives";
 
 /** One line of the "Behind the scenes" ledger (PLAN section 4.2). */

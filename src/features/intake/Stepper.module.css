@@ -1,0 +1,110 @@
+/* The stitched thread. Mobile first: dots only, with the current step named above. */
+.stepper { display: grid; gap: var(--space-3); }
+
+.count {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-3);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--ink-700);
+}
+.name {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--ink-900);
+}
+.name::before { content: "\00b7"; margin-right: var(--space-3); color: var(--clay-600); }
+
+.thread {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  list-style: none;
+}
+
+.item {
+  position: relative;
+  display: grid;
+  justify-items: start;
+  gap: var(--space-2);
+}
+
+/* The thread between dots: dashed stitches, solid once the step is done. */
+.item:not(:first-child)::before {
+  content: "";
+  position: absolute;
+  top: 1.125rem;
+  right: calc(100% - 2.25rem);
+  width: calc(100% - 2.25rem);
+  height: 0;
+  border-top: 3px dashed var(--rule);
+}
+.item[data-state="done"]:not(:first-child)::before,
+.item[data-state="current"]:not(:first-child)::before {
+  border-top-style: solid;
+  border-top-color: var(--clay-600);
+}
+
+.dot {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 2px dashed var(--ink-500);
+  border-radius: var(--radius-pill);
+  background: var(--paper-50);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--ink-700);
+}
+.item[data-state="done"] .dot {
+  border: 2px solid var(--green-800);
+  background: var(--green-800);
+  color: var(--paper-50);
+}
+.item[data-state="current"] .dot {
+  border: 3px solid var(--clay-600);
+  background: var(--paper-100);
+  color: var(--ink-900);
+  box-shadow: 0 0 0 4px var(--paper-50), var(--shadow-photo);
+}
+
+/* On a phone the labels stay in the page for screen readers and are only hidden from sight. */
+.label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  color: var(--ink-700);
+}
+.item[data-state="current"] .label { color: var(--ink-900); }
+
+/* From tablet up there is room to name every step. */
+@media (min-width: 48rem) {
+  .name { display: none; }
+  .label {
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    clip-path: none;
+    white-space: normal;
+    padding-right: var(--space-2);
+  }
+}
+
+@media (forced-colors: active) {
+  .item[data-state="done"] .dot { forced-color-adjust: none; background: Highlight; color: HighlightText; }
+}

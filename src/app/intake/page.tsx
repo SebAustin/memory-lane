@@ -1,20 +1,21 @@
 import type { Metadata } from "next";
-import { MessagePage, PrimaryLink } from "@/components/site/MessagePage";
+import { Suspense } from "react";
+import { SiteChrome } from "@/components/site/SiteChrome";
+import { IntakeWizard } from "@/features/intake/IntakeWizard";
 
 export const metadata: Metadata = { title: "Start a Life Story" };
 
-/** Stub (ticket 02): the six-step Life Story wizard lands in ticket 03. The `/intake` path is fixed by PLAN section 3.6. */
+/**
+ * `/intake?step=1..6` (PLAN section 3.6): the six-step Life Story wizard. The
+ * draft lives in the browser (ADR 0001), so everything interesting happens in
+ * the client component; this page only gives it the site chrome.
+ */
 export default function StartLifeStoryPage() {
   return (
-    <MessagePage
-      kicker="Life Story"
-      title="Start a Life Story"
-      actions={<PrimaryLink href="/p/demo-margaret/kit">Meet Margaret</PrimaryLink>}
-    >
-      <p>
-        The Life Story steps are not ready yet. Meet Margaret to see what a Kit looks like in the
-        meantime.
-      </p>
-    </MessagePage>
+    <SiteChrome>
+      <Suspense>
+        <IntakeWizard />
+      </Suspense>
+    </SiteChrome>
   );
 }

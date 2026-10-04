@@ -39,3 +39,8 @@ export function SecondaryLink(props: ComponentProps<typeof Link>) {
 export function PrimaryButton(props: ButtonHTMLAttributes<HTMLButtonElement>) {
   return <button type="button" {...props} className={styles.primary} />;
 }
+
+/** A quiet text-style action (Back, Skip). Underlined like a secondary link, so it reads as a choice, not a command. */
+export function SecondaryButton(props: ButtonHTMLAttributes<HTMLButtonElement>) {
+  return <button type="button" {...props} className={styles.secondary} />;
+}

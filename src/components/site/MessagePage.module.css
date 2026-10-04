@@ -45,6 +45,13 @@
 }
 .primary:hover { transform: translateY(-2px); }
 .primary:active { transform: translateY(2px); box-shadow: none; }
+.primary:disabled {
+  background: var(--paper-200);
+  color: var(--ink-700);
+  box-shadow: inset 0 0 0 2px var(--rule);
+  cursor: not-allowed;
+  transform: none;
+}
 
 .secondary {
   display: inline-flex;
@@ -58,3 +65,4 @@
   text-underline-offset: 0.3em;
 }
 .secondary:hover { color: var(--clay-600); }
+.secondary:disabled { color: var(--ink-500); text-decoration-color: var(--rule); cursor: not-allowed; }

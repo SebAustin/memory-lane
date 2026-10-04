@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "./z";
 import { AGE_BUCKET } from "@/domain/window";
 import { Domain, Id, SeedRef } from "./primitives";
 

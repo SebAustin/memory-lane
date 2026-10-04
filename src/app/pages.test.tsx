@@ -3,7 +3,6 @@ import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import RootError from "@/app/error";
 import NotFound from "@/app/not-found";
-import StartLifeStoryPage from "@/app/intake/page";
 import { StoryOnAnotherDevice } from "@/features/kit/StoryOnAnotherDevice";
 
 afterEach(cleanup);
@@ -13,7 +12,6 @@ const ADVICE = "Suggestions only, not medical advice.";
 describe.each([
   ["the error boundary", () => <RootError error={new Error("boom")} reset={() => undefined} />],
   ["the not-found page", () => <NotFound />],
-  ["the Life Story stub", () => <StartLifeStoryPage />],
   ["the other-device page", () => <StoryOnAnotherDevice />],
 ])("%s", (_name, ui) => {
   it("is a branded page: one h1, landmarks, and the not-medical-advice footer (FR-28)", () => {

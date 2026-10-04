@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "./z";
 import { Domain, Id, ImageUrl, Place, SeedRef, Stage, StoryId } from "./primitives";
 
 /** A remembered favorite that has been confirmed as a specific Qloo entity. */

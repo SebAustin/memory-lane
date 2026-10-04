@@ -1,0 +1,26 @@
+.summary {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-5);
+  border: 2px solid var(--error-bd);
+  border-left-width: 8px;
+  border-radius: var(--radius-page);
+  background: var(--error-bg);
+  color: var(--error-fg);
+}
+.title {
+  font-family: var(--font-body);
+  font-variation-settings: normal;
+  font-size: var(--text-base);
+  font-weight: 700;
+}
+.list { display: grid; gap: var(--space-1); padding-left: 0; list-style: none; }
+.link {
+  display: inline-block;
+  padding-block: var(--space-2);
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+  text-decoration-thickness: 2px;
+}
+.link:hover { text-decoration-thickness: 4px; }

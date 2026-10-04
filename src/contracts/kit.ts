@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "./z";
 import { Domain, Id, ImageUrl, StoryId, WidenableDomain } from "./primitives";
 import { Provenance } from "./taste";
 

@@ -113,12 +113,13 @@ test.describe("click 1: Meet Margaret", () => {
     }
   });
 
-  test("Start a Life Story reaches the Life Story stub", async ({ page }) => {
+  test("Start a Life Story reaches step 1 of the wizard", async ({ page }) => {
     await page.goto("/");
     await page.getByRole("link", { name: "Start a Life Story" }).click();
 
-    await expect(page).toHaveURL(/\/intake$/);
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Start a Life Story");
+    await expect(page).toHaveURL(/\/intake(\?step=1)?$/);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Tell us about them");
+    await expect(page.getByText("Step 1 of 6")).toBeVisible();
   });
 
   test("a story that lives on another device says so", async ({ page }) => {

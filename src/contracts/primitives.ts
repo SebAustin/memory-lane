@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "./z";
 
 /** Opaque entity or tag identifier (Qloo ids, `fx-` fixture ids, local ids). */
 export const Id = z.string().min(1).max(64);

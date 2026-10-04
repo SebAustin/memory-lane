@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "./z";
 import { Id } from "./primitives";
 
 /** The Caregiver's observation of the Person's response to a Cue. */
