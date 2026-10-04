@@ -1,6 +1,6 @@
 # 14: Session Mode prototype variants and check-in (b)
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: 13
 Slice: Prototype (between 3a-ii and 3b) · Size: S · Spec: ../spec.md
 
@@ -36,3 +36,5 @@ Build three throwaway Session Mode directions, so the user can pick one at check
 
 - 2026-10-03 (orchestrator): the variant decision was pulled forward. Three prototypes were built at `src/app/prototype/session-mode/` and the user picked **Variant C, "Run of Show"** (recorded in UX.md under "Decision: Session Mode direction"). This ticket is reduced to the **templates review only**, which happens once ticket 09 lands. Ticket 17 is unblocked on the variant question.
 - 2026-10-03 (builder, ticket 09): `src/agent/templates.ts` has landed (branch `worktree-agent-abac7dc36517e3951`). The user's review of it is the remaining human gate for this ticket and for ticket 09. Prompts, sensory activities, Session titles with themes, Caregiver tips and whyThis lines are all in that one file, keyed by domain and stage where it matters.
+
+- 2026-10-04 (orchestrator): the user **approved the template library tone as-is** at check-in (b), from samples across Prompts, sensory activities, titles/themes, tips and whyThis. Merged to main.

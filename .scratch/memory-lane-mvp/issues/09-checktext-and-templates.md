@@ -32,7 +32,7 @@ This ticket builds the deterministic text guard and the library of vetted replac
   - ≥ 8 Session titles and themes;
   - Caregiver tips.
 - [x] **Layering decision (spec):** `domain` stays pure. `validateKit` (ticket 10) receives templates through its context instead of importing `src/agent/templates.ts`.
-- [ ] **Human review:** the user reviews `templates.ts` at check-in (b) (ticket 14).
+- [x] **Human review:** the user reviews `templates.ts` at check-in (b) (ticket 14).
 
 ## Files / modules (PLAN §3.2, §3.3)
 
@@ -55,3 +55,5 @@ This ticket builds the deterministic text guard and the library of vetted replac
   - **Not in `checkText`:** presuming a living relative (R12). It is enforced on the templates by a regex in `templates.test.ts`, not on model text. Ticket 10 may want it as a runtime rule.
   - **Tests:** 70-string labelled table (body and heading rows, with opt-in variants for the sensitive lexicon) and the detail tests in `checkText.test.ts`; `templates.test.ts` (minimums, every template through `checkText`, stage word caps, Kit contract lengths, copy rules); `sessionFormats.test.ts`. `checkText.ts` is at 100% statements, branches, functions and lines.
 - 2026-10-03 (builder): **Ticket 14 needs `src/agent/templates.ts` for the user's review** at check-in (b). The human-review box above stays unticked until then.
+
+- 2026-10-04 (orchestrator): the user **approved the template library tone as-is** at check-in (b), from samples across Prompts, sensory activities, titles/themes, tips and whyThis. Merged to main.
