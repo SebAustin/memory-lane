@@ -1,6 +1,6 @@
 # 09: `checkText` and the vetted templates
 
-Status: ready-for-agent
+Status: code resolved; human gate pending (template review, ticket 14)
 Blocked by: 08
 Slice: 3a-i Validator + templates (CORE), part 1 of 3 · Size: M · Spec: ../spec.md
 
@@ -12,7 +12,7 @@ This ticket builds the deterministic text guard and the library of vetted replac
 
 ## Acceptance criteria
 
-- [ ] `checkText(text, scope, ctx)` follows PLAN §3.2 R4, as amended by §14.6 (FR-12, SC-7).
+- [x] `checkText(text, scope, ctx)` follows PLAN §3.2 R4, as amended by §14.6 (FR-12, SC-7).
   - **Body** scope (Prompts, caregiverTips, sensoryActivities, whyThis) checks:
     - the quiz regex ("Do you remember…?", "What year…?", "Who was…?");
     - the claim lexicon ("therapy", "heal", "improve memory"…);
@@ -22,16 +22,16 @@ This ticket builds the deterministic text guard and the library of vetted replac
     - invented names: Title-Case runs of 2+ words not on the allow-list.
   - **Heading** scope (title, theme) checks quoted strings, Avoid terms, the sensitive lexicon and the claim lexicon **only**. The Title-Case rule never applies to headings.
   - **Allow-list:** registry names, Seed names, Learned Favorite names, fingerprint tag names, Hometown, Young-Adult City, Care Location, days, months, holidays and sentence-initial words.
-- [ ] The labelled table has **70 strings** and includes these OK cases:
+- [x] The labelled table has **70 strings** and includes these OK cases:
   - the UX titles "Saturday Night at the Pictures, 1962", "Mama's Kitchen", "Sunday Best at the Grand Ole Opry" and "Christmas on Beale Street";
   - the body string `Tell me about seeing "Pillow Talk"` when Pillow Talk is in the registry.
-- [ ] `SESSION_FORMATS` follows the PLAN §3.2 table: early `conversation` 4-6/≤3/≤25/≥1; middle `mixed` 4-6/≤2/≤18/≥1; late `sensory` 3-5/≤1/≤12/≥2 (FR-6).
-- [ ] `templates.ts` is keyed by domain × stage, and **every template passes `checkText`**. Templates use the `{name}` placeholder and never presume a living spouse or parent (R12). Minimums:
+- [x] `SESSION_FORMATS` follows the PLAN §3.2 table: early `conversation` 4-6/≤3/≤25/≥1; middle `mixed` 4-6/≤2/≤18/≥1; late `sensory` 3-5/≤1/≤12/≥2 (FR-6).
+- [x] `templates.ts` is keyed by domain × stage, and **every template passes `checkText`**. Templates use the `{name}` placeholder and never presume a living spouse or parent (R12). Minimums:
   - ≥ 3 Prompts per domain × stage;
   - ≥ 6 sensory activities per stage;
   - ≥ 8 Session titles and themes;
   - Caregiver tips.
-- [ ] **Layering decision (spec):** `domain` stays pure. `validateKit` (ticket 10) receives templates through its context instead of importing `src/agent/templates.ts`.
+- [x] **Layering decision (spec):** `domain` stays pure. `validateKit` (ticket 10) receives templates through its context instead of importing `src/agent/templates.ts`.
 - [ ] **Human review:** the user reviews `templates.ts` at check-in (b) (ticket 14).
 
 ## Files / modules (PLAN §3.2, §3.3)
@@ -46,3 +46,12 @@ This ticket builds the deterministic text guard and the library of vetted replac
 - Seams: none beyond plain pure functions.
 
 ## Comments
+
+- 2026-10-03 (builder, pulled forward; needs only domain types): `checkText`, the lexicons, `SESSION_FORMATS` and the templates are done. Branch `worktree-agent-abac7dc36517e3951`.
+  - **Files:** `src/domain/checkText.ts`, `lexicons.ts` (new here; ticket 07 can extend it), `sessionFormats.ts`, `templateLibrary.ts` (the `TemplateLibrary` shape, type only), `src/agent/templates.ts` (the data). `screening.ts` now exports `wordsOf` and `containsRun`, so `checkText` reuses its normalization.
+  - **Layering:** `domain` stays pure. Ticket 10's `validateKit` takes a `TemplateLibrary` through its context; `src/agent/templates.ts` exports `TEMPLATES` for the caller (the route or the agent) to pass in.
+  - **Context shape:** `TextCheckContext` has `registryNames`, `seedNames`, `learnedFavoriteNames`, `fingerprintTagNames`, `places` (Hometown, Young-Adult City, Care Location; "City, ST" also allows the city alone), `avoidTopics` and `sensitiveThemesOptIn`. A quoted string passes if it matches any of those names or a day, month or holiday (leading "The" ignored).
+  - **Known limits (conservative on purpose, R14):** a sentence-initial word is exempt, so "Johnny Mercer wrote it" at the very start of a sentence is not caught, while "Remember Johnny Mercer" is. A real place missing from the allow-list ("the Brooklyn Bridge") reads as an invented name in body text. Runs joined by a lowercase word ("Bank of America") are not detected. The sensitive lexicon is word-based, so it never fires inside a longer word ("Warren").
+  - **Not in `checkText`:** presuming a living relative (R12). It is enforced on the templates by a regex in `templates.test.ts`, not on model text. Ticket 10 may want it as a runtime rule.
+  - **Tests:** 70-string labelled table (body and heading rows, with opt-in variants for the sensitive lexicon) and the detail tests in `checkText.test.ts`; `templates.test.ts` (minimums, every template through `checkText`, stage word caps, Kit contract lengths, copy rules); `sessionFormats.test.ts`. `checkText.ts` is at 100% statements, branches, functions and lines.
+- 2026-10-03 (builder): **Ticket 14 needs `src/agent/templates.ts` for the user's review** at check-in (b). The human-review box above stays unticked until then.

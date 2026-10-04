@@ -19,7 +19,7 @@ function stem(word: string): string {
 }
 
 /** Lower-cased, accent-stripped words with punctuation removed and plurals folded. */
-function wordsOf(text: string): string[] {
+export function wordsOf(text: string): string[] {
   return text
     .normalize("NFKD")
     .replace(/\p{M}/gu, "")
@@ -29,7 +29,7 @@ function wordsOf(text: string): string[] {
     .map(stem);
 }
 
-function containsRun(haystack: readonly string[], needle: readonly string[]): boolean {
+export function containsRun(haystack: readonly string[], needle: readonly string[]): boolean {
   for (let start = 0; start + needle.length <= haystack.length; start += 1) {
     if (needle.every((word, offset) => haystack[start + offset] === word)) return true;
   }

@@ -19,7 +19,7 @@ Tickets are numbered in dependency order (blockers first) and follow the PLAN §
 | 06 | [Fixture Qloo client that behaves like Qloo for P1-P5](issues/06-fixture-client-qloo-semantics.md) | 2b-i | ready-for-agent | 05 |
 | 07 | [Prefetch engine: 6 domains and a taste fingerprint](issues/07-prefetch-six-domains.md) | 2b-i | ready-for-agent | 06 |
 | 08 | ["Why this?" Provenance and "Widen by 3 years"](issues/08-provenance-and-widen.md) | 2b-ii | ready-for-agent | 07 |
-| 09 | [`checkText` and the vetted templates](issues/09-checktext-and-templates.md) | 3a-i | ready-for-agent | 08 |
+| 09 | [`checkText` and the vetted templates](issues/09-checktext-and-templates.md) | 3a-i | code resolved; human gate pending (template review) | 08 |
 | 10 | [`validateKit`: a rogue draft is repaired into a compliant Kit](issues/10-validatekit-pipeline.md) | 3a-i | ready-for-agent | 09 |
 | 11 | [Simple Kit: deterministic Sessions render in the Kit view](issues/11-simple-kit-sessions.md) | 3a-i | ready-for-agent | 10 |
 | 12 | [Agent tools: `expand_theme`, `rerank_cues` and `compose_kit`](issues/12-agent-tools.md) | 3a-ii | ready-for-agent | 11 |
