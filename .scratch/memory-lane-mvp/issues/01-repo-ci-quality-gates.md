@@ -1,6 +1,6 @@
 # 01: Repo, CI and quality gates
 
-Status: code resolved; human gates pending (`vercel link` / `vercel env ls`, public GitHub repo, first push)
+Status: resolved
 Blocked by: None (can start immediately)
 Slice: 1 Skeleton (CORE), part 1 of 2 · Size: S-M · Spec: ../spec.md
 
@@ -87,3 +87,10 @@ You can check it alone: CI is green on the scaffold, `curl -I /` shows the CSP, 
 - `vercel link` and `vercel env ls` (the output must be recorded here, with no secrets). Preview deploys only; no production deploy.
 - Creating the public GitHub repo (A27) and the first `git push`. CI has therefore not yet run on GitHub; the same commands pass locally.
 
+- 2026-10-03 (orchestrator): the human gates are cleared with the user's approval.
+  - Public repo created at https://github.com/SebAustin/memory-lane. MIT is detected in the About section, and topics are set.
+  - First push done.
+  - `vercel link` linked project `memory-lane` (team filou1). `.env.local` holds only `VERCEL_OIDC_TOKEN` and is gitignored.
+  - First deploy: https://memory-lane-d2vg2d4dm-filou1.vercel.app. Vercel auto-assigned this first deploy to production. It returns 200 with the CSP and 15 entity Cues.
+  - Deployment Protection is ON (302 for anonymous visitors). Turning it off for judges needs user approval at the prod gate (ticket 29).
+  - The Git integration is NOT connected, so pushes to main don't auto-deploy to prod.

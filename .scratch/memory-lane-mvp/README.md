@@ -11,7 +11,7 @@ Tickets are numbered in dependency order (blockers first) and follow the PLAN §
 
 | # | Ticket | Slice | Status | Blocked by |
 |---|---|---|---|---|
-| 01 | [Repo, CI and quality gates](issues/01-repo-ci-quality-gates.md) | 1 | code resolved; human gates pending | None |
+| 01 | [Repo, CI and quality gates](issues/01-repo-ci-quality-gates.md) | 1 | resolved | None |
 | 02 | [Meet Margaret shows music Cues from fixtures](issues/02-meet-margaret-music-cues.md) | 1 | resolved | 01 |
 | 03 | [Life Story wizard with a resumable local draft](issues/03-life-story-wizard-draft.md) | 2a | ready-for-agent | 02 |
 | 04 | [Seeds and Avoid List resolve through Qloo; a finished Life Story builds a music Kit](issues/04-seeds-avoid-resolve.md) | 2a | ready-for-agent | 03 |
