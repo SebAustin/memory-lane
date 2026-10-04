@@ -1,5 +1,7 @@
 import "server-only";
 import { z } from "zod";
+import { nameSimilarity } from "@/domain/nameSimilarity";
+import { containsRun, wordsOf } from "@/domain/screening";
 import { normalizeEntity } from "./normalize";
 import {
   DOMAIN_URN,
@@ -8,6 +10,10 @@ import {
   type InsightsParams,
   type QlooClient,
   type QlooEntity,
+  type QlooProvenance,
+  type QlooTag,
+  type SearchQuery,
+  type TagQuery,
 } from "./types";
 
 /**
@@ -19,8 +25,15 @@ import {
 
 const INSIGHTS_ENDPOINT = "/v2/insights";
 const DEFAULT_TAKE = 20;
+const SEARCH_ENDPOINT = "/search";
+const TAGS_ENDPOINT = "/v2/tags";
+const DEFAULT_SEARCH_TAKE = 10;
+/** A fixture hit must look at least this much like the query. Looser than a confident match (0.92), so near-misses become choices. */
+const FIXTURE_MATCH_MIN = 0.7;
 const NO_FIXTURE_HINT =
   "Fixture mode: no fixture matches this request. Try the demo story, Margaret.";
+/** Shown when a `/search` or `/v2/tags` query matches nothing (PLAN 3.1, R3). */
+export const FIXTURE_SEARCH_HINT = "Fixture mode: try the demo Seeds (P1-P5)";
 
 const EntityUrnSchema = z.enum(Object.values(DOMAIN_URN) as [EntityUrn, ...EntityUrn[]]);
 
@@ -34,12 +47,26 @@ const IndexFile = z.object({
       file: z.string().min(1),
     }),
   ),
+  /** One catalog of Qloo-shaped entities that `/search` looks names up in. */
+  search: z.object({ file: z.string().min(1) }).optional(),
+  /** One catalog of tags that `/v2/tags` looks topics up in. */
+  tags: z.object({ file: z.string().min(1) }).optional(),
 });
 
 /** A recorded `/v2/insights` response: only `results.entities` is read. */
 const InsightsResponseFile = z.looseObject({
   results: z.looseObject({ entities: z.array(z.unknown()) }),
 });
+
+/** A recorded `/search` response: a catalog of entities. */
+const SearchResponseFile = z.looseObject({ results: z.array(z.unknown()) });
+
+/** A recorded `/v2/tags` response. */
+const TagsResponseFile = z.looseObject({
+  results: z.looseObject({ tags: z.array(z.unknown()) }),
+});
+
+const RawTag = z.looseObject({ tag_id: z.string().min(1).max(64), name: z.string().min(1).max(80) });
 
 export interface FixtureMatch {
   readonly type: EntityUrn;
@@ -55,6 +82,10 @@ export interface FixtureEntry {
 
 export interface FixtureIndex {
   readonly insights: readonly FixtureEntry[];
+  /** Raw Qloo-shaped entities for `/search` (empty when the index has no catalog). */
+  readonly searchCatalog?: readonly unknown[];
+  /** Raw Qloo-shaped tags for `/v2/tags`. */
+  readonly tagCatalog?: readonly unknown[];
 }
 
 function summarize(error: z.ZodError): string {
@@ -82,7 +113,28 @@ export function loadFixtureIndex(
     }
     return { match, rawEntities: parsedFile.data.results.entities };
   });
-  return { insights };
+
+  const searchCatalog = loadCatalog("search", parsedIndex.data.search?.file, files, (file) => {
+    const parsed = SearchResponseFile.safeParse(file);
+    return parsed.success ? parsed.data.results : undefined;
+  });
+  const tagCatalog = loadCatalog("tags", parsedIndex.data.tags?.file, files, (file) => {
+    const parsed = TagsResponseFile.safeParse(file);
+    return parsed.success ? parsed.data.results.tags : undefined;
+  });
+  return { insights, searchCatalog, tagCatalog };
+}
+
+function loadCatalog(
+  what: string,
+  fileName: string | undefined,
+  files: Readonly<Record<string, unknown>>,
+  extract: (file: unknown) => readonly unknown[] | undefined,
+): readonly unknown[] {
+  if (fileName === undefined) return [];
+  const items = extract(files[fileName]);
+  if (items === undefined) throw new Error(`Fixture file "${fileName}" is missing or not a Qloo ${what} response`);
+  return items;
 }
 
 const normalizeLocation = (value: string | undefined): string | undefined =>
@@ -119,6 +171,30 @@ function applyExclusions(entities: readonly QlooEntity[], params: InsightsParams
   );
 }
 
+/** Name-free provenance for a fixture answer: the key never holds the typed text. */
+const fixtureProvenance = (endpoint: string, paramsKey: string): QlooProvenance => ({
+  endpoint,
+  paramsKey,
+  cached: false,
+  stale: false,
+  retries: 0,
+  ms: 0,
+  synthetic: true,
+});
+
+/** Items whose name is close to `query` or contains all its words, best match first. */
+function closest<T>(items: readonly T[], nameOf: (item: T) => string, query: string): T[] {
+  const queryWords = wordsOf(query);
+  return items
+    .map((item) => ({ item, score: nameSimilarity(query, nameOf(item)) }))
+    .filter(
+      ({ item, score }) =>
+        score >= FIXTURE_MATCH_MIN || (queryWords.length > 0 && containsRun(wordsOf(nameOf(item)), queryWords)),
+    )
+    .sort((a, b) => b.score - a.score)
+    .map(({ item }) => item);
+}
+
 export interface FixtureClientOptions {
   readonly index: FixtureIndex;
   /** Same allow-list as the CSP `img-src` (`QLOO_IMAGE_HOSTS`). */
@@ -135,12 +211,41 @@ export class FixtureQlooClient implements QlooClient {
     readonly match: FixtureMatch;
     readonly entities: readonly QlooEntity[];
   }>;
+  private readonly searchCatalog: readonly QlooEntity[];
+  private readonly tagCatalog: readonly QlooTag[];
 
   constructor({ index, imageHosts }: FixtureClientOptions) {
     this.entries = index.insights.map(({ match, rawEntities }) => ({
       match,
       entities: rawEntities.flatMap((raw) => normalizeEntity(raw, imageHosts) ?? []),
     }));
+    this.searchCatalog = (index.searchCatalog ?? []).flatMap((raw) => normalizeEntity(raw, imageHosts) ?? []);
+    this.tagCatalog = (index.tagCatalog ?? []).flatMap((raw) => {
+      const parsed = RawTag.safeParse(raw);
+      return parsed.success ? [{ id: parsed.data.tag_id, name: parsed.data.name }] : [];
+    });
+  }
+
+  /** Looks a name up in the catalog the way Qloo's fuzzy search would: close spellings and names that contain the query. */
+  async search({ query, types, take = DEFAULT_SEARCH_TAKE }: SearchQuery): Promise<Envelope<readonly QlooEntity[]>> {
+    const provenance = fixtureProvenance(SEARCH_ENDPOINT, `types=${types.join(",")}&take=${take}`);
+    const hits = closest(
+      this.searchCatalog.filter((entity) => types.includes(entity.type)),
+      (entity) => entity.name,
+      query,
+    ).slice(0, take);
+    return hits.length === 0
+      ? { status: "empty", data: [], provenance, hint: FIXTURE_SEARCH_HINT }
+      : { status: "ok", data: hits, provenance };
+  }
+
+  /** Finds tags whose name is close to the topic. */
+  async tags({ query, take = DEFAULT_SEARCH_TAKE }: TagQuery): Promise<Envelope<readonly QlooTag[]>> {
+    const provenance = fixtureProvenance(TAGS_ENDPOINT, `take=${take}`);
+    const hits = closest(this.tagCatalog, (tag) => tag.name, query).slice(0, take);
+    return hits.length === 0
+      ? { status: "empty", data: [], provenance, hint: FIXTURE_SEARCH_HINT }
+      : { status: "ok", data: hits, provenance };
   }
 
   async insights(params: InsightsParams): Promise<Envelope<{ readonly entities: readonly QlooEntity[] }>> {

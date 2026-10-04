@@ -13,9 +13,21 @@ export type FieldName =
   | "language"
   | "occupation";
 
+/** Steps 4-6 have no text fields of their own; their problems are keyed to the control that needs attention. */
+export type LaterStepKey = "seeds" | "avoidEntity" | "avoidTopic" | "dementiaStage";
+/** Anything an error can point at: a text field, or a control on steps 4-6. */
+export type ErrorKey = FieldName | LaterStepKey;
+
 export type FormValues = Readonly<Record<FieldName, string>>;
-export type FieldErrors = Readonly<Partial<Record<FieldName, string>>>;
+export type FieldErrors = Readonly<Partial<Record<ErrorKey, string>>>;
 export type DraftValues = LifeStoryDraft["values"];
+
+/** Text typed on steps 4-6 that has not been matched or added yet, by control. */
+export type PendingText = Readonly<Partial<Record<"seeds" | "avoidEntity" | "avoidTopic", string>>>;
+
+export const MIN_SEEDS = 2;
+export const MAX_SEEDS = 5;
+export const MAX_AVOID_ITEMS = 10;
 
 /** The words the Caregiver sees for each field, from UX section 3. Used by the inputs and the error summary. */
 export const FIELD_LABEL: Readonly<Record<FieldName, string>> = {
@@ -29,6 +41,27 @@ export const FIELD_LABEL: Readonly<Record<FieldName, string>> = {
   occupation: "Work they did",
 };
 
+/** What the error summary calls the controls on steps 4-6. */
+export const LATER_STEP_LABEL: Readonly<Record<LaterStepKey, string>> = {
+  seeds: "Favorites",
+  avoidEntity: "Avoid List: people, songs, films and places",
+  avoidTopic: "Avoid List: topics",
+  dementiaStage: "Dementia Stage",
+};
+
+/** Every error key, labelled, in the order a step shows them. */
+export const ERROR_LABEL: Readonly<Record<ErrorKey, string>> = { ...FIELD_LABEL, ...LATER_STEP_LABEL };
+
+const LATER_STEP_KEYS: Readonly<Record<number, readonly LaterStepKey[]>> = {
+  4: ["seeds"],
+  5: ["avoidEntity", "avoidTopic"],
+  6: ["dementiaStage"],
+};
+
+/** The controls a step can raise an error on, in page order. */
+export const errorKeysOfStep = (step: number): readonly ErrorKey[] =>
+  STEP_FIELDS[step] ?? LATER_STEP_KEYS[step] ?? [];
+
 export const EMPTY_FORM: FormValues = {
   firstName: "",
   birthYear: "",
@@ -40,7 +73,7 @@ export const EMPTY_FORM: FormValues = {
   occupation: "",
 };
 
-/** Which fields each step owns. Steps 4-6 gain theirs in ticket 04. */
+/** Which text fields each step owns. Steps 4-6 keep their answers as structured draft values instead. */
 const STEP_FIELDS: Readonly<Record<number, readonly FieldName[]>> = {
   1: ["firstName", "birthYear"],
   2: ["hometown", "youngAdultCity", "careLocation"],
@@ -135,12 +168,49 @@ export function mergeStepValues(previous: DraftValues, step: number, stepValues:
   return { ...kept, ...stepValues };
 }
 
-/** The furthest step a draft allows: steps 1 and 2 must be complete before anything beyond them. */
+/**
+ * The furthest step a draft allows: steps 1 and 2 must be complete before the
+ * Seeds step, and 2 confirmed Seeds before anything beyond it.
+ */
 export function maxReachableStep(values: DraftValues): number {
   const asForm = formFromDraft(values);
   if (Object.keys(parseStepFields(1, asForm).errors).length > 0) return 1;
   if (Object.keys(parseStepFields(2, asForm).errors).length > 0) return 2;
+  if ((values.seeds?.length ?? 0) < MIN_SEEDS) return 4;
   return STEP_COUNT;
+}
+
+const quoted = (text: string): string => `\u201c${text.trim()}\u201d`;
+
+/**
+ * What must hold before Next on steps 4-6 (FR-4, FR-5, FR-6). Text that has not
+ * been matched to a Qloo entity, or added as a topic, is never accepted: the
+ * Caregiver finishes it or clears the box.
+ */
+export function validateLaterStep(step: number, values: DraftValues, pending: PendingText): FieldErrors {
+  const unmatched = (key: "seeds" | "avoidEntity"): FieldErrors =>
+    (pending[key] ?? "").trim() === ""
+      ? {}
+      : { [key]: `${quoted(pending[key]!)} is not matched yet. Choose Find, or clear the box, to continue.` };
+
+  if (step === 4) {
+    const half = unmatched("seeds");
+    if (Object.keys(half).length > 0) return half;
+    return (values.seeds?.length ?? 0) < MIN_SEEDS ? { seeds: "Choose at least 2 favorites to continue." } : {};
+  }
+  if (step === 5) {
+    const topic = (pending.avoidTopic ?? "").trim();
+    return {
+      ...unmatched("avoidEntity"),
+      ...(topic === ""
+        ? {}
+        : { avoidTopic: `${quoted(topic)} is not on the list yet. Choose Add topic, or clear the box, to continue.` }),
+    };
+  }
+  if (step === 6) {
+    return values.dementiaStage === undefined ? { dementiaStage: "Choose a stage. Not sure? Choose Middle." } : {};
+  }
+  return {};
 }
 
 /** The requested step, or the furthest allowed one when the draft is not ready for it. */

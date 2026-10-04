@@ -5,7 +5,7 @@ import { StoryId } from "@/contracts";
 import { MARGARET, MARGARET_STORY_ID } from "@/demo/margaret";
 import { reminiscenceWindow } from "@/domain/window";
 import { KitView } from "@/features/kit/KitView";
-import { StoryOnAnotherDevice } from "@/features/kit/StoryOnAnotherDevice";
+import { StoredKit } from "@/features/kit/StoredKit";
 import { loadDemoKit } from "@/server/kit/demoKit";
 
 export async function generateMetadata({ params }: PageProps<"/p/[storyId]/kit">): Promise<Metadata> {
@@ -14,9 +14,10 @@ export async function generateMetadata({ params }: PageProps<"/p/[storyId]/kit">
 }
 
 /**
- * `/p/[storyId]/kit`. Interim (ticket 02): only the public demo story exists, and
- * its music Cues come from `buildInterimKit`, the core behind `/api/kit`. Ticket 15
- * replaces this with the streamed build; ticket 03 adds Life Stories from the store.
+ * `/p/[storyId]/kit`. Interim (tickets 02 and 04): the public demo story is built on
+ * the server with `buildInterimKit`, the core behind `/api/kit`. Any other story lives
+ * in the visitor's browser (ADR 0001), so `StoredKit` reads it there and asks the same
+ * endpoint with its digest. Ticket 15 replaces both with the streamed build.
  */
 export default async function KitPage({ params }: PageProps<"/p/[storyId]/kit">) {
   const { storyId } = await params;
@@ -24,7 +25,7 @@ export default async function KitPage({ params }: PageProps<"/p/[storyId]/kit">)
   if (!parsed.success) notFound();
 
   if (parsed.data !== MARGARET_STORY_ID) {
-    return <StoryOnAnotherDevice />;
+    return <StoredKit storyId={parsed.data} />;
   }
 
   const kit = await loadDemoKit();

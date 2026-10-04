@@ -1,0 +1,38 @@
+{
+  "success": true,
+  "duration": 0,
+  "results": {
+    "tags": [
+      {
+        "tag_id": "fx-tag-war-films",
+        "name": "War films",
+        "type": "urn:tag:genre:media"
+      },
+      {
+        "tag_id": "fx-tag-hospitals",
+        "name": "Hospitals",
+        "type": "urn:tag:theme"
+      },
+      {
+        "tag_id": "fx-tag-medical-dramas",
+        "name": "Medical dramas",
+        "type": "urn:tag:genre:media"
+      },
+      {
+        "tag_id": "fx-tag-bereavement",
+        "name": "Bereavement",
+        "type": "urn:tag:theme"
+      },
+      {
+        "tag_id": "fx-tag-country",
+        "name": "Country",
+        "type": "urn:tag:genre:music"
+      },
+      {
+        "tag_id": "fx-tag-cooking-shows",
+        "name": "Cooking shows",
+        "type": "urn:tag:genre:media"
+      }
+    ]
+  }
+}

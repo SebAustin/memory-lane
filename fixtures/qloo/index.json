@@ -6,5 +6,11 @@
       "location": "Memphis",
       "file": "fx-p1-music.json"
     }
-  ]
+  ],
+  "search": {
+    "file": "fx-search.json"
+  },
+  "tags": {
+    "file": "fx-tags.json"
+  }
 }

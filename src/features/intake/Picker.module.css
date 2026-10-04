@@ -1,0 +1,129 @@
+/* The lookup box and the print you confirm. */
+.picker { display: grid; gap: var(--space-4); }
+
+.row { display: flex; flex-wrap: wrap; align-items: stretch; gap: var(--space-3); }
+.input { flex: 1 1 14rem; width: auto; }
+
+/* Find: an ink-outlined stamp, quieter than the green Next so it never competes with it. */
+.find {
+  min-height: var(--tap-primary);
+  padding-inline: var(--space-5);
+  border: 2px solid var(--ink-900);
+  border-radius: var(--radius-control);
+  background: var(--paper-50);
+  color: var(--ink-900);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 3px 0 var(--ink-900);
+  transition: transform var(--dur-fast) var(--ease-out), background-color var(--dur-fast) var(--ease-out);
+}
+.find:hover { background: var(--paper-200); transform: translateY(-2px); }
+.find:active { transform: translateY(2px); box-shadow: none; }
+.find:disabled { border-color: var(--rule); color: var(--ink-700); box-shadow: none; cursor: not-allowed; transform: none; background: var(--paper-100); }
+
+.full {
+  padding: var(--space-2) var(--space-3);
+  border-left: 5px dashed var(--notice-bd);
+  background: var(--notice-bg);
+  color: var(--notice-fg);
+  font-size: var(--text-sm);
+}
+
+/* A reserved line, so the form does not jump when a message appears. */
+.statusSlot { min-height: 0; }
+.status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-4);
+  max-width: var(--measure);
+  padding: var(--space-2) var(--space-3);
+  border-left: 5px solid var(--rule);
+  border-radius: 0 var(--radius-page) var(--radius-page) 0;
+  background: var(--paper-100);
+  font-size: var(--text-sm);
+  color: var(--ink-900);
+}
+.status[data-phase="none"],
+.status[data-phase="invalid"],
+.status[data-phase="busy"] {
+  border-color: var(--notice-bd);
+  background: var(--notice-bg);
+  color: var(--notice-fg);
+}
+.status[data-phase="unreachable"] { border-color: var(--error-bd); background: var(--error-bg); color: var(--error-fg); }
+.status[data-phase="searching"] { border-style: dashed; color: var(--ink-700); }
+.margin { flex-basis: 100%; font-style: italic; }
+.status :global(button) { min-height: var(--tap-min); }
+
+/* The confirm print: one mounted photograph, slightly off true, on the left of its question. */
+.confirm {
+  display: grid;
+  gap: var(--space-3);
+  justify-items: start;
+  padding: var(--space-4) var(--space-4) var(--space-5);
+  border: 2px dashed var(--rule);
+  border-radius: var(--radius-page);
+  background: var(--paper-50);
+}
+.confirmTitle { font-size: var(--text-xl); line-height: var(--lh-snug); letter-spacing: -0.01em; }
+.print {
+  --mat-muted: color-mix(in oklch, var(--mat-ink) 72%, var(--mat));
+  position: relative;
+  display: grid;
+  gap: var(--space-2);
+  width: min(100%, 15rem);
+  margin: var(--space-2) var(--space-2) var(--space-1);
+  padding: var(--space-2) var(--space-2) var(--space-3);
+  border-radius: var(--radius-photo);
+  background: var(--mat);
+  color: var(--mat-ink);
+  box-shadow: var(--shadow-photo);
+  rotate: -2deg;
+  animation: settle var(--dur-slow) var(--ease-settle) both;
+}
+.print::before {
+  content: "";
+  position: absolute;
+  top: -0.7rem;
+  left: 50%;
+  width: 4.5rem;
+  height: 1.5rem;
+  margin-left: -2.25rem;
+  background: var(--tape);
+  transform: rotate(3deg);
+  clip-path: polygon(0 8%, 4% 0, 8% 10%, 12% 0, 100% 0, 96% 50%, 100% 100%, 8% 100%, 4% 90%, 0 100%, 3% 50%);
+}
+@keyframes settle {
+  from { opacity: 0; transform: translateY(-14px) rotate(3deg); }
+  to { opacity: 1; transform: none; }
+}
+.caption { display: grid; gap: var(--space-1); padding-inline: var(--space-1); }
+.printName { font-family: var(--font-display); font-size: var(--text-lg); font-weight: 500; line-height: var(--lh-snug); }
+.printKind {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--mat-muted);
+}
+.printDesc { font-size: var(--text-sm); line-height: var(--lh-snug); color: var(--mat-muted); }
+
+.confirmActions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3) var(--space-5); }
+.unavailable {
+  padding: var(--space-2) var(--space-3);
+  border-left: 5px dashed var(--notice-bd);
+  background: var(--notice-bg);
+  color: var(--notice-fg);
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .print { animation: none; rotate: 0deg; }
+}
+@media (forced-colors: active) {
+  .print { border: 2px solid CanvasText; }
+  .find { border-color: ButtonText; }
+}

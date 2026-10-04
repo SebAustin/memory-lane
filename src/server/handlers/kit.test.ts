@@ -61,7 +61,7 @@ describe("POST /api/kit (interim, music only)", () => {
   });
 
   it("answers 500 (our bug, not an upstream one) with a generic body when the client throws", async () => {
-    const client: QlooClient = {
+    const client: Pick<QlooClient, "insights"> = {
       insights: async () => {
         throw new Error("boom: secret internals");
       },
@@ -81,7 +81,7 @@ describe("POST /api/kit (interim, music only)", () => {
   });
 
   it("copes with a client that throws something that is not an Error", async () => {
-    const client: QlooClient = {
+    const client: Pick<QlooClient, "insights"> = {
       insights: async () => {
         throw "a string";
       },

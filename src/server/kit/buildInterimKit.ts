@@ -1,6 +1,6 @@
 import "server-only";
-import { z } from "zod";
-import { Cue, Notice, StoryId, type KitRequest } from "@/contracts";
+import { Cue, InterimKit, type KitRequest, type Notice } from "@/contracts";
+import { toSignals } from "@/domain/profile";
 import { screenByAvoidTopics } from "@/domain/screening";
 import { AGE_BUCKET } from "@/domain/window";
 import { logEvent, type Logger } from "@/lib/log";
@@ -26,30 +26,23 @@ import { toMusicCue } from "./musicCue";
 const MUSIC_CUE_COUNT = 15;
 /** Ask for more than we show, so filtered entities do not leave the Kit short. */
 const MUSIC_FETCH_TAKE = 25;
-const MAX_INTERESTS = 10;
 
-export const InterimKit = z.object({
-  storyId: StoryId,
-  status: z.enum(["ok", "empty", "needs_input", "partial", "degraded", "error"]),
-  cues: z.array(Cue),
-  notices: z.array(Notice),
-});
-export type InterimKit = z.infer<typeof InterimKit>;
+export { InterimKit };
 
 export interface BuildInterimKitDeps {
-  readonly client: QlooClient;
+  /** The Kit only needs `insights`; it never searches. */
+  readonly client: Pick<QlooClient, "insights">;
   readonly log?: Logger;
 }
 
 function musicParams(request: KitRequest): InsightsParams {
   const { profile, digest } = request;
-  const excluded = (kind: "entity" | "tag") =>
-    profile.exclusions.filter((e) => e.kind === kind).map((e) => e.id);
+  const signals = toSignals(profile, digest.sensitiveThemesOptIn);
   return {
     filterType: DOMAIN_URN.music,
-    interests: profile.seeds.slice(0, MAX_INTERESTS).map((seed) => seed.entityId),
-    excludeEntities: excluded("entity"),
-    excludeTags: excluded("tag"),
+    interests: signals.interests.map((interest) => interest.entityId),
+    excludeEntities: signals.excludeEntities,
+    excludeTags: signals.excludeTags,
     age: AGE_BUCKET,
     locationQuery: digest.hometown,
     take: MUSIC_FETCH_TAKE,

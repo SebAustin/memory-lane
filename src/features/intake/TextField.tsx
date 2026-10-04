@@ -1,6 +1,6 @@
 import { useId, useMemo, type HTMLAttributes } from "react";
 import { detectPiiRisk, type PiiKind } from "@/domain/pii";
-import type { FieldName } from "./form";
+import type { ErrorKey, FieldName } from "./form";
 import styles from "./TextField.module.css";
 
 /** Calm, plain hints (UX section 3). They never block, and never repeat what was typed. */
@@ -28,8 +28,25 @@ export interface TextFieldProps {
   readonly autoCapitalize?: "words" | "off";
 }
 
+/** A field's error, under it: an icon, "Error:" for screen readers, and the plain-language message. */
+export function InlineError({ id, message }: { readonly id: string; readonly message: string }) {
+  return (
+    <p id={id} className={styles.error}>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"
+        strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
+        <path d="M12 3l10 18H2z" />
+        <path d="M12 10v5M12 18h.01" />
+      </svg>
+      <span>
+        <span className="visually-hidden">Error: </span>
+        {message}
+      </span>
+    </p>
+  );
+}
+
 /** The id of a field's input, so the error summary can link to it. */
-export const fieldId = (name: FieldName): string => `intake-${name}`;
+export const fieldId = (name: ErrorKey): string => `intake-${name}`;
 
 /**
  * A labelled text input with an optional hint, an inline error and gentle
@@ -86,19 +103,7 @@ export function TextField({
         aria-invalid={error !== undefined ? true : undefined}
         aria-describedby={describedBy === "" ? undefined : describedBy}
       />
-      {error !== undefined && (
-        <p id={errorId} className={styles.error}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"
-            strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
-            <path d="M12 3l10 18H2z" />
-            <path d="M12 10v5M12 18h.01" />
-          </svg>
-          <span>
-            <span className="visually-hidden">Error: </span>
-            {error}
-          </span>
-        </p>
-      )}
+      {error !== undefined && <InlineError id={errorId} message={error} />}
       <div aria-live="polite">
         {findings.length > 0 && (
           <p id={piiId} className={styles.piiHint}>

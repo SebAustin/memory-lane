@@ -199,3 +199,26 @@ describe("isAllowedImageHost", () => {
     expect(isAllowedImageHost("https://IMAGES.Qloo.Example/a.jpg", HOSTS)).toBe(true);
   });
 });
+
+describe("normalizeEntity description", () => {
+  const withDescription = (description: unknown) =>
+    normalizeEntity(
+      { entity_id: "e1", name: "Doris Day", type: "urn:entity:artist", properties: { description } },
+      [],
+    );
+
+  it("keeps a short description, collapsing whitespace", () => {
+    expect(withDescription("  American   singer\nand actress ")?.description).toBe("American singer and actress");
+  });
+
+  it("cuts a long description to 160 characters with an ellipsis", () => {
+    const description = withDescription("word ".repeat(80))?.description ?? "";
+
+    expect(description.length).toBeLessThanOrEqual(160);
+    expect(description.endsWith("\u2026")).toBe(true);
+  });
+
+  it.each([[""], ["   "], [42], [undefined]])("leaves it out when Qloo gave %j", (value) => {
+    expect(withDescription(value)).not.toHaveProperty("description");
+  });
+});

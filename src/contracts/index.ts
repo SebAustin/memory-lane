@@ -10,3 +10,5 @@ export * from "./session-log";
 export * from "./stream";
 export * from "./requests";
 export * from "./store";
+export * from "./resolve";
+export * from "./interim-kit";

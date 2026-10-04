@@ -56,10 +56,14 @@ export const LifeStory = z.object({
   createdAt: z.iso.datetime(),
 });
 
-/** The single resumable wizard draft (step 1..6). */
+/**
+ * The single resumable wizard draft (step 1..6). It is a partial Life Story,
+ * except that a draft may hold fewer than the 2 Seeds a finished story needs:
+ * each Seed is saved as soon as the Caregiver confirms it.
+ */
 export const LifeStoryDraft = z.object({
   step: z.number().int().min(1).max(6),
-  values: LifeStory.partial(),
+  values: LifeStory.partial().extend({ seeds: z.array(Seed).max(5).optional() }),
   updatedAt: z.iso.datetime(),
 });
 

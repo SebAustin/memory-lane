@@ -4,9 +4,9 @@ import type { Domain } from "@/contracts";
 export type { Domain } from "@/contracts";
 
 /**
- * Qloo seam types (PLAN section 3.1). This is the minimal slice that ticket 02
- * needs: insights only. Tickets 04-06 add `search`, `tags`, `compare`, the
- * HTTP client, caching and the full fixture semantics.
+ * Qloo seam types (PLAN section 3.1). `insights` (ticket 02), `search` and
+ * `tags` (ticket 04) exist; tickets 05-06 add `compare`, the HTTP client,
+ * caching and the full fixture semantics.
  */
 
 /** Qloo entity types Memory Lane uses as Cues. */
@@ -82,6 +82,8 @@ export interface QlooEntity {
   readonly type: EntityUrn;
   readonly domain: Domain;
   readonly year?: number;
+  /** One short line from Qloo, kept to tell look-alike entities apart. Absent when Qloo gave none. */
+  readonly description?: string;
   /** An https URL on an allow-listed host, or null (the UI shows a monogram). */
   readonly imageUrl: string | null;
   readonly tags: readonly QlooTag[];
@@ -107,6 +109,20 @@ export interface InsightsParams {
   readonly take?: number;
 }
 
+/** Parameters for `/search`: a name to look up, among the given entity types. */
+export interface SearchQuery {
+  readonly query: string;
+  readonly types: readonly EntityUrn[];
+  readonly take?: number;
+}
+
+/** Parameters for `/v2/tags` (semantic search for a tag by meaning). */
+export interface TagQuery {
+  readonly query: string;
+  readonly tagTypes?: readonly string[];
+  readonly take?: number;
+}
+
 export interface CallBudget {
   /** False once the budget is spent: the call must return `error:'budget'` without any HTTP request. */
   take(kind: "prefetch" | "agent"): boolean;
@@ -119,6 +135,10 @@ export interface CallOpts {
 
 /** The one Qloo seam. Implemented by the fixture client now and an HTTP client later (ADR 0002). */
 export interface QlooClient {
+  /** `/search`: candidates for a typed name. Matches are candidates only; confirm them (`resolveSeed`). */
+  search(query: SearchQuery, opts?: CallOpts): Promise<Envelope<readonly QlooEntity[]>>;
+  /** `/v2/tags`: tags whose meaning is close to a topic. */
+  tags(query: TagQuery, opts?: CallOpts): Promise<Envelope<readonly QlooTag[]>>;
   insights(
     params: InsightsParams,
     opts?: CallOpts,

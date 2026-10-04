@@ -11,6 +11,8 @@ export interface IntakeNav {
   go(step: number, mode: "push" | "replace"): void;
   /** Leaves the wizard for the landing page. */
   leave(): void;
+  /** Opens a Life Story's Kit (after the story is built). */
+  openKit(storyId: string): void;
 }
 
 /**
@@ -27,5 +29,6 @@ export function useIntakeNav(): IntakeNav {
     else window.history.replaceState(null, "", url);
   }, []);
   const leave = useCallback(() => router.push("/"), [router]);
-  return { requested: parseStepParam(params.get("step")), go, leave };
+  const openKit = useCallback((storyId: string) => router.push(`/p/${storyId}/kit`), [router]);
+  return { requested: parseStepParam(params.get("step")), go, leave, openKit };
 }

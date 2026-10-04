@@ -1,0 +1,240 @@
+{
+  "success": true,
+  "duration": 0,
+  "results": [
+    {
+      "entity_id": "fx-artist-patsy-cline",
+      "name": "Patsy Cline",
+      "type": "urn:entity:artist",
+      "properties": {
+        "description": "American country singer, 1932-1963. Crazy, Walkin' after Midnight"
+      },
+      "tags": [
+        {
+          "tag_id": "fx-tag-country",
+          "name": "Country",
+          "type": "urn:tag:fixture"
+        }
+      ]
+    },
+    {
+      "entity_id": "fx-film-pillow-talk",
+      "name": "Pillow Talk",
+      "type": "urn:entity:movie",
+      "properties": {
+        "description": "Romantic comedy with Doris Day and Rock Hudson",
+        "release_year": 1959
+      },
+      "tags": []
+    },
+    {
+      "entity_id": "fx-film-move-over-darling",
+      "name": "Move Over, Darling",
+      "type": "urn:entity:movie",
+      "properties": {
+        "description": "Comedy with Doris Day and James Garner",
+        "release_year": 1963
+      },
+      "tags": []
+    },
+    {
+      "entity_id": "fx-artist-doris-day",
+      "name": "Doris Day",
+      "type": "urn:entity:artist",
+      "properties": {
+        "description": "American singer and actress, 1922-2019. Que Sera, Sera"
+      },
+      "tags": []
+    },
+    {
+      "entity_id": "fx-artist-doris-day-revue",
+      "name": "Doris Day",
+      "type": "urn:entity:artist",
+      "properties": {
+        "description": "Fixture look-alike: a 1950s pop revue act"
+      },
+      "tags": []
+    },
+    {
+      "entity_id": "fx-tv-doris-day-show",
+      "name": "The Doris Day Show",
+      "type": "urn:entity:tv_show",
+      "properties": {
+        "description": "Sitcom starring Doris Day",
+        "release_year": 1968
+      },
+      "tags": []
+    },
+    {
+      "entity_id": "fx-artist-lonnie-donegan",
+      "name": "Lonnie Donegan",
+      "type": "urn:entity:artist",
+      "properties": {
+        "description": "British skiffle singer. Rock Island Line"
+      },
+      "tags": []
+    },
+    {
+      "entity_id": "fx-film-brief-encounter",
+      "name": "Brief Encounter",
+      "type": "urn:entity:movie",
+      "properties": {
+        "description": "British romantic drama set at a railway station",
+        "release_year": 1945
+      },
+      "tags": []
+    },
+    {
+      "entity_id": "fx-tv-coronation-street",
+      "name": "Coronation Street",
+      "type": "urn:entity:tv_show",
+      "properties": {
+        "description": "British soap opera set in Weatherfield",
+        "release_year": 1960
+      },
+      "tags": []
+    },
+    {
+      "entity_id": "fx-artist-pedro-infante",
+      "name": "Pedro Infante",
+      "type": "urn:entity:artist",
+      "properties": {
+        "description": "Mexican singer and actor of the Golden Age of cinema"
+      },
+      "tags": []
+    },
+    {
+      "entity_id": "fx-artist-juan-gabriel",
+      "name": "Juan Gabriel",
+      "type": "urn:entity:artist",
+      "properties": {
+        "description": "Mexican singer-songwriter. Amor eterno"
+      },
+      "tags": []
+    },
+    {
+      "entity_id": "fx-tv-el-chavo-del-ocho",
+      "name": "El Chavo del Ocho",
+      "type": "urn:entity:tv_show",
+      "properties": {
+        "description": "Mexican sitcom about a boy in a neighbourhood courtyard",
+        "release_year": 1971
+      },
+      "tags": []
+    },
+    {
+      "entity_id": "fx-artist-nora-aunor",
+      "name": "Nora Aunor",
+      "type": "urn:entity:artist",
+      "properties": {
+        "description": "Filipino singer and actress"
+      },
+      "tags": []
+    },
+    {
+      "entity_id": "fx-artist-the-carpenters",
+      "name": "The Carpenters",
+      "type": "urn:entity:artist",
+      "properties": {
+        "description": "American soft-rock duo. Close to You"
+      },
+      "tags": []
+    },
+    {
+      "entity_id": "fx-tv-eat-bulaga",
+      "name": "Eat Bulaga!",
+      "type": "urn:entity:tv_show",
+      "properties": {
+        "description": "Filipino noontime variety show",
+        "release_year": 1979
+      },
+      "tags": []
+    },
+    {
+      "entity_id": "fx-artist-run-dmc",
+      "name": "Run-DMC",
+      "type": "urn:entity:artist",
+      "properties": {
+        "description": "American hip-hop group from Queens, New York"
+      },
+      "tags": []
+    },
+    {
+      "entity_id": "fx-film-do-the-right-thing",
+      "name": "Do the Right Thing",
+      "type": "urn:entity:movie",
+      "properties": {
+        "description": "Spike Lee drama set on a Brooklyn block",
+        "release_year": 1989
+      },
+      "tags": []
+    },
+    {
+      "entity_id": "fx-film-apocalypse-now",
+      "name": "Apocalypse Now",
+      "type": "urn:entity:movie",
+      "properties": {
+        "description": "War drama set during the Vietnam War",
+        "release_year": 1979
+      },
+      "tags": []
+    },
+    {
+      "entity_id": "fx-film-full-metal-jacket",
+      "name": "Full Metal Jacket",
+      "type": "urn:entity:movie",
+      "properties": {
+        "description": "War drama about US Marines in Vietnam",
+        "release_year": 1987
+      },
+      "tags": []
+    },
+    {
+      "entity_id": "fx-tv-general-hospital",
+      "name": "General Hospital",
+      "type": "urn:entity:tv_show",
+      "properties": {
+        "description": "American medical soap opera",
+        "release_year": 1963
+      },
+      "tags": []
+    },
+    {
+      "entity_id": "fx-artist-patti-page",
+      "name": "Patti Page",
+      "type": "urn:entity:artist",
+      "properties": {
+        "description": "American singer. The Tennessee Waltz"
+      },
+      "tags": []
+    },
+    {
+      "entity_id": "fx-place-graceland",
+      "name": "Graceland",
+      "type": "urn:entity:place",
+      "properties": {
+        "description": "Elvis Presley's home in Memphis, Tennessee"
+      },
+      "tags": []
+    },
+    {
+      "entity_id": "fx-book-to-kill-a-mockingbird",
+      "name": "To Kill a Mockingbird",
+      "type": "urn:entity:book",
+      "properties": {
+        "description": "Novel by Harper Lee",
+        "release_year": 1960
+      },
+      "tags": []
+    },
+    {
+      "entity_id": "fx-brand-coca-cola",
+      "name": "Coca-Cola",
+      "type": "urn:entity:brand",
+      "properties": {
+        "description": "American soft drink brand"
+      },
+      "tags": []
+    }
+  ]
+}

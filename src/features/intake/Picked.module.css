@@ -1,0 +1,63 @@
+/* Chosen items: a strip of small prints. Each carries its own Remove. */
+.list { display: grid; gap: var(--space-3); list-style: none; }
+.item {
+  --mat-muted: color-mix(in oklch, var(--mat-ink) 72%, var(--mat));
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-2);
+  border-radius: var(--radius-photo);
+  background: var(--mat);
+  color: var(--mat-ink);
+  box-shadow: var(--shadow-photo);
+}
+.item:nth-child(odd) { rotate: -0.35deg; }
+.item:nth-child(even) { rotate: 0.3deg; }
+@media (prefers-reduced-motion: reduce) { .item:nth-child(odd), .item:nth-child(even) { rotate: 0deg; } }
+
+.picture { display: block; width: 5rem; }
+.slip {
+  display: grid;
+  place-items: center;
+  width: 5rem;
+  height: 3.75rem;
+  border: 2px dashed var(--mat-muted);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--mat-muted);
+}
+.text { display: grid; gap: 0.1rem; min-width: 0; }
+.name {
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  font-weight: 500;
+  line-height: var(--lh-snug);
+  overflow-wrap: anywhere;
+}
+.kind {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--mat-muted);
+}
+.outcome { font-size: var(--text-sm); line-height: var(--lh-snug); color: var(--mat-muted); }
+
+.remove {
+  display: grid;
+  place-items: center;
+  width: var(--tap-min);
+  height: var(--tap-min);
+  border: 2px solid transparent;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--mat-ink);
+  cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+}
+.remove:hover { background: color-mix(in oklch, var(--clay-600) 14%, var(--mat)); border-color: var(--clay-600); }
+.remove:active { background: color-mix(in oklch, var(--clay-600) 26%, var(--mat)); }
+@media (forced-colors: active) { .item { border: 2px solid CanvasText; } }

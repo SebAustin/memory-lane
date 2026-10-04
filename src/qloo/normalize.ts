@@ -13,6 +13,7 @@ import { DOMAIN_URN, type EntityUrn, type QlooEntity, type QlooTag } from "./typ
 const MAX_ID = 64;
 const MAX_ENTITY_NAME = 120;
 const MAX_TAG_NAME = 80;
+const MAX_DESCRIPTION = 160;
 
 const RawEntity = z.looseObject({
   entity_id: z.string().min(1).max(MAX_ID),
@@ -96,6 +97,14 @@ function readExplainability(query: unknown): Record<string, number> {
   );
 }
 
+/** `properties.description`, trimmed and cut to a short line; absent when Qloo gave none. */
+function readDescription(properties: unknown): string | undefined {
+  if (!isRecord(properties) || typeof properties.description !== "string") return undefined;
+  const text = properties.description.replace(/\s+/g, " ").trim();
+  if (text === "") return undefined;
+  return text.length <= MAX_DESCRIPTION ? text : `${text.slice(0, MAX_DESCRIPTION - 1).trimEnd()}\u2026`;
+}
+
 function readYear(properties: unknown): number | undefined {
   if (!isRecord(properties)) return undefined;
   const year = properties.release_year;
@@ -117,12 +126,14 @@ export function normalizeEntity(raw: unknown, imageHosts: readonly string[]): Ql
 
   const image = readImage(properties);
   const year = readYear(properties);
+  const description = readDescription(properties);
   return {
     entityId: entity_id,
     name,
     type: mapped.urn,
     domain: mapped.domain,
     ...(year === undefined ? {} : { year }),
+    ...(description === undefined ? {} : { description }),
     imageUrl: image !== null && isAllowedImageHost(image, imageHosts) ? image : null,
     tags: readTags(tags),
     affinity: readAffinity(query),

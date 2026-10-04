@@ -5,6 +5,7 @@ import { createQlooClient } from "@/qloo";
 import type { Envelope, EnvelopeStatus, QlooClient, QlooEntity } from "@/qloo/types";
 import { getServerConfig } from "@/config/server-config";
 import type { LogEvent } from "@/lib/log";
+import { SENSITIVE_TAG_IDS } from "@/domain/sensitiveTags";
 import { buildInterimKit } from "@/server/kit/buildInterimKit";
 
 const fixtureClient = () => createQlooClient(getServerConfig({ QLOO_MODE: "fixture" }));
@@ -31,7 +32,7 @@ const envelopeOf = (
 /** A client that records the params it was asked for and answers with `envelope`. */
 function stubClient(envelope: Envelope<{ entities: readonly QlooEntity[] }>) {
   const insights = vi.fn<QlooClient["insights"]>(async () => envelope);
-  return { client: { insights } satisfies QlooClient, insights };
+  return { client: { insights } satisfies Pick<QlooClient, "insights">, insights };
 }
 
 const recorder = () => {
@@ -43,7 +44,7 @@ const recorder = () => {
 const artists = (n: number) =>
   Array.from({ length: n }, (_, i) => entity(`fx-artist-extra-${i}`, `Extra Artist ${i}`, { affinity: 0.4 }));
 
-const build = (request: KitRequest, client: QlooClient, log = recorder().log) =>
+const build = (request: KitRequest, client: Pick<QlooClient, "insights">, log = recorder().log) =>
   buildInterimKit(request, { client, log });
 
 describe("buildInterimKit against the fixtures", () => {
@@ -166,8 +167,37 @@ describe("buildInterimKit filters (the checks only ever remove)", () => {
     expect(kit.cues.map((c) => c.entityId)).toEqual(["fx-yes"]);
     expect(insights.mock.calls[0]?.[0]).toMatchObject({
       excludeEntities: ["fx-no"],
-      excludeTags: ["fx-tag-no"],
+      excludeTags: ["fx-tag-no", ...SENSITIVE_TAG_IDS],
     });
+  });
+
+  it("excludes the sensitive-theme tags unless the Caregiver opted in (FR-5)", async () => {
+    const request = margaretKitRequest();
+    const { client, insights } = stubClient(envelopeOf([entity("fx-yes", "Yes")]));
+
+    await build(request, client);
+    await build({ ...request, digest: { ...request.digest, sensitiveThemesOptIn: true } }, client);
+
+    expect(insights.mock.calls[0]?.[0].excludeTags).toEqual(SENSITIVE_TAG_IDS);
+    expect(insights.mock.calls[1]?.[0].excludeTags).toEqual([]);
+  });
+
+  it("asks Qloo for no more than 10 interests, Seeds first (NFR-11)", async () => {
+    const request = margaretKitRequest();
+    const favorites = Array.from({ length: 12 }, (_, i) => ({
+      entityId: `fx-lf-${i}`,
+      name: `Favorite ${i}`,
+      domain: "music" as const,
+      weight: 1,
+      fromSessionId: "s1",
+    }));
+    const { client, insights } = stubClient(envelopeOf([entity("fx-yes", "Yes")]));
+
+    await build({ ...request, profile: { ...request.profile, learnedFavorites: favorites } }, client);
+
+    const interests = insights.mock.calls[0]?.[0].interests ?? [];
+    expect(interests).toHaveLength(10);
+    expect(interests.slice(0, 3)).toEqual(request.profile.seeds.map((seed) => seed.entityId));
   });
 
   it("drops an entity whose name matches an Avoid topic, with a notice (PLAN section 14.1)", async () => {

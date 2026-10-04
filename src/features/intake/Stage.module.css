@@ -1,0 +1,100 @@
+/* Three ruled index cards. The chosen one is lifted, stamped and edged in green. */
+.group {
+  display: grid;
+  gap: var(--space-3);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.legend {
+  float: left;
+  width: 100%;
+  padding: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  line-height: var(--lh-snug);
+  letter-spacing: -0.01em;
+}
+.legend + * { clear: both; }
+.hint { max-width: var(--measure); color: var(--ink-700); }
+
+.cards { display: grid; gap: var(--space-4); }
+
+.card {
+  /* Ruling mixed in sRGB: mixing with "transparent" in OKLCH would grey the whole card. */
+  --stage-margin: color-mix(in srgb, var(--clay-600) 60%, transparent);
+  --stage-rule: color-mix(in srgb, var(--blue-700) 16%, transparent);
+  position: relative;
+  display: block;
+  cursor: pointer;
+}
+.face {
+  position: relative;
+  display: grid;
+  gap: var(--space-2);
+  min-height: 100%;
+  padding: var(--space-5) var(--space-4) var(--space-4) var(--space-6);
+  border: 2px solid var(--rule);
+  border-radius: var(--radius-page);
+  /* Index-card ruling and a red margin line. */
+  background-color: var(--paper-50);
+  background-image:
+    linear-gradient(to right, transparent 2.1rem, var(--stage-margin) 2.1rem, var(--stage-margin) calc(2.1rem + 2px), transparent calc(2.1rem + 2px)),
+    repeating-linear-gradient(to bottom, transparent 0, transparent 1.7rem, var(--stage-rule) 1.7rem, var(--stage-rule) calc(1.7rem + 1px));
+  box-shadow: var(--shadow-photo);
+  transition: transform var(--dur-normal) var(--ease-settle), border-color var(--dur-fast) var(--ease-out);
+}
+.card:hover .face { transform: translateY(-3px); border-color: var(--ink-500); }
+
+.title {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-style: italic;
+  font-weight: 500;
+  line-height: var(--lh-tight);
+  letter-spacing: -0.01em;
+  color: var(--ink-900);
+}
+.summary { max-width: 36ch; color: var(--ink-900); }
+.shape { max-width: 36ch; font-size: var(--text-sm); color: var(--ink-700); }
+
+.chosen {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  padding: 0.1rem var(--space-3);
+  border: 2px solid var(--green-800);
+  border-radius: var(--radius-photo);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--green-800);
+  rotate: 4deg;
+  opacity: 0;
+  scale: 1.25;
+  transition: opacity var(--dur-fast) var(--ease-out), scale var(--dur-normal) var(--ease-settle);
+}
+.card:has(input:checked) .face {
+  border-color: var(--green-700);
+  box-shadow: 0 0 0 3px var(--green-700), var(--shadow-lift);
+  transform: translateY(-4px);
+}
+.card:has(input:checked) .chosen { opacity: 1; scale: 1; }
+.card:has(input:focus-visible) .face {
+  outline: 3px solid var(--focus);
+  outline-offset: 4px;
+  box-shadow: 0 0 0 7px var(--focus-halo), var(--shadow-photo);
+}
+
+@media (min-width: 48rem) {
+  .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .card:hover .face, .card:has(input:checked) .face { transform: none; }
+  .chosen { rotate: 0deg; }
+}
+@media (forced-colors: active) {
+  .card:has(input:checked) .face { outline: 4px solid Highlight; }
+}

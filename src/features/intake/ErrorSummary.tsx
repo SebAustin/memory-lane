@@ -1,12 +1,12 @@
 import { forwardRef } from "react";
 import { fieldId } from "./TextField";
-import type { FieldErrors, FieldName } from "./form";
+import type { ErrorKey, FieldErrors } from "./form";
 import styles from "./ErrorSummary.module.css";
 
 export interface ErrorSummaryProps {
   readonly errors: FieldErrors;
   /** Plain names for the fields, in the order they appear on the page. */
-  readonly labels: Readonly<Partial<Record<FieldName, string>>>;
+  readonly labels: Readonly<Partial<Record<ErrorKey, string>>>;
 }
 
 /**
@@ -18,10 +18,10 @@ export const ErrorSummary = forwardRef<HTMLElement, ErrorSummaryProps>(function 
   { errors, labels },
   ref,
 ) {
-  const names = (Object.keys(labels) as FieldName[]).filter((name) => errors[name] !== undefined);
+  const names = (Object.keys(labels) as ErrorKey[]).filter((name) => errors[name] !== undefined);
   if (names.length === 0) return null;
 
-  const focusField = (name: FieldName) => (event: React.MouseEvent) => {
+  const focusField = (name: ErrorKey) => (event: React.MouseEvent) => {
     event.preventDefault();
     document.getElementById(fieldId(name))?.focus();
   };

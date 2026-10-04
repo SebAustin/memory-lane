@@ -2,6 +2,7 @@
 
 import { Container } from "@/components/ui/Container";
 import { useRepository, useStore, useStoreStatus } from "@/lib/store/useStore";
+import type { Resolver } from "./resolver";
 import { Stepper } from "./Stepper";
 import { WizardBody } from "./WizardBody";
 import { useIntakeNav } from "./useIntakeNav";
@@ -13,7 +14,7 @@ import styles from "./Wizard.module.css";
  * the wizard. The server renders the waiting state, which is also what a
  * browser without JavaScript sees.
  */
-export function IntakeWizard() {
+export function IntakeWizard({ resolver }: { readonly resolver?: Resolver } = {}) {
   const repository = useRepository();
   const status = useStoreStatus();
   const draft = useStore((state) => state.draft);
@@ -32,5 +33,5 @@ export function IntakeWizard() {
       </Container>
     );
   }
-  return <WizardBody repository={repository} initialDraft={draft} nav={nav} status={status} />;
+  return <WizardBody repository={repository} initialDraft={draft} nav={nav} status={status} resolver={resolver} />;
 }

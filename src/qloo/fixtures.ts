@@ -1,6 +1,8 @@
 import "server-only";
 import indexFile from "../../fixtures/qloo/index.json";
 import p1Music from "../../fixtures/qloo/fx-p1-music.json";
+import search from "../../fixtures/qloo/fx-search.json";
+import tags from "../../fixtures/qloo/fx-tags.json";
 import { loadFixtureIndex } from "./fixture";
 
 /**
@@ -10,4 +12,6 @@ import { loadFixtureIndex } from "./fixture";
  */
 export const bundledFixtureIndex = loadFixtureIndex(indexFile, {
   "fx-p1-music.json": p1Music,
+  "fx-search.json": search,
+  "fx-tags.json": tags,
 });

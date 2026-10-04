@@ -16,11 +16,12 @@ import type { IntakeNav } from "./useIntakeNav";
  */
 let startUrlStep: number | null = null;
 const leave = vi.fn();
+const openKit = vi.fn();
 vi.mock("./useIntakeNav", () => ({
   useIntakeNav: (): IntakeNav => {
     const [requested, setRequested] = useState<number | null>(startUrlStep);
     const go = useCallback((step: number) => setRequested(step), []);
-    return { requested, go, leave };
+    return { requested, go, leave, openKit };
   },
 }));
 
@@ -53,6 +54,7 @@ async function fillStepOne() {
 beforeEach(() => {
   startUrlStep = null;
   leave.mockClear();
+  openKit.mockClear();
 });
 afterEach(cleanup);
 
@@ -291,19 +293,17 @@ describe("step 3: Roots and the optional steps", () => {
     await waitFor(() => expect(document.activeElement).toBe(screen.getByRole("heading", { level: 1 })));
   });
 
-  it("walks the shells: Skip on the Avoid List, and a last step that cannot build yet", async () => {
+  it("reaches the Seeds step, where there is no Skip and Next asks for favorites", async () => {
     await toStepThree();
     next();
     await screen.findByText("Step 4 of 6");
     expect(screen.queryByRole("button", { name: "Skip" })).toBeNull();
-    next();
-    await screen.findByText("Step 5 of 6");
-    fireEvent.click(screen.getByRole("button", { name: "Skip" }));
-    await screen.findByText("Step 6 of 6");
 
-    const build = screen.getByRole("button", { name: /Build Margaret.s Kit/ }) as HTMLButtonElement;
-    expect(build.disabled).toBe(true);
-    expect(screen.getByRole("button", { name: "Back" })).toBeTruthy();
+    next();
+
+    const summary = screen.getByRole("region", { name: "One thing to check" });
+    expect(within(summary).getByText(/Choose at least 2 favorites to continue/)).toBeTruthy();
+    expect(document.activeElement).toBe(summary);
   });
 });
 

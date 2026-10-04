@@ -5,6 +5,7 @@ import {
   formFromDraft,
   maxReachableStep,
   mergeStepValues,
+  validateLaterStep,
   parseStepFields,
   parseStepParam,
   previewWindow,
@@ -146,8 +147,16 @@ describe("how far a draft lets the Caregiver go", () => {
     expect(maxReachableStep({ firstName: "Margaret", birthYear: 1946 })).toBe(2);
   });
 
-  it("opens every step once steps 1 and 2 are done", () => {
-    expect(maxReachableStep({ firstName: "Margaret", birthYear: 1946, hometown: "Memphis" })).toBe(6);
+  it("opens the Seeds step once steps 1 and 2 are done, but not the ones after it", () => {
+    expect(maxReachableStep({ firstName: "Margaret", birthYear: 1946, hometown: "Memphis" })).toBe(4);
+  });
+
+  it("opens every step once there are 2 Seeds", () => {
+    const base = { firstName: "Margaret", birthYear: 1946, hometown: "Memphis" };
+    const seed = (n: number) => ({ entityId: `fx-${n}`, name: `Seed ${n}`, domain: "music" as const, imageUrl: null });
+
+    expect(maxReachableStep({ ...base, seeds: [seed(1)] })).toBe(4);
+    expect(maxReachableStep({ ...base, seeds: [seed(1), seed(2)] })).toBe(6);
   });
 
   it("picks the requested step when allowed, else the furthest allowed one", () => {
@@ -182,5 +191,40 @@ describe("the live Reminiscence Window preview", () => {
 
   it.each(["", "19", "194", "19466", "1919", "1976", "abc", "19.5", "-1946"])("shows nothing for %j", (text) => {
     expect(previewWindow(text)).toBeNull();
+  });
+});
+
+describe("steps 4-6: what must hold before Next (FR-4, FR-5, FR-6)", () => {
+  const seed = (n: number) => ({ entityId: `fx-${n}`, name: `Seed ${n}`, domain: "music" as const, imageUrl: null });
+
+  it("step 4 needs at least 2 Seeds", () => {
+    expect(validateLaterStep(4, { seeds: [seed(1)] }, {}).seeds).toBe("Choose at least 2 favorites to continue.");
+    expect(validateLaterStep(4, {}, {}).seeds).toBe("Choose at least 2 favorites to continue.");
+    expect(validateLaterStep(4, { seeds: [seed(1), seed(2)] }, {})).toEqual({});
+  });
+
+  it("step 4 never accepts text that has not been matched to an entity", () => {
+    const errors = validateLaterStep(4, { seeds: [seed(1), seed(2)] }, { seeds: " Doris Day " });
+
+    expect(errors.seeds).toBe("\u201cDoris Day\u201d is not matched yet. Choose Find, or clear the box, to continue.");
+  });
+
+  it("step 5 is optional, but not with half-typed entries", () => {
+    expect(validateLaterStep(5, {}, {})).toEqual({});
+    expect(validateLaterStep(5, {}, { avoidEntity: "Apocalypse" }).avoidEntity).toBe(
+      "\u201cApocalypse\u201d is not matched yet. Choose Find, or clear the box, to continue.",
+    );
+    expect(validateLaterStep(5, {}, { avoidTopic: "hospitals" }).avoidTopic).toBe(
+      "\u201chospitals\u201d is not on the list yet. Choose Add topic, or clear the box, to continue.",
+    );
+  });
+
+  it("step 6 needs a Dementia Stage", () => {
+    expect(validateLaterStep(6, {}, {}).dementiaStage).toBe("Choose a stage. Not sure? Choose Middle.");
+    expect(validateLaterStep(6, { dementiaStage: "late" }, {})).toEqual({});
+  });
+
+  it("steps 1-3 have nothing extra to check here", () => {
+    expect(validateLaterStep(2, {}, {})).toEqual({});
   });
 });
