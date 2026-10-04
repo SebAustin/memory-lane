@@ -30,6 +30,7 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     ".remember/**",
     ".scratch/**",
+    ".claude/**",
     "coverage/**",
     "playwright-report/**",
     "test-results/**",
