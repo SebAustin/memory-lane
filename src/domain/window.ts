@@ -39,3 +39,18 @@ export function reminiscenceWindow(birthYear: number): ReminiscenceWindow {
   const end = birthYear + WINDOW_END_AGE;
   return Object.freeze({ start, end, label: `${start} to ${end}` });
 }
+
+/** How far the Caregiver's "Widen by 3 years" CTA moves each end of the Window (PLAN R2). */
+export const WIDEN_YEARS = 3;
+
+/**
+ * The Window used to GATE film, TV and book Cues: the original one, or +/- 3
+ * years for a domain the Caregiver widened. It is never used to judge era
+ * fit, which is always measured against the original Window.
+ */
+export function effectiveWindow(original: ReminiscenceWindow, widened: boolean): ReminiscenceWindow {
+  if (!widened) return original;
+  const start = original.start - WIDEN_YEARS;
+  const end = original.end + WIDEN_YEARS;
+  return Object.freeze({ start, end, label: `${start} to ${end}` });
+}
