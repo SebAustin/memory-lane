@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { StoreV1 } from "@/contracts";
 import { EMPTY_STORE, QUARANTINE_KEY, STORE_KEY, type Migration } from "./migrations";
 import { createRepository, type Repository } from "./repository";
-import { idbStorage, memoryStorage, type KeyValueStorage } from "./storage";
+import { idbStorage, memoryStorage, storageFrom, type KeyValueStorage } from "./storage";
 import { NOW, UUID_A, UUID_B, draft, kit, logEntry, profile, story } from "./testing";
 
 /** Your data (FR-26, FR-27, SC-10, SC-12): export, import and delete-all through the repository. */
@@ -182,7 +182,7 @@ describe("importAll rejects, and never partially applies (SC-12)", () => {
     const { repo, state } = await openWithData();
     const text = JSON.stringify(repo.exportAll());
     const storage = memoryStorage();
-    const failing: KeyValueStorage = { ...storage, set: () => Promise.reject(new Error("quota")) };
+    const failing = storageFrom({ ...storage, set: () => Promise.reject(new Error("quota")) });
     const other = createRepository(failing, [], { now: clock });
     await other.load();
 
@@ -331,7 +331,7 @@ describe("deleteAll (FR-27)", () => {
 
   it("fails loudly, and keeps the data in view, when the browser will not delete", async () => {
     const base = memoryStorage();
-    const stuck: KeyValueStorage = { ...base, del: () => Promise.reject(new Error("blocked")) };
+    const stuck = storageFrom({ ...base, del: () => Promise.reject(new Error("blocked")) });
     const { repo } = await open(stuck);
     await repo.saveLifeStory(story(UUID_A));
 
@@ -343,10 +343,10 @@ describe("deleteAll (FR-27)", () => {
   it("clears the save-failed flag along with the data", async () => {
     let failing = true;
     const base = memoryStorage();
-    const flaky: KeyValueStorage = {
+    const flaky = storageFrom({
       ...base,
       set: (key, value) => (failing ? Promise.reject(new Error("quota")) : base.set(key, value)),
-    };
+    });
     const { repo } = await open(flaky);
     await repo.saveDraft(draft(1)).catch(() => undefined);
     expect(repo.getStatus().saveFailed).toBe(true);

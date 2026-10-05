@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { LifeStory } from "@/contracts";
 import { EMPTY_STORE, QUARANTINE_KEY, STORE_KEY, type Migration } from "./migrations";
 import { ReadOnlyStoreError, createRepository } from "./repository";
-import { idbStorage, memoryStorage, type KeyValueStorage } from "./storage";
+import { idbStorage, memoryStorage, storageFrom, type KeyValueStorage } from "./storage";
 import { NOW, UUID_A, draft, kit, logEntry, profile, story } from "./testing";
 
 const clock = () => NOW;
@@ -258,12 +258,12 @@ describe("subscriptions and write order", () => {
 });
 
 describe("when the storage misbehaves", () => {
-  const brokenReads: KeyValueStorage = {
+  const brokenReads: KeyValueStorage = storageFrom({
     kind: "indexeddb",
     get: () => Promise.reject(new Error("IndexedDB is blocked")),
     set: () => Promise.reject(new Error("IndexedDB is blocked")),
     del: () => Promise.reject(new Error("IndexedDB is blocked")),
-  };
+  });
 
   it("falls back to memory when IndexedDB cannot be read, and keeps working", async () => {
     const { repo } = await open(brokenReads);
@@ -275,7 +275,7 @@ describe("when the storage misbehaves", () => {
   });
 
   it("keeps the in-memory change, flags the failure and rejects when a save fails", async () => {
-    const failing: KeyValueStorage = { ...memoryStorage(), set: () => Promise.reject(new Error("quota")) };
+    const failing = storageFrom({ ...memoryStorage(), set: () => Promise.reject(new Error("quota")) });
     const { repo } = await open(failing);
 
     await expect(repo.saveDraft(draft(2))).rejects.toThrow("quota");
@@ -287,10 +287,10 @@ describe("when the storage misbehaves", () => {
   it("recovers: the next successful save clears the failure flag", async () => {
     const inner = memoryStorage();
     let failNext = true;
-    const flaky: KeyValueStorage = {
+    const flaky = storageFrom({
       ...inner,
       set: (k, v) => (failNext ? Promise.reject(new Error("quota")) : inner.set(k, v)),
-    };
+    });
     const { repo } = await open(flaky);
     await repo.saveDraft(draft(2)).catch(() => undefined);
 
@@ -303,10 +303,10 @@ describe("when the storage misbehaves", () => {
   it("keeps working after a failed save (the queue does not jam)", async () => {
     const inner = memoryStorage();
     let calls = 0;
-    const flaky: KeyValueStorage = {
+    const flaky = storageFrom({
       ...inner,
       set: (k, v) => ((calls += 1) === 1 ? Promise.reject(new Error("once")) : inner.set(k, v)),
-    };
+    });
     const { repo } = await open(flaky);
 
     await repo.saveDraft(draft(2)).catch(() => undefined);
