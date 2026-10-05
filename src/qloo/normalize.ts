@@ -31,6 +31,7 @@ const URN_DOMAIN: ReadonlyMap<string, { urn: EntityUrn; domain: Domain }> = new 
 const RawTag = z.looseObject({
   tag_id: z.string().min(1).max(MAX_ID),
   name: z.string().min(1).max(MAX_TAG_NAME),
+  query: z.unknown().optional(),
 });
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -73,12 +74,21 @@ function readImage(properties: unknown): string | null {
   return null;
 }
 
+/**
+ * Validates one raw Qloo tag. A tag from a fingerprint (`urn:tag`) request
+ * carries `query.affinity`; a tag on an entity does not, and gets no `affinity` key.
+ */
+export function normalizeTag(raw: unknown): QlooTag | null {
+  const parsed = RawTag.safeParse(raw);
+  if (!parsed.success) return null;
+  const { tag_id, name, query } = parsed.data;
+  const affinity = readAffinity(query);
+  return { id: tag_id, name, ...(affinity === null ? {} : { affinity }) };
+}
+
 function readTags(raw: unknown): QlooTag[] {
   if (!Array.isArray(raw)) return [];
-  return raw.flatMap((tag) => {
-    const parsed = RawTag.safeParse(tag);
-    return parsed.success ? [{ id: parsed.data.tag_id, name: parsed.data.name }] : [];
-  });
+  return raw.flatMap((tag) => normalizeTag(tag) ?? []);
 }
 
 function readAffinity(query: unknown): number | null {

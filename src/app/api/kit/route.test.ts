@@ -21,8 +21,8 @@ describe("POST /api/kit route", () => {
   });
 
   it("answers a JSON 500, not a bare error page, when the environment is bad", async () => {
-    vi.stubEnv("QLOO_MODE", "live");
-    vi.stubEnv("QLOO_API_KEY", "sk-live-secret");
+    // An unsafe base URL (http) whose text must never be echoed back.
+    vi.stubEnv("QLOO_BASE_URL", "http://sk-live-secret.example.com");
     const spy = vi.spyOn(console, "error").mockImplementation(() => undefined);
 
     const res = await POST(post());

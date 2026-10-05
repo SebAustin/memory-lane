@@ -120,20 +120,63 @@ describe("getServerConfig refuses unsafe combinations (R5, A31, SC-12)", () => {
     expect(getServerConfig({ VERCEL_ENV: "", RATE_LIMIT_MODE: "off" }).rateLimitMode).toBe("off");
   });
 
-  it("refuses live Qloo mode, with or without a key, until the live client exists", () => {
-    expect(() => getServerConfig({ QLOO_MODE: "live" })).toThrow(/QLOO_MODE=live is not available/);
-    expect(() => getServerConfig({ QLOO_MODE: "live", QLOO_API_KEY: "k" })).toThrow(
-      /QLOO_MODE=live is not available/,
-    );
+  it("accepts live Qloo mode only with a key, and carries the key only then", () => {
+    expect(() => getServerConfig({ QLOO_MODE: "live" })).toThrow(/QLOO_MODE=live needs QLOO_API_KEY/);
+    const live = getServerConfig({ QLOO_MODE: "live", QLOO_API_KEY: "k" });
+    expect(live.qlooMode).toBe("live");
+    expect(live.qlooApiKey).toBe("k");
+    expect(getServerConfig({ QLOO_API_KEY: "k" }).qlooApiKey).toBeUndefined();
   });
 
-  it("never echoes the Qloo key when refusing live mode", () => {
+  it("never echoes the Qloo key in a live-mode refusal", () => {
     try {
-      getServerConfig({ QLOO_MODE: "live", QLOO_API_KEY: "sk-live-secret" });
+      getServerConfig({ QLOO_MODE: "live", QLOO_API_KEY: "sk-live-secret", RATE_LIMIT_MODE: "off", VERCEL_ENV: "production" });
       expect.unreachable("should have thrown");
     } catch (error) {
       expect(String(error)).not.toContain("sk-live-secret");
     }
+  });
+});
+
+describe("QLOO_BASE_URL (L6)", () => {
+  it("defaults to the hackathon host", () => {
+    expect(getServerConfig({}).qlooBaseUrl).toBe("https://hackathon.api.qloo.com");
+  });
+
+  it("accepts an https origin, normalized to the bare origin", () => {
+    expect(getServerConfig({ QLOO_BASE_URL: "https://Example.Qloo.com/" }).qlooBaseUrl).toBe(
+      "https://example.qloo.com",
+    );
+  });
+
+  it.each([
+    ["not https", "http://hackathon.api.qloo.com"],
+    ["a port", "https://hackathon.api.qloo.com:8443"],
+    ["credentials", "https://user:pass@hackathon.api.qloo.com"],
+    ["a path", "https://hackathon.api.qloo.com/v2"],
+    ["a query", "https://hackathon.api.qloo.com/?a=1"],
+    ["a fragment", "https://hackathon.api.qloo.com/#x"],
+    ["not a URL", "hackathon.api.qloo.com"],
+  ])("rejects a base URL with %s, without echoing it", (_label, value) => {
+    try {
+      getServerConfig({ QLOO_BASE_URL: value });
+      expect.unreachable("should have thrown");
+    } catch (error) {
+      expect(String(error)).toMatch(/QLOO_BASE_URL/);
+      expect(String(error)).not.toContain("pass");
+    }
+  });
+});
+
+describe("QLOO_IMAGE_HOSTS duplicates (L6)", () => {
+  it("rejects a host listed twice, even in a different case", () => {
+    expect(() => getServerConfig({ QLOO_IMAGE_HOSTS: "images.qloo.com,Images.Qloo.com" })).toThrow(
+      /QLOO_IMAGE_HOSTS lists the same host twice/,
+    );
+  });
+
+  it("still folds case on a single entry", () => {
+    expect(getServerConfig({ QLOO_IMAGE_HOSTS: "Images.Qloo.com" }).imageHosts).toEqual(["images.qloo.com"]);
   });
 });
 

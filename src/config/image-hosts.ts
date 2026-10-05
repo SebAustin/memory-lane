@@ -10,8 +10,11 @@ const HOST_PATTERN =
   /^(\*\.)?[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)+$/;
 
 export interface ImageHosts {
+  /** Valid hosts, lower-cased (hostnames are case-insensitive), in the order given, each once. */
   readonly hosts: readonly string[];
   readonly invalid: readonly string[];
+  /** Hosts listed more than once once case is folded: almost always a config typo. */
+  readonly duplicates: readonly string[];
 }
 
 export function parseImageHosts(raw: string | undefined): ImageHosts {
@@ -20,8 +23,11 @@ export function parseImageHosts(raw: string | undefined): ImageHosts {
     .map((h) => h.trim().toLowerCase())
     .filter((h) => h !== "");
 
+  const valid = entries.filter((h) => HOST_PATTERN.test(h));
+  const unique = [...new Set(valid)];
   return {
-    hosts: entries.filter((h) => HOST_PATTERN.test(h)),
+    hosts: unique,
     invalid: entries.filter((h) => !HOST_PATTERN.test(h)),
+    duplicates: unique.filter((host) => valid.indexOf(host) !== valid.lastIndexOf(host)),
   };
 }

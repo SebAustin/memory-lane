@@ -14,7 +14,7 @@ describe("next.config.ts boot-time validation", () => {
   });
 
   it.each([
-    ["live Qloo mode", { QLOO_MODE: "live", QLOO_API_KEY: "k" }, /QLOO_MODE=live/],
+    ["live Qloo mode with no key", { QLOO_MODE: "live" }, /QLOO_MODE=live needs QLOO_API_KEY/],
     ["a refused mock LLM", { LLM_MODE: "mock" }, /LLM_MODE=mock/],
     ["rate limits off in a deployment", { RATE_LIMIT_MODE: "off", VERCEL_ENV: "production" }, /RATE_LIMIT_MODE=off/],
     ["a malformed variable", { LLM_DAILY_RUN_CAP: "lots" }, /LLM_DAILY_RUN_CAP/],

@@ -9,6 +9,10 @@ import { BUCKET_NAMES, DEFAULT_LIMITS, type BucketName, type RateLimit } from ".
 
 export interface ServerConfig {
   readonly qlooMode: "fixture" | "live";
+  /** Only set in live mode (fixture mode needs no key). Server-only: never log or serialize the config. */
+  readonly qlooApiKey: string | undefined;
+  /** An https origin, `https://hackathon.api.qloo.com` unless overridden. */
+  readonly qlooBaseUrl: string;
   readonly llmMode: "gateway" | "mock" | "off";
   readonly modelId: string;
   readonly judgeModelId: string;
@@ -40,10 +44,8 @@ function assertSafe(env: ServerEnv): void {
       "Unsafe configuration: LLM_MODE=mock needs ALLOW_MOCK_LLM=1 and is refused when deployed (VERCEL_ENV is preview or production)",
     );
   }
-  if (env.qlooMode === "live") {
-    throw new ConfigError(
-      "Unsupported configuration: QLOO_MODE=live is not available yet (the live client lands in ticket 05 and is wired in ticket 23)",
-    );
+  if (env.qlooMode === "live" && env.qlooApiKey === undefined) {
+    throw new ConfigError("Unsafe configuration: QLOO_MODE=live needs QLOO_API_KEY");
   }
 }
 
@@ -77,6 +79,8 @@ export function getServerConfig(env: EnvSource = process.env, log: Logger = logE
 
   return {
     qlooMode: parsed.qlooMode,
+    qlooApiKey: parsed.qlooMode === "live" ? parsed.qlooApiKey : undefined,
+    qlooBaseUrl: parsed.qlooBaseUrl,
     llmMode: parsed.llmMode,
     modelId: parsed.modelId,
     judgeModelId: parsed.judgeModelId,

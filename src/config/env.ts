@@ -15,6 +15,43 @@ export type EnvSource = Readonly<Record<string, string | undefined>>;
 
 const text = z.string().trim().min(1);
 
+/** Where hackathon keys work (docs/qloo-api.md). A 401 usually means the wrong host. */
+export const DEFAULT_QLOO_BASE_URL = "https://hackathon.api.qloo.com";
+
+/**
+ * The Qloo base URL is where the API key is sent, so it is held to an origin:
+ * https only, no port (it could aim an allowed host at another service), no
+ * credentials, no path, query or fragment. Normalized to the bare origin.
+ * Issues never echo the value.
+ */
+const baseUrl = z
+  .string()
+  .trim()
+  .transform((raw, ctx): string => {
+    let url: URL;
+    try {
+      url = new URL(raw);
+    } catch {
+      ctx.addIssue({ code: "custom", message: "must be a URL such as https://hackathon.api.qloo.com" });
+      return z.NEVER;
+    }
+    const problem =
+      url.protocol !== "https:"
+        ? "must use https, because the API key is sent to it"
+        : url.port !== ""
+          ? "must not include a port"
+          : url.username !== "" || url.password !== ""
+            ? "must not include credentials"
+            : url.search !== "" || url.hash !== "" || url.pathname !== "/"
+              ? "must be a bare origin: no path, query or fragment"
+              : undefined;
+    if (problem !== undefined) {
+      ctx.addIssue({ code: "custom", message: problem });
+      return z.NEVER;
+    }
+    return url.origin;
+  });
+
 const limitOverride = z
   .string()
   .regex(/^\d+\/\d+$/, "expected <capacity>/<perMinutes>, e.g. 6/10")
@@ -31,7 +68,7 @@ const limitShape = Object.fromEntries(
 const envSchema = z.object({
   QLOO_MODE: z.enum(["fixture", "live"]).default("fixture"),
   QLOO_API_KEY: text.optional(),
-  QLOO_BASE_URL: z.url().optional(),
+  QLOO_BASE_URL: baseUrl.optional(),
   LLM_MODE: z.enum(["gateway", "mock", "off"]).default("gateway"),
   MODEL_ID: text.default("anthropic/claude-sonnet-5.5"),
   JUDGE_MODEL_ID: text.default("openai/gpt-5.6-sol"),
@@ -48,6 +85,7 @@ const envSchema = z.object({
 export interface ServerEnv {
   readonly qlooMode: "fixture" | "live";
   readonly qlooApiKey: string | undefined;
+  readonly qlooBaseUrl: string;
   readonly llmMode: "gateway" | "mock" | "off";
   readonly modelId: string;
   readonly judgeModelId: string;
@@ -93,6 +131,9 @@ export function parseEnv(env: EnvSource): ServerEnv {
       "Invalid environment: QLOO_IMAGE_HOSTS must be comma-separated bare hostnames",
     );
   }
+  if (hosts.duplicates.length > 0) {
+    throw new ConfigError("Invalid environment: QLOO_IMAGE_HOSTS lists the same host twice");
+  }
 
   const limitOverrides = Object.fromEntries(
     BUCKET_NAMES.flatMap((b) => {
@@ -104,6 +145,7 @@ export function parseEnv(env: EnvSource): ServerEnv {
   return {
     qlooMode: raw.QLOO_MODE,
     qlooApiKey: raw.QLOO_API_KEY,
+    qlooBaseUrl: raw.QLOO_BASE_URL ?? DEFAULT_QLOO_BASE_URL,
     llmMode: raw.LLM_MODE,
     modelId: raw.MODEL_ID,
     judgeModelId: raw.JUDGE_MODEL_ID,
