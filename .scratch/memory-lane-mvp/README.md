@@ -16,7 +16,7 @@ Tickets are numbered in dependency order (blockers first) and follow the PLAN §
 | 03 | [Life Story wizard with a resumable local draft](issues/03-life-story-wizard-draft.md) | 2a | resolved | 02 |
 | 04 | [Seeds and Avoid List resolve through Qloo; a finished Life Story builds a music Kit](issues/04-seeds-avoid-resolve.md) | 2a | resolved | 03 |
 | 05 | [Resilient Qloo client: params, cache, retry and call budget](issues/05-qloo-client-resilience.md) | 2b-i | resolved | 04 |
-| 06 | [Fixture Qloo client that behaves like Qloo for P1-P5](issues/06-fixture-client-qloo-semantics.md) | 2b-i | ready-for-agent | 05 |
+| 06 | [Fixture Qloo client that behaves like Qloo for P1-P5](issues/06-fixture-client-qloo-semantics.md) | 2b-i | resolved | 05 |
 | 07 | [Prefetch engine: 6 domains and a taste fingerprint](issues/07-prefetch-six-domains.md) | 2b-i | ready-for-agent | 06 |
 | 08 | ["Why this?" Provenance and "Widen by 3 years"](issues/08-provenance-and-widen.md) | 2b-ii | ready-for-agent | 07 |
 | 09 | [`checkText` and the vetted templates](issues/09-checktext-and-templates.md) | 3a-i | code resolved; human gate pending (template review) | 08 |
@@ -44,10 +44,10 @@ Tickets are numbered in dependency order (blockers first) and follow the PLAN §
 
 CORE tickets: 01-13, 15-25 and 29. Ticket 14 is the prototype and check-in. Tickets 26-28 are should-haves. Ticket 30 is a stretch goal, and the first cut (R10 cut order: 8c → 8b depth → the slice 7 judge).
 
-## Frontier (as of 2026-10-04; tickets 01 to 05 are done)
+## Frontier (as of 2026-10-04; tickets 01 to 06 are done)
 
 **Ready now:**
-- **06** Fixture Qloo client that behaves like Qloo for P1-P5
+- **07** Prefetch engine: 6 domains and a taste fingerprint
 
 **Next to unlock, along the critical path:** 02 → 03 → 04 → 05 → 06 → 07 → 08 → … → 21 → 24 → 25 → 29.
 

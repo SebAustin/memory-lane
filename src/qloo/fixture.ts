@@ -1,13 +1,21 @@
 import "server-only";
 import { z } from "zod";
+import type { Domain } from "@/contracts";
 import { nameSimilarity } from "@/domain/nameSimilarity";
 import { containsRun, wordsOf } from "@/domain/screening";
-import { normalizeEntity } from "./normalize";
+import { DEFAULT_RETRY } from "./backoff";
+import { createFaultPlan, errorCodeFor, isRetryable, type Fault, type FaultPlan, type FaultScope } from "./faults";
+import { syntheticScore } from "./fnv";
+import type { FixtureEntry, FixtureIndex } from "./fixtureIndex";
+import { normalizeEntity, normalizeTag } from "./normalize";
+import { validateInsightsParams } from "./params";
 import {
   DOMAIN_URN,
-  type EntityUrn,
+  type CallOpts,
   type Envelope,
+  type ErrorCode,
   type InsightsParams,
+  type InsightsResult,
   type QlooClient,
   type QlooEntity,
   type QlooProvenance,
@@ -16,11 +24,25 @@ import {
   type TagQuery,
 } from "./types";
 
+export { loadFixtureIndex } from "./fixtureIndex";
+export type { FixtureEntry, FixtureIndex, FixtureMatch } from "./fixtureIndex";
+
 /**
- * Minimal fixture-backed Qloo client (ticket 02). It serves Qloo-shaped
- * responses from `fixtures/qloo/index.json` so the app runs with no key
- * (NFR-22). Ticket 06 extends it to full Qloo semantics: tag signals,
- * re-rank, synthetic explainability and strict mode (PLAN section 3.1).
+ * The fixture-backed Qloo client: it behaves like Qloo for any Taste Profile
+ * (PLAN 3.1, R3, 14.3), so the whole product works before the key arrives
+ * (NFR-22). It serves Qloo-shaped responses from `fixtures/qloo/`:
+ *
+ * - **Lookup** is by `(endpoint, filter.type, release-year window, location)`.
+ *   Interests never cause a miss, so regenerating after Reactions still hits.
+ * - **Exclusions** (`filter.exclude.entities` and `.tags`) are applied here.
+ * - **Tag signals** (`expand_theme`) return only entities carrying one of the
+ *   tags, and `empty` when none does: never the unfiltered set (14.3).
+ * - **Re-rank** (`filter.results.entities`) returns those ids, re-scored,
+ *   from any loaded fixture.
+ * - **Explainability** is deterministic (FNV-1a, 0.30 to 0.90) for every
+ *   requested Seed and Learned Favorite, and is flagged synthetic.
+ * - **Faults** (`QLOO_FIXTURE_FAULTS`) fail calls as the resilient client
+ *   would report them.
  */
 
 const INSIGHTS_ENDPOINT = "/v2/insights";
@@ -28,124 +50,97 @@ const DEFAULT_TAKE = 20;
 const SEARCH_ENDPOINT = "/search";
 const TAGS_ENDPOINT = "/v2/tags";
 const DEFAULT_SEARCH_TAKE = 10;
+/** Qloo's cap on `take` for `/search`. */
+const MAX_SEARCH_TAKE = 199;
 /** A fixture hit must look at least this much like the query. Looser than a confident match (0.92), so near-misses become choices. */
 const FIXTURE_MATCH_MIN = 0.7;
 const NO_FIXTURE_HINT =
   "Fixture mode: no fixture matches this request. Try the demo story, Margaret.";
+const NOTHING_MATCHES_HINT = "Fixture mode: nothing in the fixtures matches these filters.";
+const NO_TAG_MATCH_HINT = "Fixture mode: no entity carries these tags.";
 /** Shown when a `/search` or `/v2/tags` query matches nothing (PLAN 3.1, R3). */
 export const FIXTURE_SEARCH_HINT = "Fixture mode: try the demo Seeds (P1-P5)";
 
-const EntityUrnSchema = z.enum(Object.values(DOMAIN_URN) as [EntityUrn, ...EntityUrn[]]);
-
-const IndexFile = z.object({
-  version: z.literal(1),
-  insights: z.array(
-    z.object({
-      type: EntityUrnSchema,
-      location: z.string().optional(),
-      window: z.object({ min: z.number().int(), max: z.number().int() }).optional(),
-      file: z.string().min(1),
-    }),
-  ),
-  /** One catalog of Qloo-shaped entities that `/search` looks names up in. */
-  search: z.object({ file: z.string().min(1) }).optional(),
-  /** One catalog of tags that `/v2/tags` looks topics up in. */
-  tags: z.object({ file: z.string().min(1) }).optional(),
-});
-
-/** A recorded `/v2/insights` response: only `results.entities` is read. */
-const InsightsResponseFile = z.looseObject({
-  results: z.looseObject({ entities: z.array(z.unknown()) }),
-});
-
-/** A recorded `/search` response: a catalog of entities. */
-const SearchResponseFile = z.looseObject({ results: z.array(z.unknown()) });
-
-/** A recorded `/v2/tags` response. */
-const TagsResponseFile = z.looseObject({
-  results: z.looseObject({ tags: z.array(z.unknown()) }),
-});
-
 const RawTag = z.looseObject({ tag_id: z.string().min(1).max(64), name: z.string().min(1).max(80) });
 
-export interface FixtureMatch {
-  readonly type: EntityUrn;
-  readonly location?: string;
-  readonly window?: { readonly min: number; readonly max: number };
+interface CompiledEntry {
+  readonly entry: FixtureEntry;
+  readonly entities: readonly QlooEntity[];
+  readonly tags: readonly QlooTag[];
+  readonly tagIds: ReadonlySet<string>;
 }
 
-export interface FixtureEntry {
-  readonly match: FixtureMatch;
-  /** Raw Qloo-shaped entities, normalized by the client with its image allow-list. */
-  readonly rawEntities: readonly unknown[];
+interface Compiled {
+  readonly entries: readonly CompiledEntry[];
+  readonly searchCatalog: readonly QlooEntity[];
+  readonly tagCatalog: readonly QlooTag[];
+  /** Every loaded entity by id, first one wins: what re-rank looks ids up in. */
+  readonly byId: ReadonlyMap<string, QlooEntity>;
 }
 
-export interface FixtureIndex {
-  readonly insights: readonly FixtureEntry[];
-  /** Raw Qloo-shaped entities for `/search` (empty when the index has no catalog). */
-  readonly searchCatalog?: readonly unknown[];
-  /** Raw Qloo-shaped tags for `/v2/tags`. */
-  readonly tagCatalog?: readonly unknown[];
+/** Normalizing the fixtures is the costly part, and handlers build a client per request, so it is done once per index. */
+const compiledCache = new WeakMap<FixtureIndex, Map<string, Compiled>>();
+
+function compile(index: FixtureIndex, imageHosts: readonly string[]): Compiled {
+  const hostsKey = imageHosts.join(",");
+  const cached = compiledCache.get(index)?.get(hostsKey);
+  if (cached !== undefined) return cached;
+
+  const entries = index.insights.map((entry): CompiledEntry => {
+    const entities = entry.rawEntities.flatMap((raw) => normalizeEntity(raw, imageHosts) ?? []);
+    const tags = entry.rawTags.flatMap((raw) => normalizeTag(raw) ?? []);
+    const carried = entities.flatMap((entity) => entity.tags.map((tag) => tag.id));
+    return { entry, entities, tags, tagIds: new Set(carried) };
+  });
+  const searchCatalog = (index.searchCatalog ?? []).flatMap((raw) => normalizeEntity(raw, imageHosts) ?? []);
+  const tagCatalog = (index.tagCatalog ?? []).flatMap((raw) => {
+    const parsed = RawTag.safeParse(raw);
+    return parsed.success ? [{ id: parsed.data.tag_id, name: parsed.data.name }] : [];
+  });
+
+  const byId = new Map<string, QlooEntity>();
+  for (const entity of [...entries.flatMap((compiled) => compiled.entities), ...searchCatalog]) {
+    if (!byId.has(entity.entityId)) byId.set(entity.entityId, entity);
+  }
+  const compiled: Compiled = { entries, searchCatalog, tagCatalog, byId };
+  const forIndex = compiledCache.get(index) ?? new Map<string, Compiled>();
+  forIndex.set(hostsKey, compiled);
+  compiledCache.set(index, forIndex);
+  return compiled;
 }
 
-function summarize(error: z.ZodError): string {
-  return error.issues.map((issue) => `${issue.path.join(".") || "(root)"}: ${issue.message}`).join("; ");
+const normalizeLocation = (value: string | undefined): string | undefined => value?.trim().toLowerCase();
+
+/** The location Qloo would be asked about: music signals it, places filter by it. */
+const locationOf = (params: InsightsParams): string | undefined =>
+  normalizeLocation(params.locationQuery ?? params.filterLocationQuery);
+
+function matches({ entry }: CompiledEntry, params: InsightsParams): boolean {
+  const { match } = entry;
+  const location = locationOf(params);
+  const locationOk =
+    location === undefined ? match.locations.length === 0 : match.locations.some((one) => normalizeLocation(one) === location);
+  return (
+    match.type === params.filterType &&
+    locationOk &&
+    match.window?.min === params.releaseYear?.min &&
+    match.window?.max === params.releaseYear?.max
+  );
 }
 
 /**
- * Validates the fixture index and resolves each entry's file from `files`
- * (file name to parsed JSON). Fixtures are trusted dev data, so a malformed
- * one throws at load time instead of degrading silently.
+ * Several files can share one key (see the index `seeds` field): prefer the one
+ * built for these Seeds, then the one that carries the requested tags, then the first.
  */
-export function loadFixtureIndex(
-  index: unknown,
-  files: Readonly<Record<string, unknown>>,
-): FixtureIndex {
-  const parsedIndex = IndexFile.safeParse(index);
-  if (!parsedIndex.success) {
-    throw new Error(`Invalid fixture index: ${summarize(parsedIndex.error)}`);
-  }
-
-  const insights = parsedIndex.data.insights.map(({ file, ...match }): FixtureEntry => {
-    const parsedFile = InsightsResponseFile.safeParse(files[file]);
-    if (!parsedFile.success) {
-      throw new Error(`Fixture file "${file}" is missing or not a Qloo insights response`);
-    }
-    return { match, rawEntities: parsedFile.data.results.entities };
-  });
-
-  const searchCatalog = loadCatalog("search", parsedIndex.data.search?.file, files, (file) => {
-    const parsed = SearchResponseFile.safeParse(file);
-    return parsed.success ? parsed.data.results : undefined;
-  });
-  const tagCatalog = loadCatalog("tags", parsedIndex.data.tags?.file, files, (file) => {
-    const parsed = TagsResponseFile.safeParse(file);
-    return parsed.success ? parsed.data.results.tags : undefined;
-  });
-  return { insights, searchCatalog, tagCatalog };
-}
-
-function loadCatalog(
-  what: string,
-  fileName: string | undefined,
-  files: Readonly<Record<string, unknown>>,
-  extract: (file: unknown) => readonly unknown[] | undefined,
-): readonly unknown[] {
-  if (fileName === undefined) return [];
-  const items = extract(files[fileName]);
-  if (items === undefined) throw new Error(`Fixture file "${fileName}" is missing or not a Qloo ${what} response`);
-  return items;
-}
-
-const normalizeLocation = (value: string | undefined): string | undefined =>
-  value?.trim().toLowerCase();
-
-function matches(match: FixtureMatch, params: InsightsParams): boolean {
-  return (
-    match.type === params.filterType &&
-    normalizeLocation(match.location) === normalizeLocation(params.locationQuery) &&
-    match.window?.min === params.releaseYear?.min &&
-    match.window?.max === params.releaseYear?.max
+function pickBest(candidates: readonly CompiledEntry[], params: InsightsParams): CompiledEntry | undefined {
+  const interests = new Set(params.interests);
+  const wanted = params.interestTags ?? [];
+  const score = ({ entry, tagIds }: CompiledEntry): number =>
+    entry.match.seeds.filter((seed) => interests.has(seed)).length * 1000 +
+    wanted.filter((tag) => tagIds.has(tag)).length;
+  return candidates.reduce<CompiledEntry | undefined>(
+    (best, candidate) => (best === undefined || score(candidate) > score(best) ? candidate : best),
+    undefined,
   );
 }
 
@@ -158,9 +153,8 @@ function paramsKey(params: InsightsParams): string {
     .join("&");
 }
 
-function byAffinityDesc(a: QlooEntity, b: QlooEntity): number {
-  return (b.affinity ?? -1) - (a.affinity ?? -1);
-}
+const byAffinityDesc = (a: QlooEntity, b: QlooEntity): number =>
+  (b.affinity ?? -1) - (a.affinity ?? -1) || a.entityId.localeCompare(b.entityId);
 
 function applyExclusions(entities: readonly QlooEntity[], params: InsightsParams): QlooEntity[] {
   const excludedIds = new Set(params.excludeEntities);
@@ -171,16 +165,50 @@ function applyExclusions(entities: readonly QlooEntity[], params: InsightsParams
   );
 }
 
+/** Per-Seed contribution, deterministic for the (entity, Seed) pair and flagged synthetic by the provenance. */
+function explain(entity: QlooEntity, params: InsightsParams): QlooEntity {
+  const interests = params.explainability === true ? (params.interests ?? []) : [];
+  return {
+    ...entity,
+    explainability: Object.fromEntries(
+      interests.map((seed) => [seed, syntheticScore(`${entity.entityId}|${seed}`)]),
+    ),
+  };
+}
+
+/** A re-rank's new affinity: the fixture's own score blended with a deterministic one for these interests. */
+function rescore(entity: QlooEntity, params: InsightsParams): QlooEntity {
+  const fresh = syntheticScore(`rerank|${entity.entityId}|${(params.interests ?? []).join(",")}`);
+  const affinity = Math.round(((entity.affinity ?? 0.5) * 0.4 + fresh * 0.6) * 100) / 100;
+  return { ...entity, affinity };
+}
+
+const URN_SCOPE: ReadonlyMap<string, Domain> = new Map(
+  Object.entries(DOMAIN_URN).map(([domain, urn]) => [urn, domain as Domain]),
+);
+const scopeOf = (params: InsightsParams): Exclude<FaultScope, "all"> =>
+  params.filterType === "urn:tag" ? "fingerprint" : (URN_SCOPE.get(params.filterType) ?? "music");
+
 /** Name-free provenance for a fixture answer: the key never holds the typed text. */
-const fixtureProvenance = (endpoint: string, paramsKey: string): QlooProvenance => ({
+const fixtureProvenance = (endpoint: string, paramsKey: string, retries = 0): QlooProvenance => ({
   endpoint,
   paramsKey,
   cached: false,
   stale: false,
-  retries: 0,
+  retries,
   ms: 0,
   synthetic: true,
 });
+
+function failure<T>(endpoint: string, key: string, errorCode: ErrorCode, retries = 0, hint?: string): Envelope<T> {
+  return {
+    status: "error",
+    data: null,
+    provenance: fixtureProvenance(endpoint, key, retries),
+    errorCode,
+    ...(hint === undefined ? {} : { hint }),
+  };
+}
 
 /** Items whose name is close to `query` or contains all its words, best match first. */
 function closest<T>(items: readonly T[], nameOf: (item: T) => string, query: string): T[] {
@@ -199,38 +227,61 @@ export interface FixtureClientOptions {
   readonly index: FixtureIndex;
   /** Same allow-list as the CSP `img-src` (`QLOO_IMAGE_HOSTS`). */
   readonly imageHosts: readonly string[];
+  /** Throw on an `insights` request for a `(type, window, location)` that no fixture covers, instead of answering `empty`. For tests. */
+  readonly strict?: boolean;
+  /** Failures to inject, from `parseFaults(QLOO_FIXTURE_FAULTS)`. */
+  readonly faults?: readonly Fault[];
 }
 
-/**
- * Looks like Qloo for the requests the fixtures cover. Matching ignores
- * `interests` (and the exclusions, which are applied afterwards), so a
- * changed Taste Profile still hits fixtures (PLAN R3).
- */
 export class FixtureQlooClient implements QlooClient {
-  private readonly entries: ReadonlyArray<{
-    readonly match: FixtureMatch;
-    readonly entities: readonly QlooEntity[];
-  }>;
-  private readonly searchCatalog: readonly QlooEntity[];
-  private readonly tagCatalog: readonly QlooTag[];
+  private readonly data: Compiled;
+  private readonly strict: boolean;
+  private readonly faults: FaultPlan;
 
-  constructor({ index, imageHosts }: FixtureClientOptions) {
-    this.entries = index.insights.map(({ match, rawEntities }) => ({
-      match,
-      entities: rawEntities.flatMap((raw) => normalizeEntity(raw, imageHosts) ?? []),
-    }));
-    this.searchCatalog = (index.searchCatalog ?? []).flatMap((raw) => normalizeEntity(raw, imageHosts) ?? []);
-    this.tagCatalog = (index.tagCatalog ?? []).flatMap((raw) => {
-      const parsed = RawTag.safeParse(raw);
-      return parsed.success ? [{ id: parsed.data.tag_id, name: parsed.data.name }] : [];
-    });
+  constructor({ index, imageHosts, strict = false, faults = [] }: FixtureClientOptions) {
+    this.data = compile(index, imageHosts);
+    this.strict = strict;
+    this.faults = createFaultPlan(faults);
+  }
+
+  /**
+   * Spends the budget, then plays out injected faults the way the resilient
+   * client would see them: retried (up to 3 times) when transient. Returns the
+   * error to answer with, or the number of failed requests before success.
+   */
+  private gate(
+    scope: Exclude<FaultScope, "all">,
+    endpoint: string,
+    key: string,
+    opts?: CallOpts,
+  ): { readonly error: Envelope<never> } | { readonly retries: number } {
+    if (opts?.budget !== undefined && !opts.budget.take(opts.budgetKind ?? "prefetch")) {
+      return { error: failure(endpoint, key, "budget", 0, "Qloo call budget reached") };
+    }
+    for (let retries = 0; ; retries += 1) {
+      const fault = this.faults.next(scope);
+      if (fault === undefined) return { retries };
+      if (!isRetryable(fault) || retries >= DEFAULT_RETRY.maxRetries) {
+        return { error: failure(endpoint, key, errorCodeFor(fault), retries) };
+      }
+    }
   }
 
   /** Looks a name up in the catalog the way Qloo's fuzzy search would: close spellings and names that contain the query. */
-  async search({ query, types, take = DEFAULT_SEARCH_TAKE }: SearchQuery): Promise<Envelope<readonly QlooEntity[]>> {
-    const provenance = fixtureProvenance(SEARCH_ENDPOINT, `types=${types.join(",")}&take=${take}`);
+  async search(
+    { query, types, take = DEFAULT_SEARCH_TAKE }: SearchQuery,
+    opts?: CallOpts,
+  ): Promise<Envelope<readonly QlooEntity[]>> {
+    const key = `types=${types.join(",")}&take=${take}`;
+    if (!Number.isInteger(take) || take < 1 || take > MAX_SEARCH_TAKE) {
+      return failure(SEARCH_ENDPOINT, key, "bad_param", 0, `take must be a whole number from 1 to ${MAX_SEARCH_TAKE}`);
+    }
+    const gate = this.gate("search", SEARCH_ENDPOINT, key, opts);
+    if ("error" in gate) return gate.error;
+
+    const provenance = fixtureProvenance(SEARCH_ENDPOINT, key, gate.retries);
     const hits = closest(
-      this.searchCatalog.filter((entity) => types.includes(entity.type)),
+      this.data.searchCatalog.filter((entity) => types.includes(entity.type)),
       (entity) => entity.name,
       query,
     ).slice(0, take);
@@ -240,35 +291,88 @@ export class FixtureQlooClient implements QlooClient {
   }
 
   /** Finds tags whose name is close to the topic. */
-  async tags({ query, take = DEFAULT_SEARCH_TAKE }: TagQuery): Promise<Envelope<readonly QlooTag[]>> {
-    const provenance = fixtureProvenance(TAGS_ENDPOINT, `take=${take}`);
-    const hits = closest(this.tagCatalog, (tag) => tag.name, query).slice(0, take);
+  async tags({ query, take = DEFAULT_SEARCH_TAKE }: TagQuery, opts?: CallOpts): Promise<Envelope<readonly QlooTag[]>> {
+    const key = `take=${take}`;
+    if (!Number.isInteger(take) || take < 1) {
+      return failure(TAGS_ENDPOINT, key, "bad_param", 0, "take must be a positive whole number");
+    }
+    const gate = this.gate("tags", TAGS_ENDPOINT, key, opts);
+    if ("error" in gate) return gate.error;
+
+    const provenance = fixtureProvenance(TAGS_ENDPOINT, key, gate.retries);
+    const hits = closest(this.data.tagCatalog, (tag) => tag.name, query).slice(0, take);
     return hits.length === 0
       ? { status: "empty", data: [], provenance, hint: FIXTURE_SEARCH_HINT }
       : { status: "ok", data: hits, provenance };
   }
 
-  async insights(params: InsightsParams): Promise<Envelope<{ readonly entities: readonly QlooEntity[] }>> {
-    const provenance = {
-      endpoint: INSIGHTS_ENDPOINT,
-      paramsKey: paramsKey(params),
-      cached: false,
-      stale: false,
-      retries: 0,
-      ms: 0,
-      synthetic: true,
-    } as const;
+  async insights(params: InsightsParams, opts?: CallOpts): Promise<Envelope<InsightsResult>> {
+    const key = paramsKey(params);
+    const problem = validateInsightsParams(params);
+    if (problem !== undefined) return failure(INSIGHTS_ENDPOINT, key, "bad_param", 0, problem);
+    const gate = this.gate(scopeOf(params), INSIGHTS_ENDPOINT, key, opts);
+    if ("error" in gate) return gate.error;
 
-    const entry = this.entries.find((candidate) => matches(candidate.match, params));
-    const entities = entry
-      ? applyExclusions(entry.entities, params)
-          .sort(byAffinityDesc)
-          .slice(0, params.take ?? DEFAULT_TAKE)
-      : [];
+    const provenance = fixtureProvenance(INSIGHTS_ENDPOINT, key, gate.retries);
+    const take = params.take ?? DEFAULT_TAKE;
+    if (params.resultEntities !== undefined) return this.rerank(params, take, provenance);
 
-    if (entities.length === 0) {
+    const compiled = pickBest(this.data.entries.filter((candidate) => matches(candidate, params)), params);
+    if (compiled === undefined) {
+      if (this.strict) throw new Error(`No fixture for ${describe(params)}`);
       return { status: "empty", data: { entities: [] }, provenance, hint: NO_FIXTURE_HINT };
     }
-    return { status: "ok", data: { entities }, provenance };
+    if (params.filterType === "urn:tag") return this.fingerprint(compiled, params, take, provenance);
+    return this.entities(compiled, params, take, provenance);
+  }
+
+  private fingerprint(
+    { tags }: CompiledEntry,
+    params: InsightsParams,
+    take: number,
+    provenance: QlooProvenance,
+  ): Envelope<InsightsResult> {
+    const excluded = new Set(params.excludeTags);
+    const kept = tags
+      .filter((tag) => !excluded.has(tag.id))
+      .sort((a, b) => (b.affinity ?? 0) - (a.affinity ?? 0))
+      .slice(0, take);
+    return kept.length === 0
+      ? { status: "empty", data: { entities: [], tags: [] }, provenance, hint: NOTHING_MATCHES_HINT }
+      : { status: "ok", data: { entities: [], tags: kept }, provenance };
+  }
+
+  private entities(
+    { entities }: CompiledEntry,
+    params: InsightsParams,
+    take: number,
+    provenance: QlooProvenance,
+  ): Envelope<InsightsResult> {
+    const wanted = new Set(params.interestTags);
+    const allowed = applyExclusions(entities, params);
+    // A tag signal narrows to entities carrying one of the tags; when none does the answer is empty, never the unfiltered set (14.3).
+    const tagged = wanted.size === 0 ? allowed : allowed.filter((entity) => entity.tags.some((tag) => wanted.has(tag.id)));
+    const kept = tagged.sort(byAffinityDesc).slice(0, take).map((entity) => explain(entity, params));
+    if (kept.length === 0) {
+      const hint = wanted.size > 0 ? NO_TAG_MATCH_HINT : NOTHING_MATCHES_HINT;
+      return { status: "empty", data: { entities: [] }, provenance, hint };
+    }
+    return { status: "ok", data: { entities: kept }, provenance };
+  }
+
+  /** `filter.results.entities`: those ids from any loaded fixture, re-scored, best first. Unknown ids are left out. */
+  private rerank(params: InsightsParams, take: number, provenance: QlooProvenance): Envelope<InsightsResult> {
+    const found = (params.resultEntities ?? []).flatMap((id) => this.data.byId.get(id) ?? []);
+    const kept = applyExclusions(found, params)
+      .map((entity) => rescore(entity, params))
+      .sort(byAffinityDesc)
+      .slice(0, take)
+      .map((entity) => explain(entity, params));
+    return kept.length === 0
+      ? { status: "empty", data: { entities: [] }, provenance, hint: NOTHING_MATCHES_HINT }
+      : { status: "ok", data: { entities: kept }, provenance };
   }
 }
+
+const describe = (params: InsightsParams): string =>
+  `${params.filterType}, window ${params.releaseYear ? `${params.releaseYear.min}-${params.releaseYear.max}` : "none"}, location ${locationOf(params) ?? "none"}`;

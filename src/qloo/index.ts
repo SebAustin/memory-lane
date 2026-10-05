@@ -9,6 +9,7 @@ import {
   type KvCache,
   type RuntimeCacheLike,
 } from "./cache";
+import { parseFaults } from "./faults";
 import { FixtureQlooClient } from "./fixture";
 import { bundledFixtureIndex } from "./fixtures";
 import { HttpQlooClient, type Sleep } from "./http";
@@ -33,6 +34,8 @@ export interface QlooDeps {
   readonly random?: () => number;
   readonly now?: () => number;
   readonly log?: Logger;
+  /** `VERCEL_ENV`, read from the process unless given. Fixture faults are ignored when it is set. */
+  readonly vercelEnv?: string;
 }
 
 const LRU_MAX = 500;
@@ -83,5 +86,9 @@ export function createQlooClient(config: ServerConfig, deps: QlooDeps = {}): Qlo
       log: deps.log,
     });
   }
-  return new FixtureQlooClient({ index: bundledFixtureIndex, imageHosts: config.imageHosts });
+  return new FixtureQlooClient({
+    index: bundledFixtureIndex,
+    imageHosts: config.imageHosts,
+    faults: parseFaults(config.fixtureFaults, deps.vercelEnv ?? process.env.VERCEL_ENV),
+  });
 }

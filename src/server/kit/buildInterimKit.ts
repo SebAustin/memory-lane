@@ -45,6 +45,7 @@ function musicParams(request: KitRequest): InsightsParams {
     excludeTags: signals.excludeTags,
     age: AGE_BUCKET,
     locationQuery: digest.hometown,
+    explainability: true,
     take: MUSIC_FETCH_TAKE,
   };
 }

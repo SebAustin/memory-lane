@@ -1,0 +1,28 @@
+{
+  "success": true,
+  "duration": 0,
+  "results": {
+    "tags": [
+      {"tag_id":"fx-tag-opm","name":"OPM","type":"urn:tag:fixture","query":{"affinity":0.99}},
+      {"tag_id":"fx-tag-variety-show","name":"Variety show","type":"urn:tag:fixture","query":{"affinity":0.98}},
+      {"tag_id":"fx-tag-pop-ballad","name":"Pop ballad","type":"urn:tag:fixture","query":{"affinity":0.96}},
+      {"tag_id":"fx-tag-family","name":"Family","type":"urn:tag:fixture","query":{"affinity":0.95}},
+      {"tag_id":"fx-tag-teleserye","name":"Teleserye","type":"urn:tag:fixture","query":{"affinity":0.93}},
+      {"tag_id":"fx-tag-filipino-cinema","name":"Filipino cinema","type":"urn:tag:fixture","query":{"affinity":0.92}},
+      {"tag_id":"fx-tag-merienda","name":"Merienda","type":"urn:tag:fixture","query":{"affinity":0.9}},
+      {"tag_id":"fx-tag-soft-rock","name":"Soft rock","type":"urn:tag:fixture","query":{"affinity":0.89}},
+      {"tag_id":"fx-tag-kundiman","name":"Kundiman","type":"urn:tag:fixture","query":{"affinity":0.87}},
+      {"tag_id":"fx-tag-sitcom","name":"Sitcom","type":"urn:tag:fixture","query":{"affinity":0.86}},
+      {"tag_id":"fx-tag-anime-classics","name":"Anime classics","type":"urn:tag:fixture","query":{"affinity":0.84}},
+      {"tag_id":"fx-tag-sunday-mass","name":"Sunday mass","type":"urn:tag:fixture","query":{"affinity":0.83}},
+      {"tag_id":"fx-tag-barrio-fiesta","name":"Barrio fiesta","type":"urn:tag:fixture","query":{"affinity":0.81}},
+      {"tag_id":"fx-tag-karaoke-night","name":"Karaoke night","type":"urn:tag:fixture","query":{"affinity":0.8}},
+      {"tag_id":"fx-tag-jeepney-rides","name":"Jeepney rides","type":"urn:tag:fixture","query":{"affinity":0.78}},
+      {"tag_id":"fx-tag-noodles-and-mami","name":"Noodles and mami","type":"urn:tag:fixture","query":{"affinity":0.77}},
+      {"tag_id":"fx-tag-intramuros","name":"Intramuros","type":"urn:tag:fixture","query":{"affinity":0.75}},
+      {"tag_id":"fx-tag-bayanihan","name":"Bayanihan","type":"urn:tag:fixture","query":{"affinity":0.74}},
+      {"tag_id":"fx-tag-comedy","name":"Comedy","type":"urn:tag:fixture","query":{"affinity":0.72}},
+      {"tag_id":"fx-tag-romantic-drama","name":"Romantic drama","type":"urn:tag:fixture","query":{"affinity":0.71}}
+    ]
+  }
+}

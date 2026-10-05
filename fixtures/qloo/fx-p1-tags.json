@@ -1,0 +1,28 @@
+{
+  "success": true,
+  "duration": 0,
+  "results": {
+    "tags": [
+      {"tag_id":"fx-tag-country","name":"Country","type":"urn:tag:fixture","query":{"affinity":0.99}},
+      {"tag_id":"fx-tag-nashville-sound","name":"Nashville sound","type":"urn:tag:fixture","query":{"affinity":0.98}},
+      {"tag_id":"fx-tag-romantic-comedy","name":"Romantic comedy","type":"urn:tag:fixture","query":{"affinity":0.96}},
+      {"tag_id":"fx-tag-traditional-pop","name":"Traditional pop","type":"urn:tag:fixture","query":{"affinity":0.95}},
+      {"tag_id":"fx-tag-southern-heritage","name":"Southern heritage","type":"urn:tag:fixture","query":{"affinity":0.93}},
+      {"tag_id":"fx-tag-easy-listening","name":"Easy listening","type":"urn:tag:fixture","query":{"affinity":0.92}},
+      {"tag_id":"fx-tag-memphis-sound","name":"Memphis sound","type":"urn:tag:fixture","query":{"affinity":0.9}},
+      {"tag_id":"fx-tag-family","name":"Family","type":"urn:tag:fixture","query":{"affinity":0.89}},
+      {"tag_id":"fx-tag-rock-and-roll","name":"Rock and roll","type":"urn:tag:fixture","query":{"affinity":0.87}},
+      {"tag_id":"fx-tag-glamour","name":"Glamour","type":"urn:tag:fixture","query":{"affinity":0.86}},
+      {"tag_id":"fx-tag-soul","name":"Soul","type":"urn:tag:fixture","query":{"affinity":0.84}},
+      {"tag_id":"fx-tag-gospel-roots","name":"Gospel roots","type":"urn:tag:fixture","query":{"affinity":0.83}},
+      {"tag_id":"fx-tag-honky-tonk","name":"Honky-tonk","type":"urn:tag:fixture","query":{"affinity":0.81}},
+      {"tag_id":"fx-tag-musical","name":"Musical","type":"urn:tag:fixture","query":{"affinity":0.8}},
+      {"tag_id":"fx-tag-sitcom","name":"Sitcom","type":"urn:tag:fixture","query":{"affinity":0.78}},
+      {"tag_id":"fx-tag-variety-show","name":"Variety show","type":"urn:tag:fixture","query":{"affinity":0.77}},
+      {"tag_id":"fx-tag-barbecue","name":"Barbecue","type":"urn:tag:fixture","query":{"affinity":0.75}},
+      {"tag_id":"fx-tag-sunday-best","name":"Sunday best","type":"urn:tag:fixture","query":{"affinity":0.74}},
+      {"tag_id":"fx-tag-road-trips","name":"Road trips","type":"urn:tag:fixture","query":{"affinity":0.72}},
+      {"tag_id":"fx-tag-dance-halls","name":"Dance halls","type":"urn:tag:fixture","query":{"affinity":0.71}}
+    ]
+  }
+}

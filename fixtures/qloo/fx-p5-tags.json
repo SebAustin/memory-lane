@@ -1,0 +1,28 @@
+{
+  "success": true,
+  "duration": 0,
+  "results": {
+    "tags": [
+      {"tag_id":"fx-tag-hip-hop","name":"Hip-hop","type":"urn:tag:fixture","query":{"affinity":0.99}},
+      {"tag_id":"fx-tag-new-york-stories","name":"New York stories","type":"urn:tag:fixture","query":{"affinity":0.98}},
+      {"tag_id":"fx-tag-stoop-life","name":"Stoop life","type":"urn:tag:fixture","query":{"affinity":0.96}},
+      {"tag_id":"fx-tag-sneaker-culture","name":"Sneaker culture","type":"urn:tag:fixture","query":{"affinity":0.95}},
+      {"tag_id":"fx-tag-comedy","name":"Comedy","type":"urn:tag:fixture","query":{"affinity":0.93}},
+      {"tag_id":"fx-tag-block-party","name":"Block party","type":"urn:tag:fixture","query":{"affinity":0.92}},
+      {"tag_id":"fx-tag-pizza-slice","name":"Pizza slice","type":"urn:tag:fixture","query":{"affinity":0.9}},
+      {"tag_id":"fx-tag-sitcom","name":"Sitcom","type":"urn:tag:fixture","query":{"affinity":0.89}},
+      {"tag_id":"fx-tag-arcade-games","name":"Arcade games","type":"urn:tag:fixture","query":{"affinity":0.87}},
+      {"tag_id":"fx-tag-rock-and-roll","name":"Rock and roll","type":"urn:tag:fixture","query":{"affinity":0.86}},
+      {"tag_id":"fx-tag-disco","name":"Disco","type":"urn:tag:fixture","query":{"affinity":0.84}},
+      {"tag_id":"fx-tag-boombox","name":"Boombox","type":"urn:tag:fixture","query":{"affinity":0.83}},
+      {"tag_id":"fx-tag-street-style","name":"Street style","type":"urn:tag:fixture","query":{"affinity":0.81}},
+      {"tag_id":"fx-tag-baseball","name":"Baseball","type":"urn:tag:fixture","query":{"affinity":0.8}},
+      {"tag_id":"fx-tag-coney-island","name":"Coney Island","type":"urn:tag:fixture","query":{"affinity":0.78}},
+      {"tag_id":"fx-tag-drama","name":"Drama","type":"urn:tag:fixture","query":{"affinity":0.77}},
+      {"tag_id":"fx-tag-blockbuster","name":"Blockbuster","type":"urn:tag:fixture","query":{"affinity":0.75}},
+      {"tag_id":"fx-tag-mixtape","name":"Mixtape","type":"urn:tag:fixture","query":{"affinity":0.74}},
+      {"tag_id":"fx-tag-family","name":"Family","type":"urn:tag:fixture","query":{"affinity":0.72}},
+      {"tag_id":"fx-tag-skyline","name":"Skyline","type":"urn:tag:fixture","query":{"affinity":0.71}}
+    ]
+  }
+}

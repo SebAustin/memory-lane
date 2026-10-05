@@ -3,8 +3,617 @@
   "insights": [
     {
       "type": "urn:entity:artist",
-      "location": "Memphis",
+      "location": [
+        "Memphis",
+        "Memphis, TN",
+        "Memphis, Tennessee"
+      ],
+      "seeds": [
+        "fx-artist-patsy-cline",
+        "fx-film-pillow-talk",
+        "fx-film-move-over-darling"
+      ],
       "file": "fx-p1-music.json"
+    },
+    {
+      "type": "urn:entity:movie",
+      "window": {
+        "min": 1956,
+        "max": 1976
+      },
+      "seeds": [
+        "fx-artist-patsy-cline",
+        "fx-film-pillow-talk",
+        "fx-film-move-over-darling"
+      ],
+      "file": "fx-p1-film.json"
+    },
+    {
+      "type": "urn:entity:movie",
+      "window": {
+        "min": 1953,
+        "max": 1979
+      },
+      "seeds": [
+        "fx-artist-patsy-cline",
+        "fx-film-pillow-talk",
+        "fx-film-move-over-darling"
+      ],
+      "file": "fx-p1-film-wide.json"
+    },
+    {
+      "type": "urn:entity:tv_show",
+      "window": {
+        "min": 1956,
+        "max": 1976
+      },
+      "seeds": [
+        "fx-artist-patsy-cline",
+        "fx-film-pillow-talk",
+        "fx-film-move-over-darling"
+      ],
+      "file": "fx-p1-tv.json"
+    },
+    {
+      "type": "urn:entity:tv_show",
+      "window": {
+        "min": 1953,
+        "max": 1979
+      },
+      "seeds": [
+        "fx-artist-patsy-cline",
+        "fx-film-pillow-talk",
+        "fx-film-move-over-darling"
+      ],
+      "file": "fx-p1-tv-wide.json"
+    },
+    {
+      "type": "urn:entity:book",
+      "window": {
+        "min": 1956,
+        "max": 1976
+      },
+      "seeds": [
+        "fx-artist-patsy-cline",
+        "fx-film-pillow-talk",
+        "fx-film-move-over-darling"
+      ],
+      "file": "fx-p1-book.json"
+    },
+    {
+      "type": "urn:entity:book",
+      "window": {
+        "min": 1953,
+        "max": 1979
+      },
+      "seeds": [
+        "fx-artist-patsy-cline",
+        "fx-film-pillow-talk",
+        "fx-film-move-over-darling"
+      ],
+      "file": "fx-p1-book-wide.json"
+    },
+    {
+      "type": "urn:entity:place",
+      "location": [
+        "Memphis",
+        "Memphis, TN",
+        "Memphis, Tennessee"
+      ],
+      "seeds": [
+        "fx-artist-patsy-cline",
+        "fx-film-pillow-talk",
+        "fx-film-move-over-darling"
+      ],
+      "file": "fx-p1-place.json"
+    },
+    {
+      "type": "urn:entity:brand",
+      "seeds": [
+        "fx-artist-patsy-cline",
+        "fx-film-pillow-talk",
+        "fx-film-move-over-darling"
+      ],
+      "file": "fx-p1-brand.json"
+    },
+    {
+      "type": "urn:tag",
+      "seeds": [
+        "fx-artist-patsy-cline",
+        "fx-film-pillow-talk",
+        "fx-film-move-over-darling"
+      ],
+      "file": "fx-p1-tags.json"
+    },
+    {
+      "type": "urn:entity:artist",
+      "location": [
+        "Leeds",
+        "Leeds, UK",
+        "Leeds, England",
+        "Leeds, West Yorkshire"
+      ],
+      "seeds": [
+        "fx-artist-lonnie-donegan",
+        "fx-film-brief-encounter",
+        "fx-tv-coronation-street"
+      ],
+      "file": "fx-p2-music.json"
+    },
+    {
+      "type": "urn:entity:movie",
+      "window": {
+        "min": 1945,
+        "max": 1965
+      },
+      "seeds": [
+        "fx-artist-lonnie-donegan",
+        "fx-film-brief-encounter",
+        "fx-tv-coronation-street"
+      ],
+      "file": "fx-p2-film.json"
+    },
+    {
+      "type": "urn:entity:movie",
+      "window": {
+        "min": 1942,
+        "max": 1968
+      },
+      "seeds": [
+        "fx-artist-lonnie-donegan",
+        "fx-film-brief-encounter",
+        "fx-tv-coronation-street"
+      ],
+      "file": "fx-p2-film-wide.json"
+    },
+    {
+      "type": "urn:entity:tv_show",
+      "window": {
+        "min": 1945,
+        "max": 1965
+      },
+      "seeds": [
+        "fx-artist-lonnie-donegan",
+        "fx-film-brief-encounter",
+        "fx-tv-coronation-street"
+      ],
+      "file": "fx-p2-tv.json"
+    },
+    {
+      "type": "urn:entity:tv_show",
+      "window": {
+        "min": 1942,
+        "max": 1968
+      },
+      "seeds": [
+        "fx-artist-lonnie-donegan",
+        "fx-film-brief-encounter",
+        "fx-tv-coronation-street"
+      ],
+      "file": "fx-p2-tv-wide.json"
+    },
+    {
+      "type": "urn:entity:book",
+      "window": {
+        "min": 1945,
+        "max": 1965
+      },
+      "seeds": [
+        "fx-artist-lonnie-donegan",
+        "fx-film-brief-encounter",
+        "fx-tv-coronation-street"
+      ],
+      "file": "fx-p2-book.json"
+    },
+    {
+      "type": "urn:entity:book",
+      "window": {
+        "min": 1942,
+        "max": 1968
+      },
+      "seeds": [
+        "fx-artist-lonnie-donegan",
+        "fx-film-brief-encounter",
+        "fx-tv-coronation-street"
+      ],
+      "file": "fx-p2-book-wide.json"
+    },
+    {
+      "type": "urn:entity:place",
+      "location": [
+        "Leeds",
+        "Leeds, UK",
+        "Leeds, England",
+        "Leeds, West Yorkshire"
+      ],
+      "seeds": [
+        "fx-artist-lonnie-donegan",
+        "fx-film-brief-encounter",
+        "fx-tv-coronation-street"
+      ],
+      "file": "fx-p2-place.json"
+    },
+    {
+      "type": "urn:entity:brand",
+      "seeds": [
+        "fx-artist-lonnie-donegan",
+        "fx-film-brief-encounter",
+        "fx-tv-coronation-street"
+      ],
+      "file": "fx-p2-brand.json"
+    },
+    {
+      "type": "urn:tag",
+      "seeds": [
+        "fx-artist-lonnie-donegan",
+        "fx-film-brief-encounter",
+        "fx-tv-coronation-street"
+      ],
+      "file": "fx-p2-tags.json"
+    },
+    {
+      "type": "urn:entity:artist",
+      "location": [
+        "Guadalajara",
+        "Guadalajara, Mexico",
+        "Guadalajara, Jalisco"
+      ],
+      "seeds": [
+        "fx-artist-pedro-infante",
+        "fx-artist-juan-gabriel",
+        "fx-tv-el-chavo-del-ocho"
+      ],
+      "file": "fx-p3-music.json"
+    },
+    {
+      "type": "urn:entity:movie",
+      "window": {
+        "min": 1962,
+        "max": 1982
+      },
+      "seeds": [
+        "fx-artist-pedro-infante",
+        "fx-artist-juan-gabriel",
+        "fx-tv-el-chavo-del-ocho"
+      ],
+      "file": "fx-p3-film.json"
+    },
+    {
+      "type": "urn:entity:movie",
+      "window": {
+        "min": 1959,
+        "max": 1985
+      },
+      "seeds": [
+        "fx-artist-pedro-infante",
+        "fx-artist-juan-gabriel",
+        "fx-tv-el-chavo-del-ocho"
+      ],
+      "file": "fx-p3-film-wide.json"
+    },
+    {
+      "type": "urn:entity:tv_show",
+      "window": {
+        "min": 1962,
+        "max": 1982
+      },
+      "seeds": [
+        "fx-artist-pedro-infante",
+        "fx-artist-juan-gabriel",
+        "fx-tv-el-chavo-del-ocho"
+      ],
+      "file": "fx-p3-tv.json"
+    },
+    {
+      "type": "urn:entity:tv_show",
+      "window": {
+        "min": 1959,
+        "max": 1985
+      },
+      "seeds": [
+        "fx-artist-pedro-infante",
+        "fx-artist-juan-gabriel",
+        "fx-tv-el-chavo-del-ocho"
+      ],
+      "file": "fx-p3-tv-wide.json"
+    },
+    {
+      "type": "urn:entity:book",
+      "window": {
+        "min": 1962,
+        "max": 1982
+      },
+      "seeds": [
+        "fx-artist-pedro-infante",
+        "fx-artist-juan-gabriel",
+        "fx-tv-el-chavo-del-ocho"
+      ],
+      "file": "fx-p3-book.json"
+    },
+    {
+      "type": "urn:entity:book",
+      "window": {
+        "min": 1959,
+        "max": 1985
+      },
+      "seeds": [
+        "fx-artist-pedro-infante",
+        "fx-artist-juan-gabriel",
+        "fx-tv-el-chavo-del-ocho"
+      ],
+      "file": "fx-p3-book-wide.json"
+    },
+    {
+      "type": "urn:entity:place",
+      "location": [
+        "Guadalajara",
+        "Guadalajara, Mexico",
+        "Guadalajara, Jalisco"
+      ],
+      "seeds": [
+        "fx-artist-pedro-infante",
+        "fx-artist-juan-gabriel",
+        "fx-tv-el-chavo-del-ocho"
+      ],
+      "file": "fx-p3-place.json"
+    },
+    {
+      "type": "urn:entity:brand",
+      "seeds": [
+        "fx-artist-pedro-infante",
+        "fx-artist-juan-gabriel",
+        "fx-tv-el-chavo-del-ocho"
+      ],
+      "file": "fx-p3-brand.json"
+    },
+    {
+      "type": "urn:tag",
+      "seeds": [
+        "fx-artist-pedro-infante",
+        "fx-artist-juan-gabriel",
+        "fx-tv-el-chavo-del-ocho"
+      ],
+      "file": "fx-p3-tags.json"
+    },
+    {
+      "type": "urn:entity:artist",
+      "location": [
+        "Manila",
+        "Manila, Philippines",
+        "Manila, PH"
+      ],
+      "seeds": [
+        "fx-artist-nora-aunor",
+        "fx-artist-the-carpenters",
+        "fx-tv-eat-bulaga"
+      ],
+      "file": "fx-p4-music.json"
+    },
+    {
+      "type": "urn:entity:movie",
+      "window": {
+        "min": 1968,
+        "max": 1988
+      },
+      "seeds": [
+        "fx-artist-nora-aunor",
+        "fx-artist-the-carpenters",
+        "fx-tv-eat-bulaga"
+      ],
+      "file": "fx-p4-film.json"
+    },
+    {
+      "type": "urn:entity:movie",
+      "window": {
+        "min": 1965,
+        "max": 1991
+      },
+      "seeds": [
+        "fx-artist-nora-aunor",
+        "fx-artist-the-carpenters",
+        "fx-tv-eat-bulaga"
+      ],
+      "file": "fx-p4-film-wide.json"
+    },
+    {
+      "type": "urn:entity:tv_show",
+      "window": {
+        "min": 1968,
+        "max": 1988
+      },
+      "seeds": [
+        "fx-artist-nora-aunor",
+        "fx-artist-the-carpenters",
+        "fx-tv-eat-bulaga"
+      ],
+      "file": "fx-p4-tv.json"
+    },
+    {
+      "type": "urn:entity:tv_show",
+      "window": {
+        "min": 1965,
+        "max": 1991
+      },
+      "seeds": [
+        "fx-artist-nora-aunor",
+        "fx-artist-the-carpenters",
+        "fx-tv-eat-bulaga"
+      ],
+      "file": "fx-p4-tv-wide.json"
+    },
+    {
+      "type": "urn:entity:book",
+      "window": {
+        "min": 1968,
+        "max": 1988
+      },
+      "seeds": [
+        "fx-artist-nora-aunor",
+        "fx-artist-the-carpenters",
+        "fx-tv-eat-bulaga"
+      ],
+      "file": "fx-p4-book.json"
+    },
+    {
+      "type": "urn:entity:book",
+      "window": {
+        "min": 1965,
+        "max": 1991
+      },
+      "seeds": [
+        "fx-artist-nora-aunor",
+        "fx-artist-the-carpenters",
+        "fx-tv-eat-bulaga"
+      ],
+      "file": "fx-p4-book-wide.json"
+    },
+    {
+      "type": "urn:entity:place",
+      "location": [
+        "Manila",
+        "Manila, Philippines",
+        "Manila, PH"
+      ],
+      "seeds": [
+        "fx-artist-nora-aunor",
+        "fx-artist-the-carpenters",
+        "fx-tv-eat-bulaga"
+      ],
+      "file": "fx-p4-place.json"
+    },
+    {
+      "type": "urn:entity:brand",
+      "seeds": [
+        "fx-artist-nora-aunor",
+        "fx-artist-the-carpenters",
+        "fx-tv-eat-bulaga"
+      ],
+      "file": "fx-p4-brand.json"
+    },
+    {
+      "type": "urn:tag",
+      "seeds": [
+        "fx-artist-nora-aunor",
+        "fx-artist-the-carpenters",
+        "fx-tv-eat-bulaga"
+      ],
+      "file": "fx-p4-tags.json"
+    },
+    {
+      "type": "urn:entity:artist",
+      "location": [
+        "Brooklyn",
+        "Brooklyn, NYC",
+        "Brooklyn, NY",
+        "Brooklyn, New York"
+      ],
+      "seeds": [
+        "fx-artist-run-dmc",
+        "fx-film-do-the-right-thing"
+      ],
+      "file": "fx-p5-music.json"
+    },
+    {
+      "type": "urn:entity:movie",
+      "window": {
+        "min": 1975,
+        "max": 1995
+      },
+      "seeds": [
+        "fx-artist-run-dmc",
+        "fx-film-do-the-right-thing"
+      ],
+      "file": "fx-p5-film.json"
+    },
+    {
+      "type": "urn:entity:movie",
+      "window": {
+        "min": 1972,
+        "max": 1998
+      },
+      "seeds": [
+        "fx-artist-run-dmc",
+        "fx-film-do-the-right-thing"
+      ],
+      "file": "fx-p5-film-wide.json"
+    },
+    {
+      "type": "urn:entity:tv_show",
+      "window": {
+        "min": 1975,
+        "max": 1995
+      },
+      "seeds": [
+        "fx-artist-run-dmc",
+        "fx-film-do-the-right-thing"
+      ],
+      "file": "fx-p5-tv.json"
+    },
+    {
+      "type": "urn:entity:tv_show",
+      "window": {
+        "min": 1972,
+        "max": 1998
+      },
+      "seeds": [
+        "fx-artist-run-dmc",
+        "fx-film-do-the-right-thing"
+      ],
+      "file": "fx-p5-tv-wide.json"
+    },
+    {
+      "type": "urn:entity:book",
+      "window": {
+        "min": 1975,
+        "max": 1995
+      },
+      "seeds": [
+        "fx-artist-run-dmc",
+        "fx-film-do-the-right-thing"
+      ],
+      "file": "fx-p5-book.json"
+    },
+    {
+      "type": "urn:entity:book",
+      "window": {
+        "min": 1972,
+        "max": 1998
+      },
+      "seeds": [
+        "fx-artist-run-dmc",
+        "fx-film-do-the-right-thing"
+      ],
+      "file": "fx-p5-book-wide.json"
+    },
+    {
+      "type": "urn:entity:place",
+      "location": [
+        "Brooklyn",
+        "Brooklyn, NYC",
+        "Brooklyn, NY",
+        "Brooklyn, New York"
+      ],
+      "seeds": [
+        "fx-artist-run-dmc",
+        "fx-film-do-the-right-thing"
+      ],
+      "file": "fx-p5-place.json"
+    },
+    {
+      "type": "urn:entity:brand",
+      "seeds": [
+        "fx-artist-run-dmc",
+        "fx-film-do-the-right-thing"
+      ],
+      "file": "fx-p5-brand.json"
+    },
+    {
+      "type": "urn:tag",
+      "seeds": [
+        "fx-artist-run-dmc",
+        "fx-film-do-the-right-thing"
+      ],
+      "file": "fx-p5-tags.json"
     }
   ],
   "search": {

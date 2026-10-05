@@ -1,0 +1,28 @@
+{
+  "success": true,
+  "duration": 0,
+  "results": {
+    "tags": [
+      {"tag_id":"fx-tag-mariachi","name":"Mariachi","type":"urn:tag:fixture","query":{"affinity":0.99}},
+      {"tag_id":"fx-tag-ranchera","name":"Ranchera","type":"urn:tag:fixture","query":{"affinity":0.98}},
+      {"tag_id":"fx-tag-telenovela","name":"Telenovela","type":"urn:tag:fixture","query":{"affinity":0.96}},
+      {"tag_id":"fx-tag-golden-age-cinema","name":"Golden Age cinema","type":"urn:tag:fixture","query":{"affinity":0.95}},
+      {"tag_id":"fx-tag-family","name":"Family","type":"urn:tag:fixture","query":{"affinity":0.93}},
+      {"tag_id":"fx-tag-mexican-comfort-food","name":"Mexican comfort food","type":"urn:tag:fixture","query":{"affinity":0.92}},
+      {"tag_id":"fx-tag-comedy","name":"Comedy","type":"urn:tag:fixture","query":{"affinity":0.9}},
+      {"tag_id":"fx-tag-bolero","name":"Bolero","type":"urn:tag:fixture","query":{"affinity":0.89}},
+      {"tag_id":"fx-tag-folk-traditions","name":"Folk traditions","type":"urn:tag:fixture","query":{"affinity":0.87}},
+      {"tag_id":"fx-tag-latin-pop","name":"Latin pop","type":"urn:tag:fixture","query":{"affinity":0.86}},
+      {"tag_id":"fx-tag-magical-realism","name":"Magical realism","type":"urn:tag:fixture","query":{"affinity":0.84}},
+      {"tag_id":"fx-tag-street-food","name":"Street food","type":"urn:tag:fixture","query":{"affinity":0.83}},
+      {"tag_id":"fx-tag-sunday-mass","name":"Sunday mass","type":"urn:tag:fixture","query":{"affinity":0.81}},
+      {"tag_id":"fx-tag-fiesta","name":"Fiesta","type":"urn:tag:fixture","query":{"affinity":0.8}},
+      {"tag_id":"fx-tag-lucha-libre","name":"Lucha libre","type":"urn:tag:fixture","query":{"affinity":0.78}},
+      {"tag_id":"fx-tag-tequila-country","name":"Tequila country","type":"urn:tag:fixture","query":{"affinity":0.77}},
+      {"tag_id":"fx-tag-cantina","name":"Cantina","type":"urn:tag:fixture","query":{"affinity":0.75}},
+      {"tag_id":"fx-tag-pueblo-life","name":"Pueblo life","type":"urn:tag:fixture","query":{"affinity":0.74}},
+      {"tag_id":"fx-tag-romantic-drama","name":"Romantic drama","type":"urn:tag:fixture","query":{"affinity":0.72}},
+      {"tag_id":"fx-tag-cartoons","name":"Cartoons","type":"urn:tag:fixture","query":{"affinity":0.71}}
+    ]
+  }
+}

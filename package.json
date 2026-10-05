@@ -12,7 +12,8 @@
     "test:coverage": "vitest run --coverage",
     "test:e2e": "next build && playwright test",
     "scan:bundle": "tsx scripts/scan-bundle.ts",
-    "validate:demo": "tsx scripts/validate-demo.ts"
+    "validate:demo": "tsx scripts/validate-demo.ts",
+    "fixtures:build": "tsx scripts/qloo-fixtures/build.ts"
   },
   "dependencies": {
     "@ai-sdk/gateway": "4.0.103",

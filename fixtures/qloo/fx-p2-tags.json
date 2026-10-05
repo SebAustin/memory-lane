@@ -1,0 +1,28 @@
+{
+  "success": true,
+  "duration": 0,
+  "results": {
+    "tags": [
+      {"tag_id":"fx-tag-skiffle","name":"Skiffle","type":"urn:tag:fixture","query":{"affinity":0.99}},
+      {"tag_id":"fx-tag-british-comedy","name":"British comedy","type":"urn:tag:fixture","query":{"affinity":0.98}},
+      {"tag_id":"fx-tag-railways","name":"Railways","type":"urn:tag:fixture","query":{"affinity":0.96}},
+      {"tag_id":"fx-tag-working-class-life","name":"Working-class life","type":"urn:tag:fixture","query":{"affinity":0.95}},
+      {"tag_id":"fx-tag-variety","name":"Variety","type":"urn:tag:fixture","query":{"affinity":0.93}},
+      {"tag_id":"fx-tag-trad-jazz","name":"Trad jazz","type":"urn:tag:fixture","query":{"affinity":0.92}},
+      {"tag_id":"fx-tag-seaside-holidays","name":"Seaside holidays","type":"urn:tag:fixture","query":{"affinity":0.9}},
+      {"tag_id":"fx-tag-ealing-comedy","name":"Ealing comedy","type":"urn:tag:fixture","query":{"affinity":0.89}},
+      {"tag_id":"fx-tag-romantic-drama","name":"Romantic drama","type":"urn:tag:fixture","query":{"affinity":0.87}},
+      {"tag_id":"fx-tag-big-band","name":"Big band","type":"urn:tag:fixture","query":{"affinity":0.86}},
+      {"tag_id":"fx-tag-easy-listening","name":"Easy listening","type":"urn:tag:fixture","query":{"affinity":0.84}},
+      {"tag_id":"fx-tag-british-pop","name":"British pop","type":"urn:tag:fixture","query":{"affinity":0.83}},
+      {"tag_id":"fx-tag-family","name":"Family","type":"urn:tag:fixture","query":{"affinity":0.81}},
+      {"tag_id":"fx-tag-sunday-roast","name":"Sunday roast","type":"urn:tag:fixture","query":{"affinity":0.8}},
+      {"tag_id":"fx-tag-kitchen-sink-drama","name":"Kitchen sink drama","type":"urn:tag:fixture","query":{"affinity":0.78}},
+      {"tag_id":"fx-tag-pantomime","name":"Pantomime","type":"urn:tag:fixture","query":{"affinity":0.77}},
+      {"tag_id":"fx-tag-brass-bands","name":"Brass bands","type":"urn:tag:fixture","query":{"affinity":0.75}},
+      {"tag_id":"fx-tag-tea-time","name":"Tea time","type":"urn:tag:fixture","query":{"affinity":0.74}},
+      {"tag_id":"fx-tag-football","name":"Football","type":"urn:tag:fixture","query":{"affinity":0.72}},
+      {"tag_id":"fx-tag-cinema-outings","name":"Cinema outings","type":"urn:tag:fixture","query":{"affinity":0.71}}
+    ]
+  }
+}
