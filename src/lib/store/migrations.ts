@@ -5,6 +5,8 @@ import { deepFreeze } from "@/lib/deep-freeze";
 export const STORE_KEY = "memory-lane:store";
 /** Where data we could not read is set aside, so nothing is lost silently. */
 export const QUARANTINE_KEY = "memory-lane:quarantine";
+/** Every key this app writes. Delete all removes each of them (FR-27), so a new key must be listed here. */
+export const OWNED_KEYS: readonly string[] = [STORE_KEY, QUARANTINE_KEY];
 /** The schema version this build reads and writes. */
 export const CURRENT_SCHEMA_VERSION = 1;
 

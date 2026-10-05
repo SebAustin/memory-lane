@@ -1,8 +1,9 @@
 import { StoreV1 } from "@/contracts";
-import type { Kit, LifeStory, LifeStoryDraft, SessionLogEntry, StoryId, TasteProfile } from "@/contracts";
+import type { ExportFile, Kit, LifeStory, LifeStoryDraft, SessionLogEntry, StoryId, TasteProfile } from "@/contracts";
 import { deepFreeze } from "@/lib/deep-freeze";
 import { logEvent } from "@/lib/log";
-import { EMPTY_STORE, QUARANTINE_KEY, STORE_KEY, migrate, type Migration } from "./migrations";
+import { buildExportFile, importFailure, readImportFile, type ImportResult, type ParsedImport } from "./importFile";
+import { EMPTY_STORE, OWNED_KEYS, QUARANTINE_KEY, STORE_KEY, migrate, type Migration } from "./migrations";
 import { memoryStorage, type KeyValueStorage, type StorageKind } from "./storage";
 
 /** Kits kept per Life Story and log entries kept per Life Story (the StoreV1 caps; oldest go first). */
@@ -23,7 +24,7 @@ export interface StoreStatus {
   readonly saveFailed: boolean;
 }
 
-/** The Caregiver's data, on this device (PLAN section 3.5). Export, import and delete-all arrive in ticket 21. */
+/** The Caregiver's data, on this device (PLAN section 3.5). */
 export interface Repository {
   getState(): StoreV1;
   getStatus(): StoreStatus;
@@ -37,6 +38,24 @@ export interface Repository {
   saveKit(kit: Kit): Promise<void>;
   appendSessionLog(storyId: StoryId, entry: SessionLogEntry): Promise<void>;
   setProfile(storyId: StoryId, profile: TasteProfile): Promise<void>;
+  /** Everything on this device as one versioned file (FR-26). Build the download from it; nothing leaves the browser. */
+  exportAll(): ExportFile;
+  /**
+   * The data this build could not use (from a newer version, or set aside as
+   * unreadable) as JSON text, so the banner's Export saves something real.
+   * `null` when there is none.
+   */
+  exportUnreadable(): string | null;
+  /** Checks a file and counts what it holds, without changing anything. This is the confirmation step. */
+  previewImport(text: string): ImportResult;
+  /**
+   * Replaces everything on this device with the contents of an export file.
+   * The file is validated and migrated in full first, then saved in one write,
+   * so a bad file never changes anything (SC-12).
+   */
+  importAll(text: string): Promise<ImportResult>;
+  /** Removes every Life Story, Session Log, draft and set-aside copy from this device (FR-27). Rejects if the browser will not delete. */
+  deleteAll(): Promise<void>;
 }
 
 /** Thrown by every write when the stored data came from a newer version of the app. */
@@ -50,6 +69,14 @@ export class ReadOnlyStoreError extends Error {
 export interface RepositoryOptions {
   /** Clock for quarantine timestamps. Defaults to the system clock. */
   readonly now?: () => string;
+}
+
+/** What the caller sees of a parsed file: the counts, never the data. */
+function resultOf(parsed: ParsedImport): ImportResult {
+  if (!parsed.ok) return parsed;
+  return parsed.migratedFrom === undefined
+    ? { ok: true, counts: parsed.counts }
+    : { ok: true, counts: parsed.counts, migratedFrom: parsed.migratedFrom };
 }
 
 const withoutKey = <V>(record: Readonly<Record<string, V>>, key: string): Record<string, V> =>
@@ -80,6 +107,8 @@ export function createRepository(
     saveFailed: false,
   };
   let loading: Promise<void> | undefined;
+  /** Stored data this build cannot use, kept so the banner can still offer it as a file. */
+  let unreadable: unknown;
   let writes: Promise<unknown> = Promise.resolve();
   const listeners = new Set<() => void>();
 
@@ -143,9 +172,11 @@ export function createRepository(
         break;
       case "future":
         logEvent({ event: "store_read_only", level: "warn", version: result.version });
+        unreadable = raw;
         setStatus({ readOnly: true });
         break;
       case "invalid":
+        unreadable = raw;
         await quarantine(raw, result.reason);
         break;
     }
@@ -163,6 +194,51 @@ export function createRepository(
     state = next;
     notify();
     await persist(next);
+  }
+
+  /** Runs `task` after every write already queued, and makes later writes wait for it. */
+  const enqueue = <T>(task: () => Promise<T>): Promise<T> => {
+    const run = writes.then(task);
+    writes = run.catch(() => undefined);
+    return run;
+  };
+
+  const checkImport = (text: string): ParsedImport =>
+    status.readOnly ? importFailure("read_only") : readImportFile(text, migrations);
+
+  async function importAll(text: string): Promise<ImportResult> {
+    await load();
+    const parsed = checkImport(text);
+    if (!parsed.ok) return parsed;
+    const next = deepFreeze(parsed.state);
+    try {
+      await enqueue(() => storage.set(STORE_KEY, next));
+    } catch {
+      logEvent({ event: "store_import_save_failed", level: "error", storage: storage.kind });
+      return importFailure("save_failed");
+    }
+    state = next;
+    setStatus({ saveFailed: false });
+    notify();
+    logEvent({ event: "store_imported", lifeStories: parsed.counts.lifeStories });
+    return resultOf(parsed);
+  }
+
+  async function deleteAll(): Promise<void> {
+    await load();
+    try {
+      await enqueue(async () => {
+        for (const key of OWNED_KEYS) await storage.del(key);
+      });
+    } catch (error) {
+      logEvent({ event: "store_delete_failed", level: "error", storage: storage.kind });
+      throw error;
+    }
+    state = EMPTY_STORE;
+    unreadable = undefined;
+    setStatus({ readOnly: false, quarantined: false, saveFailed: false });
+    notify();
+    logEvent({ event: "store_deleted_all" });
   }
 
   return {
@@ -205,5 +281,15 @@ export function createRepository(
         },
       })),
     setProfile: (storyId, profile) => commit((s) => ({ ...s, profiles: { ...s.profiles, [storyId]: profile } })),
+    exportAll: () => buildExportFile(state, now()),
+    exportUnreadable() {
+      if (unreadable === undefined) return null;
+      const version = (unreadable as { schemaVersion?: unknown } | null)?.schemaVersion;
+      const schemaVersion = typeof version === "number" && Number.isInteger(version) && version >= 0 ? version : 0;
+      return JSON.stringify({ app: "memory-lane", schemaVersion, exportedAt: now(), data: unreadable });
+    },
+    previewImport: (text) => resultOf(checkImport(text)),
+    importAll,
+    deleteAll,
   };
 }
