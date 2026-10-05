@@ -45,7 +45,7 @@ export const IMPORT_MESSAGES: Readonly<Record<ImportFailureReason, string>> = {
   not_memory_lane: "That file doesn't look like a Memory Lane export. Nothing on this device changed. Choose the .json file you exported from Memory Lane.",
   invalid: "That Memory Lane file is damaged or incomplete, so we did not use any of it. Nothing on this device changed. Try exporting again from the original device.",
   future_version: "That file comes from a newer version of Memory Lane than this one, so we can't open it safely. Nothing on this device changed. Open Memory Lane from the same place you exported it, or update and try again.",
-  read_only: "This device holds Life Stories from a newer version of Memory Lane, and an import would overwrite them. Export them first, then Delete all data, then import.",
+  read_only: "This device holds saved data that this version of Memory Lane can't read, and an import would overwrite it. Export it first, then Delete all data, then import.",
   save_failed: "We couldn't save the imported data on this device, so nothing was changed. Your current Life Stories are still here.",
 };
 

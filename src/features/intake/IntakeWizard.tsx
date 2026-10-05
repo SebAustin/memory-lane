@@ -33,5 +33,5 @@ export function IntakeWizard({ resolver }: { readonly resolver?: Resolver } = {}
       </Container>
     );
   }
-  return <WizardBody repository={repository} initialDraft={draft} nav={nav} status={status} resolver={resolver} />;
+  return <WizardBody repository={repository} initialDraft={draft} nav={nav} resolver={resolver} />;
 }
