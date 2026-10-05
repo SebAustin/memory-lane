@@ -1,0 +1,62 @@
+/* About: an editorial column, then the Your data sheet. */
+.page {
+  display: grid;
+  gap: var(--space-7);
+  padding-block: var(--space-6) var(--space-8);
+}
+
+.intro { display: grid; gap: var(--space-4); justify-items: start; max-width: 48rem; }
+.kicker {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--clay-600);
+}
+.kicker::before { content: ""; width: 2.5rem; border-top: 2px dashed currentColor; }
+.title { font-size: var(--text-hero); line-height: var(--lh-tight); letter-spacing: -0.025em; font-weight: 450; max-width: 14ch; }
+.lede { max-width: 36rem; font-size: var(--text-lg); line-height: var(--lh-snug); color: var(--ink-700); }
+
+/* Sections hang a heading in the left margin on wide screens, like captions beside prints. */
+.section { display: grid; gap: var(--space-4); }
+@media (min-width: 60rem) {
+  .section { grid-template-columns: minmax(12rem, 1fr) minmax(0, 2.4fr); gap: var(--space-6); }
+}
+.heading { font-size: var(--text-xl); line-height: var(--lh-tight); letter-spacing: -0.015em; }
+.prose, .limits, .steps { display: grid; gap: var(--space-4); max-width: var(--measure); font-size: var(--text-base); color: var(--ink-700); }
+.prose p, .limits li, .steps p { line-height: var(--lh-body); }
+
+.steps { padding: 0; list-style: none; counter-reset: step; }
+.steps li { position: relative; padding-left: var(--space-7); counter-increment: step; }
+.steps li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: -0.2rem;
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-style: italic;
+  line-height: 1;
+  color: var(--clay-600);
+}
+.steps h3 { margin-bottom: var(--space-1); font-size: var(--text-lg); color: var(--ink-900); }
+
+.limits { padding: 0; list-style: none; }
+.limits li { padding-left: var(--space-5); border-left: 3px solid var(--rule); }
+.limits li:first-child { border-left-color: var(--clay-600); color: var(--ink-900); font-weight: 700; }
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-min);
+  font-weight: 700;
+  color: var(--ink-900);
+  text-decoration: underline;
+  text-decoration-color: var(--clay-600);
+  text-decoration-thickness: 3px;
+  text-underline-offset: 0.3em;
+}
+.link:hover { color: var(--clay-600); }

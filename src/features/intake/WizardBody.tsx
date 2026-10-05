@@ -1,12 +1,14 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import { Container } from "@/components/ui/Container";
 import { LifeStory, type LifeStoryDraft } from "@/contracts";
 import { profileFromStory } from "@/domain/profile";
+import { StoreBanner } from "@/features/your-data/StoreBanner";
 import { newStoryId } from "@/lib/id";
 import { logEvent } from "@/lib/log";
-import { ReadOnlyStoreError, type Repository, type StoreStatus } from "@/lib/store/repository";
+import { ReadOnlyStoreError, type Repository } from "@/lib/store/repository";
 import { AboutStep } from "./AboutStep";
 import { ErrorSummary } from "./ErrorSummary";
 import { LaterSteps } from "./LaterSteps";
@@ -15,7 +17,6 @@ import { PlacesStep } from "./PlacesStep";
 import { RootsStep } from "./RootsStep";
 import { Stepper } from "./Stepper";
 import { StepNav } from "./StepNav";
-import { StoreNotices } from "./StoreNotices";
 import {
   ERROR_LABEL,
   errorKeysOfStep,
@@ -68,7 +69,6 @@ export interface WizardBodyProps {
   /** What was saved last time, or null for a fresh start. */
   readonly initialDraft: LifeStoryDraft | null;
   readonly nav: IntakeNav;
-  readonly status: StoreStatus;
   /** How favorites and Avoid topics are looked up in Qloo. Defaults to `/api/resolve`. */
   readonly resolver?: Resolver;
 }
@@ -81,7 +81,7 @@ const omit = (errors: FieldErrors, name: FieldName): FieldErrors =>
  * draft says how far the Caregiver may go. Each step is saved when it is left,
  * so a reload (or a closed tab) comes back to the same step with the same answers (A16).
  */
-export function WizardBody({ repository, initialDraft, nav, status, resolver = resolverForBrowser }: WizardBodyProps) {
+export function WizardBody({ repository, initialDraft, nav, resolver = resolverForBrowser }: WizardBodyProps) {
   const [saved, setSaved] = useState<DraftValues>(() => initialDraft?.values ?? {});
   const savedRef = useRef<DraftValues>(saved);
   const [form, setForm] = useState<FormValues>(() => formFromDraft(initialDraft?.values));
@@ -242,7 +242,7 @@ export function WizardBody({ repository, initialDraft, nav, status, resolver = r
   return (
     <Container className={styles.wizard}>
       <Stepper step={step} />
-      <StoreNotices status={status} />
+      <StoreBanner />
       <div className={styles.spread}>
         <form className={styles.page} noValidate aria-labelledby="intake-heading" onSubmit={onSubmit}>
           <div key={step} className={styles.turn}>
@@ -283,7 +283,10 @@ export function WizardBody({ repository, initialDraft, nav, status, resolver = r
                 <path d="M8 11V8a4 4 0 018 0v3" />
               </svg>
               <span>
-                Stays on this device. We never send {personName === "" ? "them" : personName} to anyone.
+                Stays on this device. We never send {personName === "" ? "them" : personName} to anyone.{" "}
+                <Link href="/about#privacy" className={styles.privacyLink}>
+                  Export or delete it any time.
+                </Link>
               </span>
             </p>
           </div>

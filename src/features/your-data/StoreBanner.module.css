@@ -1,0 +1,39 @@
+/* A margin note pinned to the page: calm, never a modal. Colour is backed by an icon and words. */
+.banner {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--notice-bd);
+  border-left-width: 8px;
+  border-radius: var(--radius-page);
+  background: var(--notice-bg);
+  color: var(--notice-fg);
+  font-size: var(--text-sm);
+}
+.message {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  max-width: var(--measure);
+}
+.message svg { flex: none; margin-top: 0.1rem; }
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-5);
+  padding-top: var(--space-2);
+  border-top: 1px dashed var(--notice-bd);
+}
+/* The buttons are the shared secondary style, whose ink would be too weak on this tint. */
+.actions :is(button, a) { color: var(--notice-fg); text-decoration-color: currentColor; }
+.link {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-min);
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-thickness: 3px;
+  text-underline-offset: 0.3em;
+}
+.link:hover { text-decoration-thickness: 5px; }

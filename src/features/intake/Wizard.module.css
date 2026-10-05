@@ -95,6 +95,8 @@
   color: var(--ink-700);
 }
 .privacy svg { flex: none; margin-top: 0.15rem; color: var(--green-700); }
+.privacyLink { color: var(--ink-900); font-weight: 700; text-decoration-color: var(--clay-600); text-decoration-thickness: 2px; text-underline-offset: 0.25em; }
+.privacyLink:hover { color: var(--clay-600); }
 
 .nav {
   display: flex;
@@ -105,7 +107,6 @@
 }
 .navEnd { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3) var(--space-5); }
 
-.notices { display: grid; gap: var(--space-3); }
 .notice {
   display: flex;
   align-items: flex-start;

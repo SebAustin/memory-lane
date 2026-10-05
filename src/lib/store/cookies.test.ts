@@ -14,4 +14,17 @@ describe("NFR-10: the store sets no cookies", () => {
     expect(document.cookie).toBe("");
     expect(repo.getStatus().storage).toBe("indexeddb");
   });
+
+  it("leaves document.cookie empty after export, delete all and import (SC-10)", async () => {
+    const repo = createRepository(defaultStorage(), []);
+    await repo.load();
+    await repo.saveDraft({ step: 2, values: { firstName: "Margaret" }, updatedAt: "2026-10-03T12:00:00.000Z" });
+
+    const text = JSON.stringify(repo.exportAll());
+    await repo.deleteAll();
+    await repo.importAll(text);
+
+    expect(document.cookie).toBe("");
+    expect(repo.getState().draft?.step).toBe(2);
+  });
 });

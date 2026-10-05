@@ -32,6 +32,21 @@
   justify-content: space-between;
 }
 
+.nav { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 0 var(--space-5); }
+.navLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-min);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--ink-900);
+  text-decoration: underline;
+  text-decoration-color: var(--clay-600);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.3em;
+}
+.navLink:hover { color: var(--clay-600); text-decoration-thickness: 4px; }
+
 .wordmark {
   display: inline-flex;
   align-items: center;

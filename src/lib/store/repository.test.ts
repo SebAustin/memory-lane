@@ -1,105 +1,14 @@
 import "fake-indexeddb/auto";
 import { describe, expect, it, vi } from "vitest";
-import type { Kit, LifeStory, LifeStoryDraft, SessionLogEntry, TasteProfile } from "@/contracts";
+import type { LifeStory } from "@/contracts";
 import { EMPTY_STORE, QUARANTINE_KEY, STORE_KEY, type Migration } from "./migrations";
 import { ReadOnlyStoreError, createRepository } from "./repository";
-import { idbStorage, memoryStorage, type KeyValueStorage } from "./storage";
+import { idbStorage, memoryStorage, storageFrom, type KeyValueStorage } from "./storage";
+import { NOW, UUID_A, draft, kit, logEntry, profile, story } from "./testing";
 
-const NOW = "2026-10-03T12:00:00.000Z";
-const UUID_A = "3f1c2a9e-5b7d-4c1e-9a52-0d8f6e4b7a11";
-const UUID_B = "9b2d4c6e-1a3f-4e5d-8b7c-6a5f4e3d2c1b";
-
+const clock = () => NOW;
 let dbCounter = 0;
 const idb = () => idbStorage({ dbName: `repo-test-${(dbCounter += 1)}` });
-const clock = () => NOW;
-
-const story = (id: string = UUID_A): LifeStory => ({
-  id,
-  firstName: "Margaret",
-  birthYear: 1946,
-  hometown: "Memphis",
-  seeds: [
-    { entityId: "s1", name: "Seed 1", domain: "music", imageUrl: null },
-    { entityId: "s2", name: "Seed 2", domain: "music", imageUrl: null },
-  ],
-  avoidList: [],
-  dementiaStage: "middle",
-  sensitiveThemesOptIn: false,
-  createdAt: NOW,
-});
-
-const draft = (step: number, values: LifeStoryDraft["values"] = {}): LifeStoryDraft => ({
-  step,
-  values,
-  updatedAt: NOW,
-});
-
-const profile = (): TasteProfile => ({
-  version: 0,
-  seeds: [
-    { entityId: "s1", name: "Seed 1" },
-    { entityId: "s2", name: "Seed 2" },
-  ],
-  learnedFavorites: [],
-  exclusions: [],
-  avoidTopics: [],
-});
-
-const kit = (n: number, storyId: string = UUID_A): Kit => {
-  const cue = (i: number) => ({
-    entityId: `e${i}`,
-    domain: "music" as const,
-    name: `Artist ${i}`,
-    imageUrl: null,
-    tags: [],
-    outsideWindow: false,
-    whyThis: "Often loved by people of this era.",
-    prompts: ["Tell me about the music you loved."],
-    provenance: {
-      affinity: 0.5,
-      seeds: [],
-      signals: { ageBucket: "55_and_older" as const },
-      signalsOnly: true,
-      cached: false,
-      synthetic: true,
-      recordedExample: false,
-      envelope: "ok" as const,
-    },
-  });
-  const session = (id: string) => ({
-    id,
-    title: "Sunday Best",
-    theme: "Dressing up",
-    format: "mixed" as const,
-    durationMin: 30,
-    sensoryActivities: ["Hum along."],
-    caregiverTips: ["Go slowly."],
-    cues: [cue(1), cue(2), cue(3)],
-  });
-  return {
-    id: UUID_B,
-    storyId: storyIdOf(storyId),
-    generation: n,
-    createdAt: NOW,
-    source: "deterministic",
-    window: { start: 1956, end: 1976 },
-    widened: [],
-    sessions: [session("a"), session("b"), session("c")],
-    fingerprint: [],
-    notices: [],
-    qloo: { calls: 0, cacheHits: 0, agentCalls: 0 },
-    omittedDomains: [],
-  };
-};
-const storyIdOf = (id: string) => id as Kit["storyId"];
-
-const logEntry = (n: number): SessionLogEntry => ({
-  id: UUID_B,
-  kitId: UUID_A,
-  sessionId: `s${n}`,
-  startedAt: NOW,
-  reactions: [],
-});
 
 async function open(storage: KeyValueStorage = memoryStorage(), migrations: Migration[] = []) {
   const repo = createRepository(storage, migrations, { now: clock });
@@ -349,12 +258,12 @@ describe("subscriptions and write order", () => {
 });
 
 describe("when the storage misbehaves", () => {
-  const brokenReads: KeyValueStorage = {
+  const brokenReads: KeyValueStorage = storageFrom({
     kind: "indexeddb",
     get: () => Promise.reject(new Error("IndexedDB is blocked")),
     set: () => Promise.reject(new Error("IndexedDB is blocked")),
     del: () => Promise.reject(new Error("IndexedDB is blocked")),
-  };
+  });
 
   it("falls back to memory when IndexedDB cannot be read, and keeps working", async () => {
     const { repo } = await open(brokenReads);
@@ -366,7 +275,7 @@ describe("when the storage misbehaves", () => {
   });
 
   it("keeps the in-memory change, flags the failure and rejects when a save fails", async () => {
-    const failing: KeyValueStorage = { ...memoryStorage(), set: () => Promise.reject(new Error("quota")) };
+    const failing = storageFrom({ ...memoryStorage(), set: () => Promise.reject(new Error("quota")) });
     const { repo } = await open(failing);
 
     await expect(repo.saveDraft(draft(2))).rejects.toThrow("quota");
@@ -378,10 +287,10 @@ describe("when the storage misbehaves", () => {
   it("recovers: the next successful save clears the failure flag", async () => {
     const inner = memoryStorage();
     let failNext = true;
-    const flaky: KeyValueStorage = {
+    const flaky = storageFrom({
       ...inner,
       set: (k, v) => (failNext ? Promise.reject(new Error("quota")) : inner.set(k, v)),
-    };
+    });
     const { repo } = await open(flaky);
     await repo.saveDraft(draft(2)).catch(() => undefined);
 
@@ -394,10 +303,10 @@ describe("when the storage misbehaves", () => {
   it("keeps working after a failed save (the queue does not jam)", async () => {
     const inner = memoryStorage();
     let calls = 0;
-    const flaky: KeyValueStorage = {
+    const flaky = storageFrom({
       ...inner,
       set: (k, v) => ((calls += 1) === 1 ? Promise.reject(new Error("once")) : inner.set(k, v)),
-    };
+    });
     const { repo } = await open(flaky);
 
     await repo.saveDraft(draft(2)).catch(() => undefined);

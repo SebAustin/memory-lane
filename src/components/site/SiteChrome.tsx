@@ -20,7 +20,7 @@ function PhotoCorner() {
 /**
  * Page chrome for browsing surfaces: skip link, wordmark, landmarks, and the
  * not-medical-advice footer. Session Mode does not use it (UX section 1).
- * The top bar gains "Without Qloo" and "Your data" as those routes ship.
+ * The top bar gains "Without Qloo" as that route ships.
  */
 export function SiteChrome({ children }: { children: ReactNode }) {
   return (
@@ -34,6 +34,14 @@ export function SiteChrome({ children }: { children: ReactNode }) {
             <PhotoCorner />
             <span>Memory Lane</span>
           </Link>
+          <nav aria-label="Main" className={styles.nav}>
+            <Link href="/about" className={styles.navLink}>
+              How it works
+            </Link>
+            <Link href="/about#privacy" className={styles.navLink}>
+              Your data
+            </Link>
+          </nav>
         </Container>
       </header>
       <main id="main" tabIndex={-1} className={styles.main}>

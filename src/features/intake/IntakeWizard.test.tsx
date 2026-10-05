@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { LifeStoryDraft } from "@/contracts";
 import { MIGRATIONS, STORE_KEY } from "@/lib/store/migrations";
 import { createRepository, type Repository } from "@/lib/store/repository";
-import { memoryStorage, type KeyValueStorage } from "@/lib/store/storage";
+import { memoryStorage, storageFrom, type KeyValueStorage } from "@/lib/store/storage";
 import { StoreProvider } from "@/lib/store/useStore";
 import { IntakeWizard } from "./IntakeWizard";
 import type { IntakeNav } from "./useIntakeNav";
@@ -215,7 +215,7 @@ describe("saving and resuming (A16)", () => {
   });
 
   it("keeps working, and says so, when saving fails", async () => {
-    const failing: KeyValueStorage = { ...memoryStorage(), set: () => Promise.reject(new Error("quota")) };
+    const failing = storageFrom({ ...memoryStorage(), set: () => Promise.reject(new Error("quota")) });
     await mount(failing);
 
     await fillStepOne();
@@ -224,12 +224,12 @@ describe("saving and resuming (A16)", () => {
   });
 
   it("says when the browser cannot keep a draft between visits", async () => {
-    const broken: KeyValueStorage = {
+    const broken = storageFrom({
       kind: "indexeddb",
       get: () => Promise.reject(new Error("blocked")),
       set: () => Promise.reject(new Error("blocked")),
       del: () => Promise.reject(new Error("blocked")),
-    };
+    });
 
     await mount(broken);
 

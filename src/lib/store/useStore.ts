@@ -3,13 +3,14 @@
 import { createContext, createElement, useContext, useEffect, useSyncExternalStore, type ReactNode } from "react";
 import type { StoreV1 } from "@/contracts";
 import { EMPTY_STORE, MIGRATIONS } from "./migrations";
-import { createRepository, type Repository, type StoreStatus } from "./repository";
+import { STORE_CHANNEL, createRepository, type Repository, type StoreStatus } from "./repository";
 import { defaultStorage } from "./storage";
 
 const LOADING_STATUS: StoreStatus = {
   phase: "loading",
   readOnly: false,
   quarantined: false,
+  setAsideFailed: false,
   storage: "memory",
   saveFailed: false,
 };
@@ -25,7 +26,7 @@ let browserRepository: Repository | undefined;
 
 /** The one repository the app shares. Created on first use; nothing is read until a component mounts. */
 function sharedRepository(): Repository {
-  return (browserRepository ??= createRepository(defaultStorage(), MIGRATIONS));
+  return (browserRepository ??= createRepository(defaultStorage(), MIGRATIONS, { channelName: STORE_CHANNEL }));
 }
 
 /** The repository for writes (`saveDraft` and friends), and the trigger that loads it. */

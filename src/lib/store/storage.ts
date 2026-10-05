@@ -1,4 +1,4 @@
-import { createStore, del, get, set, type UseStore } from "idb-keyval";
+import { createStore, del, get, set, update, type UseStore } from "idb-keyval";
 
 /** Where a store actually lives. `memory` means nothing survives a reload. */
 export type StorageKind = "indexeddb" | "memory";
@@ -13,6 +13,30 @@ export interface KeyValueStorage {
   get(key: string): Promise<unknown>;
   set(key: string, value: unknown): Promise<void>;
   del(key: string): Promise<void>;
+  /**
+   * Reads, changes and writes one key as a single step. `change` receives what
+   * is stored right now (not what this tab remembers) and must be synchronous.
+   * If it throws, nothing is written and the error comes back.
+   */
+  update(key: string, change: (current: unknown) => unknown): Promise<void>;
+}
+
+/** The parts of a storage a simple backend has to provide. */
+export type KeyValueParts = Omit<KeyValueStorage, "update">;
+
+/**
+ * Builds a full storage from the three basic operations. `update` is a plain
+ * read then write, so it is only as safe from a second tab as the backend
+ * itself: real adapters provide a transactional one. Handy for tests.
+ */
+export function storageFrom(parts: KeyValueParts): KeyValueStorage {
+  return {
+    kind: parts.kind,
+    get: parts.get,
+    set: parts.set,
+    del: parts.del,
+    update: async (key, change) => parts.set(key, change(await parts.get(key))),
+  };
 }
 
 /** An in-memory adapter: the test double, and the fallback when IndexedDB is not available. */
@@ -26,6 +50,11 @@ export function memoryStorage(): KeyValueStorage {
     },
     del: async (key) => {
       data.delete(key);
+    },
+    // Nothing awaits between the read and the write, so no other caller can interleave.
+    update: async (key, change) => {
+      const next = change(data.has(key) ? structuredClone(data.get(key)) : undefined);
+      data.set(key, structuredClone(next));
     },
   };
 }
@@ -46,6 +75,8 @@ export function idbStorage({ dbName = DEFAULT_DB_NAME }: { dbName?: string } = {
     get: (key) => get(key, open()),
     set: (key, value) => set(key, value, open()),
     del: (key) => del(key, open()),
+    // One readwrite transaction, so a second tab cannot slip a write in between.
+    update: (key, change) => update(key, change, open()),
   };
 }
 

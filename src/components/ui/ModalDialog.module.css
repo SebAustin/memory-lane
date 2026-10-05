@@ -1,0 +1,53 @@
+/* A sheet laid over the album. Only transform and opacity move. */
+.dialog {
+  width: min(100% - 2 * var(--gutter), 34rem);
+  max-height: calc(100dvh - 2 * var(--gutter));
+  margin: auto;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sheet);
+  background: var(--paper-50);
+  color: var(--ink-900);
+  box-shadow: var(--shadow-lift), 0 0 0 1px var(--rule);
+  overflow: auto;
+}
+.dialog[open] { animation: sheet-in var(--dur-normal) var(--ease-settle); }
+.dialog::backdrop {
+  background: color-mix(in oklch, var(--ink-900) 55%, transparent);
+  animation: fade-in var(--dur-normal) var(--ease-out);
+}
+
+.sheet {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-6) var(--space-5) var(--space-5);
+  font-size: var(--text-base);
+  line-height: var(--lh-snug);
+}
+.sheet p { color: var(--ink-700); max-width: var(--measure); }
+.title {
+  font-size: var(--text-xl);
+  line-height: var(--lh-tight);
+  letter-spacing: -0.015em;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-5);
+  padding-top: var(--space-3);
+  border-top: 1px dashed var(--rule);
+}
+
+@keyframes sheet-in {
+  from { opacity: 0; transform: translateY(1.25rem) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@media (forced-colors: active) {
+  .dialog { border: 2px solid CanvasText; }
+}

@@ -709,3 +709,9 @@ From REQUIREMENTS §4:
    - `LifeStoryDraft.values` is `LifeStory.partial()` with `seeds` relaxed to at most 5, so each Seed is saved as it is confirmed. A finished `LifeStory` still needs 2-5.
    - Every Avoid List item (topic, entity or tag) is listed by name in `avoidTopics`; entities and tags are also Exclusions by id. `toSignals` caps interests at 10 (Seeds first) and excludes `SENSITIVE_TAG_IDS` unless opted in. `nameSimilarity` and the placeholder `SENSITIVE_TAG_IDS` live in `src/domain/`.
 
+6. **Your data and store robustness (ticket 21).**
+   - `Repository` gains `exportAll`, `exportUnreadable`, `previewImport`, `importAll`, `deleteAll` and `close`. `importAll` returns an `ImportResult` (`{ok, counts, migratedFrom?}` or `{ok:false, reason, message}`) and never partially applies: the file is size-checked (512 KB, bytes), parsed with a strict envelope, migrated and validated in full, then saved in one write.
+   - `KeyValueStorage` gains `update(key, change)`, an atomic read-modify-write (one IndexedDB readwrite transaction). Every write now builds on what is stored, not on the tab's memory, so a second tab no longer erases it (H1). Other tabs refresh over a `BroadcastChannel` named `memory-lane-store`. `storageFrom()` builds a storage from get/set/del for tests.
+   - A failed quarantine write opens the store read-only with `status.setAsideFailed`, so the only copy is never written over (H2). The first read gives up after 3 s and falls back to memory (M6). Validation keeps the identity of unchanged slices (L3, `share.ts`).
+   - Not done: per-record quarantine (L4). One bad record still quarantines the whole store.
+   - UI: `/about` (How it works, evidence, Qloo, limits) with `#privacy` = Your data (`src/features/your-data/`), a shared `StoreBanner` (replaces the intake's `StoreNotices`) and a top-bar nav.
