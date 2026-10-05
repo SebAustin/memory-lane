@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { AGE_BUCKET, reminiscenceWindow } from "@/domain/window";
+import { AGE_BUCKET, effectiveWindow, reminiscenceWindow } from "@/domain/window";
 
 describe("reminiscenceWindow", () => {
   it("spans ages 10 to 30 for someone born in 1946", () => {
@@ -28,6 +28,19 @@ describe("reminiscenceWindow", () => {
   it("returns a frozen value so callers cannot mutate a shared Window", () => {
     const window = reminiscenceWindow(1946);
     expect(Object.isFrozen(window)).toBe(true);
+  });
+});
+
+describe("effectiveWindow", () => {
+  it("returns the original Window when the Caregiver has not widened", () => {
+    const original = reminiscenceWindow(1946);
+    expect(effectiveWindow(original, false)).toEqual(original);
+  });
+
+  it("extends both ends by 3 years when widened, leaving the original untouched", () => {
+    const original = reminiscenceWindow(1946);
+    expect(effectiveWindow(original, true)).toEqual({ start: 1953, end: 1979, label: "1953 to 1979" });
+    expect(original).toEqual({ start: 1956, end: 1976, label: "1956 to 1976" });
   });
 });
 
